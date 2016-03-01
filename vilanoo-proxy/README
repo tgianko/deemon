@@ -1,3 +1,0 @@
-requires mysql-proxy >=8.5
-requires sqlparse
-requires mitmproxy ~0.10
