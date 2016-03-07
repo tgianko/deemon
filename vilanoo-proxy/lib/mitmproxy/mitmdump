@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+import sys, signal
+from libmproxy import proxy, dump, cmdline
+import libmproxy.version, netlib.version
+import argparse
+
+if __name__ == '__main__':
+    # We don't introduce backward-incompatible changes in patch versions. Only consider major and minor version.
+    if netlib.version.IVERSION[:2] != libmproxy.version.IVERSION[:2]:
+        print >> sys.stderr, ("warning: You are using mitmdump %s with netlib %s. "
+                              "Most likely, that doesn't work - please upgrade!") % (libmproxy.version.VERSION,
+                                                                                     netlib.version.VERSION)
+    parser = argparse.ArgumentParser(usage = "%(prog)s [options] [filter]")
+    parser.add_argument('--version', action='version', version="mitmdump" + " " + libmproxy.version.VERSION)
+    cmdline.common_options(parser)
+    parser.add_argument(
+        "--keepserving",
+        action="store_true", dest="keepserving", default=False,
+        help="Continue serving after client playback or file read. We exit by default."
+    )
+    parser.add_argument('args', nargs=argparse.REMAINDER)
+
+    options = parser.parse_args()
+
+    if options.quiet:
+        options.verbose = 0
+
+    proxyconfig = proxy.process_proxy_options(parser, options)
+    if options.no_server:
+        server = proxy.DummyServer(proxyconfig)
+    else:
+        try:
+            server = proxy.ProxyServer(proxyconfig, options.port, options.addr)
+        except proxy.ProxyServerError, v:
+            print >> sys.stderr, "mitmdump:", v.args[0]
+            sys.exit(1)
+
+
+    try:
+        dumpopts = dump.Options(**cmdline.get_common_options(options))
+    except cmdline.OptionException, v:
+        parser.error(v.message)
+    dumpopts.keepserving = options.keepserving
+
+    if options.args:
+        filt = " ".join(options.args)
+    else:
+        filt = None
+
+    try:
+        m = dump.DumpMaster(server, dumpopts, filt)
+        def cleankill(*args, **kwargs):
+            m.shutdown()
+        signal.signal(signal.SIGTERM, cleankill)
+        m.run()
+    except dump.DumpError, e:
+        print >> sys.stderr, "mitmdump:", e
+        sys.exit(1)
+    except KeyboardInterrupt:
+        pass
+

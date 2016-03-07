@@ -8,7 +8,13 @@ Synchronous HTTP requests are implemented by hooking new functions into mitmprox
 """
 
 
+
 import sys, signal
+
+print sys.path
+#import mitmproxy
+#__package__ = "mitmproxy"
+
 from libmproxy import proxy, dump, cmdline 
 import libmproxy.version, netlib.version
 import argparse

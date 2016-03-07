@@ -27,8 +27,8 @@ def is_async_request(context, request):
     
     # If request is for an external, let's send it async
     
-    if host not in ["192.168.56.4"]:
-        return True
+    #if host not in ["192.168.56.4"]:
+    #    return True
     
     url = "{}{}".format(host, request.path)
     urlp = urlparse.urlparse(url)

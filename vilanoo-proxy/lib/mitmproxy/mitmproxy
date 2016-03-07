@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+import sys, argparse, os
+from libmproxy import proxy, console, cmdline
+import libmproxy.version, netlib.version
+from libmproxy.console import palettes
+
+
+if __name__ == '__main__':
+    # We don't introduce backward-incompatible changes in patch versions. Only consider major and minor version.
+    if netlib.version.IVERSION[:2] != libmproxy.version.IVERSION[:2]:
+        print >> sys.stderr, ("warning: You are using mitmproxy %s with netlib %s. "
+                              "Most likely, that doesn't work - please upgrade!") % (libmproxy.version.VERSION,
+                                                                                     netlib.version.VERSION)
+    parser = argparse.ArgumentParser(usage = "%(prog)s [options]")
+    parser.add_argument('--version', action='version', version=libmproxy.version.NAMEVERSION)
+    cmdline.common_options(parser)
+    parser.add_argument("--debug", dest="debug", default=False, action="store_true")
+    parser.add_argument(
+        "--palette", type=str, default="dark",
+        action="store", dest="palette",
+        help="Select color palette: " + ", ".join(palettes.palettes.keys())
+    )
+
+
+    group = parser.add_argument_group(
+                        "Filters",
+                        "See help in mitmproxy for filter expression syntax."
+                    )
+    group.add_argument(
+        "-i", "--intercept", action="store",
+        type = str, dest="intercept", default=None,
+        help = "Intercept filter expression."
+    )
+    options = parser.parse_args()
+
+    config = proxy.process_proxy_options(parser, options)
+
+    if options.no_server:
+        server = proxy.DummyServer(config)
+    else:
+        try:
+            server = proxy.ProxyServer(config, options.port, options.addr)
+        except proxy.ProxyServerError, v:
+            print >> sys.stderr, "mitmproxy:", v.args[0]
+            sys.exit(1)
+
+    try:
+        opts = console.Options(**cmdline.get_common_options(options))
+    except cmdline.OptionException, v:
+        parser.error(v.message)
+    opts.intercept = options.intercept
+    opts.debug = options.debug
+    opts.palette = options.palette
+
+    spec = ""
+    for i in ["LANG", "LC_CTYPE", "LC_ALL"]:
+        spec += os.environ.get(i, "").lower()
+    if "utf" not in spec:
+        print >> sys.stderr, "Error: mitmproxy requires a UTF console environment."
+        print >> sys.stderr, "Set your LANG enviroment variable to something like en_US.UTF-8"
+        sys.exit(1)
+
+    m = console.ConsoleMaster(server, opts)
+    try:
+        m.run()
+    except KeyboardInterrupt:
+        pass
+
+
