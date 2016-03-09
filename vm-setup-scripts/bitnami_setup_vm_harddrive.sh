@@ -1,16 +1,16 @@
 #!/bin/bash
 
-if [ "$1" == "--help" ] || [ "$1" == "-h" ] || [ $# -ne 2 ]; then
+if [ "$1" == "--help" ] || [ "$1" == "-h" ] || [ $# -ne 4 ]; then
     echo "This script does the configuration setup for bitnami machines"
     echo "it requires that a virtualbox host-only network is already"
     echo "set up. Thus, the host ip is known beforehand"
     echo ""
-    echo "usage: ./script </path/to/vm.vdi> <database_type> <host_ip>"
+    echo "usage: ./script </path/to/vm.vdi> <database_type> <host_ip> <host_com_port>"
     echo ""
     echo "currently supported database types:"
     echo "+ mysql"
     echo ""
-    exit
+    exit 1
 fi
 
 vm_file_extension=`echo "$1" | awk -F'[.]' '{print $NF}'`
@@ -34,12 +34,15 @@ send_ip_target_port=$4
 
 function clean_exit {
     ./utils/mount_vdi.sh --dismount $mount_point;
-    exit;
+    exit $1;
 }
 
 
 ./utils/mount_vdi.sh --mount $1 $mount_point #mount vm
 
+if [ $? -ne 0 ]; then
+    clean_exit $?
+fi
 
 #copy needed tools
 mkdir $mount_point$bitnami_tool_dir
@@ -57,16 +60,16 @@ echo 'iptables -A INPUT -t filter -j ACCEPT' >> $mount_point$bitnami_startup_scr
 #reroute incoming traffic from $bitnami_incoming_port to bitnami_database_port
 echo "/${bitnami_tool_dir}/redir --lport=${bitnami_incoming_port} --cport=${bitnami_database_port} &" >> $mount_point$bitnami_startup_script 
 
-echo "ifconfig eth0 | grep "inet addr" | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> $mount_point$bitnami_startup_script
+echo "ifconfig eth0 | grep 'inet addr' | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> $mount_point$bitnami_startup_script
 
 #database specific configuration
 case $2 in
     "mysql") sh ${setup_dir}${mysql_script} ${mount_point} ${bitnami_tool_dir} ${target_host_ip} ${bitnami_outgoing_port} ${bitnami_startup_script} ${bitnami_database_port};;
     *) echo "$2 is an unknown database type"
-       clean_exit;;
+       clean_exit 1;;
 esac
 
-clean_exit
+clean_exit 0
 
 
 

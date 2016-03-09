@@ -6,15 +6,19 @@
 file_extension=`echo "$1" | awk -F'[.]' '{print $NF}'`
 
 
-if [ $# -neq 2 ]; then
-    echo "./vmdk_to_vdi.sh </path/to/file.vmdk> </path/to/new/file.vdi>"
-    exit 0
+if [ $# -ne 2 ]; then
+    echo ""
+    echo "usage: ./vmdk_to_vdi.sh </path/to/file.vmdk> </path/to/new/file.vdi>"
+    echo ""
+    exit 1
 fi
 
 
 if [ "$file_extension" != "vmdk" ]; then
+    echo ""
     echo "ERROR: can only convert vmdk files"
     echo "conversion failed"
+    echo ""
     exit 1
 fi
 

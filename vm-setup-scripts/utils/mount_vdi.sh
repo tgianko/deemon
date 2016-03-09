@@ -12,12 +12,12 @@ fi
 case $1 in
     "--mount")
 
-	echo "trying to mount virtual disk image to $3"
+	#echo "trying to mount virtual disk image to $3"
 	
 	filename=$(basename "$2")
 	extension="${filename##*.}"
 
-	echo $extension
+	#echo $extension
 	
 	if [ "$extension" != "vdi" ]; then
 	    echo "ERROR: this script can only mount .vdi files"
@@ -27,17 +27,17 @@ case $1 in
 	
 	modprobe nbd
 	qemu-nbd -c /dev/nbd0 $2
-	mount -o loop /dev/nbd0p1 $3
+	mount -o loop /dev/nbd0p1 $3;;
 
-	echo "mount success";;
+	#echo "mount success";;
     
     "--dismount")
 
-	echo "dismounting $2"
+	#echo "dismounting $2"
 	
 	umount $2
 	qemu-nbd -d /dev/nbd0
-	rmmod nbd
+	rmmod nbd;;
 
-	echo "dismount successfull";;
+	#echo "dismount successfull";;
 esac
