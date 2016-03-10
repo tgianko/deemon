@@ -5,8 +5,10 @@ Created on Dec 1, 2015
 '''
 import urlparse
 import sqlparse
+import sqlite3 as lite
 
 fmt = "{:>5}  {:>5}  {:<5} {:<30}"
+sqlitedb = "~/.vilanoo/vilano.db"
 
 def serverconnect(context, server_conn):
     pass
@@ -19,6 +21,28 @@ def mysqlproxy_is_running(context, proc):
     print fmt.format(*["SEL", "ST_CH", "METHD", "URL"])
 
 
+"""
+Handle input into the sqlite database
+"""
+def insert_http_query_data(http_request_url,query_array):
+    
+    con = lite.connect(sqlitedb)
+    with con:
+        
+        cur = con.cursor()
+
+        insert_string = printf("INSERT INTO http_request VALUES(?,?)",get_current_time(),http_request_url) #this will not fly
+        request_id = cur.lastrowid
+
+        
+        insert_query_data = array() #this will not fly
+        counter = 0
+        for query in query_array:
+            insert_query_data[] = array(request_id,counter++,query.type,query.string) #this will not fly
+
+        cur.executemany("INSERT INTO sql_queries VALUES(?,?,?,?)",insert_query_data) #this actually might fly
+
+    
 """
 Return true if the request can be async.
 """
