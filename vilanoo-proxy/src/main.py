@@ -49,7 +49,7 @@ class MySQLProxyReader():
         
     def __init__(self, options):
         self.bin = options.mysql_proxy_bin
-        self.lhost = options.addr  # standard mitmproxy CLI param
+        self.lhost = options.mysql_proxy_address
         self.lport = options.mysql_proxy_port
         self.rhost = options.mysql_server_host
         self.rport = options.mysql_server_port
@@ -191,6 +191,11 @@ if __name__ == '__main__':
         "--mysql-proxy-bin",
         action="store", type=str, dest="mysql_proxy_bin", default="mysql-proxy",
         help="mysql-proxy binary location"
+    )
+    group.add_argument(
+        "--mysql-proxy-address",
+        action="store", type=str, dest="mysql_proxy_address", default="127.0.0.1",
+        help="mysql-proxy TCP port  (default 4040)"
     )
     group.add_argument(
         "--mysql-proxy-port",

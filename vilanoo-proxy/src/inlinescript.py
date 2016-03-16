@@ -1,14 +1,19 @@
 '''
 Created on Dec 1, 2015
 
-@author: gianko
+@author: gianko #TODO email
+@author:Simon Koch <s9sikoch@stud.uni-saarland.de>
 '''
 import urlparse
 import sqlparse
+import threading
+import os
+import datetime
 import sqlite3 as lite
 
 fmt = "{:>5}  {:>5}  {:<5} {:<30}"
-sqlitedb = "~/.vilanoo/vilano.db"
+sqlitedb = os.path.expanduser("~") + "/.vilanoo/vilanoo.db"
+sqlite_schema = "./proxyDbSchema.sql"
 
 def serverconnect(context, server_conn):
     pass
@@ -21,26 +26,51 @@ def mysqlproxy_is_running(context, proc):
     print fmt.format(*["SEL", "ST_CH", "METHD", "URL"])
 
 
+def check_and_create():
+    if os.path.exists(sqlitedb):
+        pass
+    else:
+        con = lite.connect(sqlitedb)
+
+        with con:            
+            cur = con.cursor()
+            f = open(sqlite_schema)
+            with f:
+                schema = f.read()
+                cur.executescript(schema)
+
+        
 """
 Handle input into the sqlite database
+http_request is a string representing the http_request url
+query_array is an array of tuples consisting of (query_type,query_string)
 """
+sql_lock = threading.Lock()
 def insert_http_query_data(http_request_url,query_array):
+    check_and_create()
     
-    con = lite.connect(sqlitedb)
-    with con:
+    with sql_lock:        
+        con = lite.connect(sqlitedb)
         
-        cur = con.cursor()
+        with con:            
+            cur = con.cursor()
+            
+            ##inserting the http_request that triggered the sql_queries
+            http_request_query_data = []
+            http_request_query_data = (datetime.datetime.now(),http_request_url)
+            cur.execute("INSERT INTO http_requests (time,request) VALUES(?,?)",http_request_query_data)
+            request_id = cur.lastrowid
+            
+            ##inserting the related sql_queries 
+            sql_query_query_data = []
+            counter = 0
+            for query in query_array:
+                insert_tuple = (request_id,counter,query[0],query[1])
+                sql_query_query_data.append(insert_tuple)
+                counter += 1
 
-        insert_string = printf("INSERT INTO http_request VALUES(?,?)",get_current_time(),http_request_url) #this will not fly
-        request_id = cur.lastrowid
-
-        
-        insert_query_data = array() #this will not fly
-        counter = 0
-        for query in query_array:
-            insert_query_data[] = array(request_id,counter++,query.type,query.string) #this will not fly
-
-        cur.executemany("INSERT INTO sql_queries VALUES(?,?,?,?)",insert_query_data) #this actually might fly
+            cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
+                            sql_query_query_data)
 
     
 """
@@ -73,17 +103,26 @@ def process_queries(context, request, queries):
    
     sel   = 0
     st_ch = 0
+    queries_array = []
     #print queries
     for q in queries:
-        #print ">>", q, "<<"
-        
         sql = sqlparse.parse(q)
+        query_type = sql[0].tokens[0].value.upper()
+        queries_array.append( (query_type,q) )
         if sql[0].tokens[0].value.upper() in ["SELECT"]:
             sel += 1
-        if sql[0].tokens[0].value.upper() in ["UPDATE", "INSERT", "CREATE", "ALTER", "DROP"]:
+        if sql[0].tokens[0].value.upper() in ["UPDATE"]:
+            st_ch += 1
+        if sql[0].tokens[0].value.upper() in ["INSERT"]:
+            st_ch += 1
+        if sql[0].tokens[0].value.upper() in ["CREATE"]:
+            st_ch += 1
+        if sql[0].tokens[0].value.upper() in ["ALTER"]:
+            st_ch += 1
+        if sql[0].tokens[0].value.upper() in ["DROP"]:
             st_ch += 1
 
-    
+    insert_http_query_data(url,queries_array)
     print fmt.format(*[sel, st_ch, request.method, url])
 
 

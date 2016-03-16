@@ -15,4 +15,4 @@ echo $vmdk
 echo $vdi
 
 ./utils/vmdk_to_vdi.sh $vmdk $vdi
-./main.sh $vdi $database
+./polesno.sh $vdi $database
