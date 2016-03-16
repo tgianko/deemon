@@ -16,6 +16,11 @@ sed -i "s/port=.*/port=${bitnami_database_port}/" $mount_point$bitnami_mysql_con
 #change bitnami mysql configuration
 sed -i "s/--socket=.* --/--/" $mount_point$bitnami_mysql_start_script
 
+#apparently bitnami sometimes includes the port parameter to startup mysql
+if grep --quiet port=3306 $mount_point$bitnami_mysql_start_script; then
+    sed -i "s/--port=3306/--port=${bitnami_database_port}/" $mount_point$bitnami_mysql_start_script
+fi
+
 ##append stuff to startup file
 #delete any remaining mysql.sock
 echo "rm /opt/bitnami/mysql/tmp/mysql.sock" >> $mount_point$bitnami_startup_script 
