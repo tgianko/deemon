@@ -55,10 +55,9 @@ def insert_http_query_data(http_request_url,headers,method,cookies,query_array):
         with con:            
             cur = con.cursor()
             
-            ##inserting the http_request that triggered the sql_queries
-            http_request_query_data = []
-            http_request_query_data = (datetime.datetime.now(),http_request_url,headers,method,cookies)
-            cur.execute("INSERT INTO http_requests (time,request_url,header,method_type,cookies) VALUES(?,?,?,?,?)",
+            ##inserting the http_request that triggered the sql_queries            
+            http_request_query_data = (datetime.datetime.now(),http_request_url,headers,method,cookies,"unknown")
+            cur.execute("INSERT INTO http_requests (time,request_url,header,method_type,cookies,status_code) VALUES(?,?,?,?,?,?)",
                         http_request_query_data)
             request_id = cur.lastrowid
             
@@ -139,15 +138,18 @@ def process_queries(context, request, queries):
     url = "{}{}".format(host, request.path)
     
     headers = ""
-    for key,value in request.headers.iteritems():
+    for key,value in request.headers.items():
         headers = headers + key + "=" + value + ";"
-    
+
+    cookies =""
+    for element in request.headers.lst:
+        if element[0] == 'Cookie':
+            cookies = cookies + element[1]
+
+    cookies.replace(" ","")
+            
     method_type = request.method
-    
-    cookies = ""
-    for key,value in request.cookies.iteritems():
-        cookies = cookies + key + "=" + value + ";"
-        
+            
     insert_http_query_data(url,headers,method_type,cookies,queries_array)
     print fmt.format(*[sel, st_ch, request.method, url])
 
@@ -163,5 +165,8 @@ def response(context, flow):
     url = "{}{}".format(host, request.path)
 
     http_response = flow.response
+
+    print "RESPONSE:" + url + http_response
+    
     update_request_status(url,http_response.status_code)
 
