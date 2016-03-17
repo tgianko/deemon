@@ -46,7 +46,7 @@ http_request is a string representing the http_request url
 query_array is an array of tuples consisting of (query_type,query_string)
 """
 sql_lock = threading.Lock()
-def insert_http_query_data(http_request_url,query_array):
+def insert_http_query_data(http_request_url,headers,method,cookies,query_array):
     check_and_create()
     
     with sql_lock:        
@@ -57,8 +57,9 @@ def insert_http_query_data(http_request_url,query_array):
             
             ##inserting the http_request that triggered the sql_queries
             http_request_query_data = []
-            http_request_query_data = (datetime.datetime.now(),http_request_url)
-            cur.execute("INSERT INTO http_requests (time,request) VALUES(?,?)",http_request_query_data)
+            http_request_query_data = (datetime.datetime.now(),http_request_url,headers,method,cookies)
+            cur.execute("INSERT INTO http_requests (time,request_url,header,method_type,cookies) VALUES(?,?,?,?,?)",
+                        http_request_query_data)
             request_id = cur.lastrowid
             
             ##inserting the related sql_queries 
@@ -72,7 +73,22 @@ def insert_http_query_data(http_request_url,query_array):
             cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
                             sql_query_query_data)
 
-    
+
+"""
+This updates the status code to a given http_request
+ATTENTION: This function makes the horrible assumption that no
+request URL will occure twice!!!! I have now other idea how to
+distinguish between requests in the db in another way! :'(
+"""
+def update_request_status(request_url,status_code):
+    with sql_lock:        
+        con = lite.connect(sqlitedb)
+        
+        with con:            
+            cur = con.cursor()
+            cur.execute("UPDATE http_requests SET status_code=? WHERE request_url=?",(status_code,request_url))
+
+            
 """
 Return true if the request can be async.
 """
@@ -98,9 +114,6 @@ def is_async_request(context, request):
 Do whatever you want with the queries, e.g., dynamic taint-analysis requests vs queries
 """
 def process_queries(context, request, queries):
-    host = request.headers["host"][0]
-    url = "{}{}".format(host, request.path)
-   
     sel   = 0
     st_ch = 0
     queries_array = []
@@ -122,7 +135,20 @@ def process_queries(context, request, queries):
         if sql[0].tokens[0].value.upper() in ["DROP"]:
             st_ch += 1
 
-    insert_http_query_data(url,queries_array)
+    host = request.headers["host"][0]
+    url = "{}{}".format(host, request.path)
+    
+    headers = ""
+    for key,value in request.headers.iteritems():
+        headers = headers + key + "=" + value + ";"
+    
+    method_type = request.method
+    
+    cookies = ""
+    for key,value in request.cookies.iteritems():
+        cookies = cookies + key + "=" + value + ";"
+        
+    insert_http_query_data(url,headers,method_type,cookies,queries_array)
     print fmt.format(*[sel, st_ch, request.method, url])
 
 
@@ -132,5 +158,10 @@ def request(context, flow):
     
     
 def response(context, flow):
-    pass
-    #print "handle response: {}{}".format(flow.request.host, flow.request.path)
+    http_request = flow.request
+    host = request.headers["host"][0]
+    url = "{}{}".format(host, request.path)
+
+    http_response = flow.response
+    update_request_status(url,http_response.status_code)
+

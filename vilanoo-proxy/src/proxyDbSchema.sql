@@ -6,9 +6,13 @@ sqlite queries
 autor: Simon Koch <s9sikoch@stud.uni-saarland.de>
 */
 CREATE TABLE http_requests (
-       id    integer,
-       time  character varying,
-       request character varying,
+       id    		   integer,
+       time		   character varying,
+       request_url 	   character varying,
+       header 		   character varying,
+       method_type 	   character varying,       
+       cookies		   character varying,
+       status_code 	   character varying NULL,
        PRIMARY KEY (id)
 );
 
