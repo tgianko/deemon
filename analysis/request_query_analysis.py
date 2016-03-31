@@ -1,5 +1,6 @@
 import os
 import sys
+import hashlib
 import sqlparse
 import sqlite3 as lite
 
@@ -38,17 +39,53 @@ class Query:
         self.parse_tree = sqlparse.parse(query_string)
 
 
-"""
-NO WHITESPACES
-"""
-def semantically_equal_p(lhs,rhs):
-    #generall idea -> kill all whitespaces,order identifierlists by alphabet, order comparison by alphabet
-    #reconvert query to string - compare string
-    raise NameException("NYI")
+def remove_whitespaces(tree):
+    if tree.is_group():
+        tree.tokens = [remove_whitespaces(element) for element in tree.tokens if not element.is_whitespace()]
+
+    return tree
+
+
+def remove_rhs_values_sub(element):
+    if type(element) is sqlparse.sql.Comparison:
+        element.right.tokens[0].value = '' #delete any value as this might be different to eq queries in diff context
+        return element
+
+    if type(element) is sqlparse.sql.Assignment:
+        raise NameError('Unexpected assignment operator SQL')
+
+    return element
     
+
+def remove_rhs_values(tree):
+    if type(tree) is sqlparse.sql.IdentifierList or type(tree) is sqlparse.sql.Where:
+        tree.tokens = [remove_rhs_values_sub(element) for element in tree.tokens]
+        return tree #needs return as IdentifierList is also group
     
-def queries_semantically_equal_p(lhs,rhs):
-    raise NameException("NYI")
+    if tree.is_group():
+        tree.tokens = [remove_rhs_values(element) for element in tree.tokens]
+        return tree #this return just looks pretty
+
+    return tree
+
+        
+def order_alphabetically(tree):
+    if tree.is_group():
+        tree.tokens = sorted([order_alphabetically(element) for element in tree.tokens], key=lambda el: el.value)
+
+    return tree
+
+
+def normalize_query_syntax_tree(tree):
+    return order_alphabetically(remove_rhs_values(remove_whitespaces(tree)))
+
+
+def normalized_query_hash(query_string):
+    hashlib.md5(normalize_query_syntax_tree(sqlparse.parse(query_string[0])).__str__()).hexdigest()
+
+    
+def queries_equal_p(rhs,lhs):
+    return normalized_query_hash(rhs) == normalized_query_hash(lhs)
 
 
 class Request:
@@ -103,12 +140,14 @@ class Query_analysis_result:
         return "[RESULT QUERY:{0} REQUEST_IDS:{1}]".format(self.query.query_string,self.request_ids)
 
 
+#this stuff can (now) be done more efficient by just using a hashtable for the query categorization
+#but I am lazy!
 def split_query_list(query_list,ref_query):
     neq = []
     eq = []
     for query in query_list:
         if (query.query_type == ref_query.query_type and
-            queries_semantically_equal_p(query,ref_query)):
+            queries_equal_p(query,ref_query)):
             eq.append(query)
         else:
             neq.append(query)
