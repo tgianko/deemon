@@ -38,6 +38,9 @@ class Query:
         self.query_string = query_string
         self.parse_tree = sqlparse.parse(query_string)
 
+    def __str__(self):
+        return self.query_string
+
 
 def remove_whitespaces(tree):
     if tree.is_group():
@@ -48,7 +51,7 @@ def remove_whitespaces(tree):
 
 def remove_rhs_values_sub(element):
     if type(element) is sqlparse.sql.Comparison:
-        element.right.tokens[0].value = '' #delete any value as this might be different to eq queries in diff context
+        element.tokens.remove(element.right) #delete any value as this might be different to eq queries in diff context
         return element
 
     if type(element) is sqlparse.sql.Assignment:
@@ -58,12 +61,10 @@ def remove_rhs_values_sub(element):
     
 
 def remove_rhs_values(tree):
-    if type(tree) is sqlparse.sql.IdentifierList or type(tree) is sqlparse.sql.Where:
-        tree.tokens = [remove_rhs_values_sub(element) for element in tree.tokens]
-        return tree #needs return as IdentifierList is also group
-    
+
     if tree.is_group():
-        tree.tokens = [remove_rhs_values(element) for element in tree.tokens]
+        #print tree.tokens
+        tree.tokens = [remove_rhs_values(element) for element in [remove_rhs_values_sub(element) for element in tree.tokens]]
         return tree #this return just looks pretty
 
     return tree
@@ -78,13 +79,15 @@ def order_alphabetically(tree):
 
 def normalize_query_syntax_tree(tree):
     return order_alphabetically(remove_rhs_values(remove_whitespaces(tree)))
-
+    #return remove_rhs_values(remove_whitespaces(tree))
+    #return remove_rhs_values(tree)
 
 def normalized_query_hash(query_string):
-    hashlib.md5(normalize_query_syntax_tree(sqlparse.parse(query_string[0])).__str__()).hexdigest()
+    hashlib.md5(normalize_query_syntax_tree(sqlparse.parse(query_string)[0]).__str__()).hexdigest()
 
     
 def queries_equal_p(rhs,lhs):
+    #print "comparing {0} with {1}".format(rhs,lhs)
     return normalized_query_hash(rhs) == normalized_query_hash(lhs)
 
 
@@ -103,7 +106,9 @@ class Request:
                 counter_dic[ query.query_type ] = counter_dic[ query.query_type ] + 1
             else:
                 counter_dic[ query.query_type ] = 1
-        return "[REQUEST ID:{0} QUERIES:{1}]" .format(self.request_id,counter_dic)
+
+        annoying_buffer_string = "".join(["{0}\n".format(k) for k in self.queries])
+        return "REQUEST ID:{0} \n QUERY_TYPES:{1} \n QUERIES:{2}".format(self.request_id,counter_dic,annoying_buffer_string)
 
 
 def generate_request_objects(request_id_dictionary,sqlitedb_path) :
@@ -147,7 +152,7 @@ def split_query_list(query_list,ref_query):
     eq = []
     for query in query_list:
         if (query.query_type == ref_query.query_type and
-            queries_equal_p(query,ref_query)):
+            queries_equal_p(query.query_string,ref_query.query_string)):
             eq.append(query)
         else:
             neq.append(query)
@@ -179,9 +184,20 @@ def analyse_queries_of_requests_m(requests):
 def main(argv=sys.argv):
     requests = generate_request_objects(get_relevant_request_ids(argv[1],state_change_keywords),
                                         argv[1])
+
+    print ""
+    print "------- REQUESTS ------"
+    
+    for request in requests:
+        print request
+
+    print ""
+    print "------- RESULTS ------"
+    
     results = analyse_queries_of_requests_m(requests)
     for result in results:
         print result
+
     
             
         
