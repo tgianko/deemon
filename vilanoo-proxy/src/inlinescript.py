@@ -72,20 +72,25 @@ def insert_http_query_data(http_request_url,headers,method,cookies,query_array):
             cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
                             sql_query_query_data)
 
+            return request_id
+
 
 """
 This updates the status code to a given http_request
-ATTENTION: This function makes the horrible assumption that no
-request URL will occure twice!!!! I have now other idea how to
-distinguish between requests in the db in another way! :'(
+ATTENTION: This function makes the assumption that either no URL 
+is entered twice or if so the request result is the same.
+This is a horrible assumption! But it seems like a request in a browser might trigger
+multiple requests and only a single response? WTF? Thus, to have a throughly consistent
+database with response codes this is 
 """
-def update_request_status(request_url,status_code):
+def update_request_status(db_request_id,status_code):
     with sql_lock:        
         con = lite.connect(sqlitedb)
         
         with con:            
             cur = con.cursor()
-            cur.execute("UPDATE http_requests SET status_code=? WHERE request_url=?",(status_code,request_url))
+            cur.execute("UPDATE http_requests SET status_code=? WHERE id=? ORDER BY id desc LIMIT 1",(status_code,db_request_id))
+
 
             
 """
@@ -150,23 +155,39 @@ def process_queries(context, request, queries):
             
     method_type = request.method
             
-    insert_http_query_data(url,headers,method_type,cookies,queries_array)
+    request_id = insert_http_query_data(url,headers,method_type,cookies,queries_array)
+
+
+    #in this code block I force a new attribute into a code block
+    request.db_request_id = lambda: None
+    setattr(request,'db_request_id',request_id)
+    #ugly hack end
+    
     print fmt.format(*[sel, st_ch, request.method, url])
 
 
+#this function is called - tested througholy
 def request(context, flow):
+    #flow.request.a = lambda: None
+    #setattr(flow.request,'a',42)
+    #print flow.request.__dict__
     pass
     #print "handle request: {}{}".format(flow.request.host, flow.request.path)
     
     
 def response(context, flow):
-    http_request = flow.request
-    host = request.headers["host"][0]
-    url = "{}{}".format(host, request.path)
-
-    http_response = flow.response
-
-    print "RESPONSE:" + url + http_response
-    
-    update_request_status(url,http_response.status_code)
+    try:
+        
+        if "db_request_id" in flow.request.__dict__: #if no such id exists the response is of no interest for us
+            request = flow.request
+            db_request_id = flow.request.db_request_id
+            host = request.headers["host"][0]
+            url = "{}{}".format(host, request.path)
+            http_response = flow.response
+            update_request_status(db_request_id,http_response.code)
+            
+    except Exception as inst:
+        print inst
+        
+    #update_request_status(url,http_response.status_code)
 

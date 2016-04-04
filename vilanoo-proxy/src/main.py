@@ -165,7 +165,9 @@ def _send_decorator(self, request):
     lock.release()
 
 # install our send function
+
 proxy.ServerConnection.send = _send_decorator
+
 # ------------------------ END OF HACK --------------------------
 
 if __name__ == '__main__':
