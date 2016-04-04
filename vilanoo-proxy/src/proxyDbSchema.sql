@@ -9,6 +9,7 @@ CREATE TABLE http_requests (
        id    		   integer,
        time		   character varying,
        request_url 	   character varying,
+       request_body 	   character varying,
        header 		   character varying,
        method_type 	   character varying,       
        cookies		   character varying,

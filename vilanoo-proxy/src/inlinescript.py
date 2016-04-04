@@ -46,7 +46,7 @@ http_request is a string representing the http_request url
 query_array is an array of tuples consisting of (query_type,query_string)
 """
 sql_lock = threading.Lock()
-def insert_http_query_data(http_request_url,headers,method,cookies,query_array):
+def insert_http_query_data(http_request_url,headers,body,method,cookies,query_array):
     check_and_create()
     
     with sql_lock:        
@@ -56,8 +56,8 @@ def insert_http_query_data(http_request_url,headers,method,cookies,query_array):
             cur = con.cursor()
             
             ##inserting the http_request that triggered the sql_queries            
-            http_request_query_data = (datetime.datetime.now(),http_request_url,headers,method,cookies,"unknown")
-            cur.execute("INSERT INTO http_requests (time,request_url,header,method_type,cookies,status_code) VALUES(?,?,?,?,?,?)",
+            http_request_query_data = (datetime.datetime.now(),http_request_url,headers,body,method,cookies,"unknown")
+            cur.execute("INSERT INTO http_requests (time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?)",
                         http_request_query_data)
             request_id = cur.lastrowid
             
@@ -146,6 +146,8 @@ def process_queries(context, request, queries):
     for key,value in request.headers.items():
         headers = headers + key + "=" + value + ";"
 
+    body = "{0}".format(request.content)
+        
     cookies =""
     for element in request.headers.lst:
         if element[0] == 'Cookie':
@@ -155,7 +157,7 @@ def process_queries(context, request, queries):
             
     method_type = request.method
             
-    request_id = insert_http_query_data(url,headers,method_type,cookies,queries_array)
+    request_id = insert_http_query_data(url,headers,body,method_type,cookies,queries_array)
 
 
     #in this code block I force a new attribute into a code block
