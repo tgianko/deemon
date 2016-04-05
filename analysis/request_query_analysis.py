@@ -38,19 +38,16 @@ class Query:
     def __str__(self):
         return self.query_string
 
-    
-#def queries_equal_p(rhs,lhs):
-    #print "comparing {0} with {1}".format(rhs,lhs)
-#    return normalizer.normalized_query_hash(rhs) == normalizer.normalized_query_hash(lhs)
-
 
 class Request:
     request_id = ""
     queries = []
+    status_code = ""
 
-    def __init__(self,request_id,queries):
+    def __init__(self,request_id,status_code,queries):
         self.request_id = request_id
         self.queries = queries
+        self.status_code = status_code
 
     def __str__(self):
         counter_dic = {}
@@ -61,7 +58,7 @@ class Request:
                 counter_dic[ query.query_type ] = 1
 
         annoying_buffer_string = "".join(["{0}\n".format(k) for k in self.queries])
-        return "REQUEST ID:{0} \n QUERY_TYPES:{1} \n QUERIES:{2}".format(self.request_id,counter_dic,annoying_buffer_string)
+        return "REQUEST ID:{0} STATUS_CODE:{1} \n QUERY_TYPES:{2} \n QUERIES:{3}".format(self.request_id,self.status_code,counter_dic,annoying_buffer_string)
 
 
 def generate_request_objects(request_id_dictionary,sqlitedb_path) :
@@ -81,7 +78,9 @@ def generate_request_objects(request_id_dictionary,sqlitedb_path) :
                             (key,keyword))
                 for result in cur.fetchall():
                     queries.append( Query(result[0],keyword) )
-            requests.append( Request(key,queries) )
+            cur.execute("SELECT status_code FROM http_requests WHERE id = ?",(key,))
+            result = cur.fetchone()
+            requests.append( Request(key,result[0],queries) )
 
     return requests
                             
@@ -89,6 +88,7 @@ def generate_request_objects(request_id_dictionary,sqlitedb_path) :
 def analyse_queries_of_requests(requests):
     queryhash_querystring_dict = {}
     queryhash_request_dict = {}
+    queryhash_response_code_dict = {}
     for request in requests:
         for query in request.queries:
             query_hash = normalizer.generate_normalized_query_hash(query.query_string)
@@ -96,16 +96,34 @@ def analyse_queries_of_requests(requests):
             if not query_hash in queryhash_querystring_dict:
                 queryhash_querystring_dict[query_hash] = query.query_string
                 queryhash_request_dict[query_hash] = [ request.request_id ]
+                queryhash_response_code_dict[query_hash] = [ request.status_code ]
             else:
                 queryhash_request_dict[query_hash].append(request.request_id)
+                queryhash_response_code_dict[query_hash].append(request.status_code)
 
-    return queryhash_querystring_dict,queryhash_request_dict
+    return queryhash_querystring_dict,queryhash_request_dict,queryhash_response_code_dict
 
+
+def print_status_code_distr(queryhash,queryhash_response_code_dict):
+    response_codes = sorted(queryhash_response_code_dict[queryhash])
+    response_codes_length = len(response_codes)
+    dictionary = {}
+    for element in response_codes:
+        if element in dictionary:
+            dictionary[element] = dictionary[element] + 1
+        else:
+            dictionary[element] = 1
+
+            
+    for key,value in dictionary.items():
+        print "{} : {:5.2%} [{}]".format(key,((1.0 * value)/response_codes_length),value)
+            
+    
 
 def main(argv=sys.argv):
     requests = generate_request_objects(get_relevant_request_ids(argv[1],state_change_keywords),
                                         argv[1])
-    queryhash_querystring_dict,queryhash_request_dict = analyse_queries_of_requests(requests)
+    queryhash_querystring_dict,queryhash_request_dict,queryhash_response_code_dict = analyse_queries_of_requests(requests)
 
     print ""
     print "------- REQUESTS ------"
@@ -118,7 +136,9 @@ def main(argv=sys.argv):
 
     
     for key,value in queryhash_querystring_dict.iteritems():
-        print "HASH {0}\nQUERY {1}\n".format(key,value)
+        print "HASH {0}\nQUERY {1}".format(key,value)
+        print_status_code_distr(key,queryhash_response_code_dict)
+        print ""
 
 
     print ""
