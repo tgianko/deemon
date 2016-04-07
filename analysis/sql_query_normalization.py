@@ -46,3 +46,7 @@ def generate_normalized_query_hash(query_string):
     return hashlib.md5(normalize_query_syntax_tree(sqlparse.parse(query_string)[0]).__str__()).hexdigest()
 
 
+def generate_query_hash(query_string):
+    return hashlib.md5(query_string).hexdigest()
+
+
