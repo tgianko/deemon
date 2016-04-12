@@ -61,10 +61,7 @@ def same_lists(elements,comp):
 def main(argv=sys.argv):
     requests = analysis_classes.generate_request_objects(analysis_classes.get_relevant_request_ids(argv[1],
                                                                                                    state_change_keywords),
-                                                         argv[1])
-    '''
-    for element in requests:
-        print element
+                                                         argv[1])    
     queryhash_querystring_dict,queryhash_request_dict,queryhash_response_code_dict = analyse_queries_of_requests(requests)
 
     print ""
@@ -89,12 +86,19 @@ def main(argv=sys.argv):
     print ""
     cluster_similar = same_lists(requests,analysis_classes.requests_similar_p)
     for cluster in cluster_similar:
-        for element in cluster:
-            print "{}".format(element)
+        print "----- SIMILIARITY CLUSTER -----"
+        print cluster[0]
+        print "RequestIds: {}".format([element.request_id for element in cluster])
+        print ""
         cluster_equal = same_lists(cluster,analysis_classes.requests_equal_p)
         for clusterE in cluster_equal:
-            for element in clusterE:
-                print "--{}".format(element)
-    '''
+            print "----- EQUALITY SUBCLUSTER -----"
+            print clusterE[0]
+            print "RequestIds: {}".format([element.request_id for element in clusterE])
+            print "-------------------------------"
+            print ""            
+        print "-------------------------------"
+        print ""
+    
         
 main()

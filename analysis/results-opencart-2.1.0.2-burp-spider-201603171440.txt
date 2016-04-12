@@ -1,0 +1,926 @@
+
+------- REQUESTS ------
+REQUEST ID:2 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:4 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:5 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:6 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:9 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:10 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:11 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:12 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:13 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:14 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:15 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:16 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:18 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:23 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:24 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:25 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:26 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:27 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:28 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:35 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:37 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:44 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:49 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:50 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:51 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:52 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:53 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:54 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:57 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:76 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:78 
+ QUERY_TYPES:{'UPDATE': 1} 
+ QUERIES:UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:81 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:82 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:83 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:84 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:85 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:86 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:87 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:88 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:89 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:91 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:92 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:93 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:94 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:95 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:96 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:98 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:99 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:102 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:103 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:104 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:105 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:106 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:107 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:108 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:109 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:110 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:130 
+ QUERY_TYPES:{'INSERT': 1, 'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+INSERT INTO oc_customer_login SET email = 'test@test.de', ip = '192.168.56.1', total = 1, date_added = '2016-03-17 07:37:38', date_modified = '2016-03-17 07:37:38'
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:134 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:135 
+ QUERY_TYPES:{'INSERT': 1, 'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+INSERT INTO `oc_return` SET order_id = '555', customer_id = '0', firstname = 'Peter', lastname = 'Winter', email = 'winter@example.com', telephone = '555-555-0199', product = '555-555-0199@example.com', model = '555-555-0199@example.com', quantity = '1', opened = '0', return_reason_id = '4', return_status_id = '2', comment = '', date_ordered = '555-555-0199@example.com', date_added = NOW(), date_modified = NOW()
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:136 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:137 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:138 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:139 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:140 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:141 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:142 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_customer_login SET total = (total + 1), date_modified = '2016-03-17 07:37:55' WHERE customer_login_id = '1'
+
+
+REQUEST ID:143 
+ QUERY_TYPES:{'SET': 2} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:144 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:145 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:146 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:147 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:148 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:149 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:150 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:153 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:154 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:155 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:156 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:158 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:159 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 2} 
+ QUERIES:DELETE FROM `oc_api_session` WHERE TIMESTAMPADD(HOUR, 1, date_modified) < NOW()
+
+DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:160 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:161 
+ QUERY_TYPES:{'SET': 2, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+
+REQUEST ID:162 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:163 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:164 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:165 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:166 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:167 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:168 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:169 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:170 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1} 
+ QUERIES:SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+REQUEST ID:171 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:172 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+SET NAMES utf8
+
+SET SQL_MODE = ''
+
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+REQUEST ID:173 
+ QUERY_TYPES:{'SET': 2, 'UPDATE': 1, 'DELETE': 1} 
+ QUERIES:UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = 42
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = 42
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = 42
+UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = 42
+
+
+------- QUERY-HASHS ------
+HASH b6aea7f7a3efb0704abed94592fb7199
+QUERY UPDATE oc_product SET viewed = (viewed + 1) WHERE product_id = '49'
+
+
+HASH 1fca910bd64360e6cd383f613ff8fc02
+QUERY SET SQL_MODE = ''
+
+
+HASH 5d196345b37d294b7756c418099adb68
+QUERY DELETE FROM `oc_api_session` WHERE TIMESTAMPADD(HOUR, 1, date_modified) < NOW()
+
+
+HASH 1642c16a6af990acf4d119dc486497a6
+QUERY UPDATE oc_user SET ip = '192.168.56.1' WHERE user_id = '1'
+
+
+HASH dbd1a1ab620a0c4e5e947b6bb8691137
+QUERY SET NAMES utf8
+
+
+HASH bbe6c171053329b2ff715690bcaaa438
+QUERY INSERT INTO `oc_return` SET order_id = '555', customer_id = '0', firstname = 'Peter', lastname = 'Winter', email = 'winter@example.com', telephone = '555-555-0199', product = '555-555-0199@example.com', model = '555-555-0199@example.com', quantity = '1', opened = '0', return_reason_id = '4', return_status_id = '2', comment = '', date_ordered = '555-555-0199@example.com', date_added = NOW(), date_modified = NOW()
+
+
+HASH 32a5537aea3f1047442fbb4985ff43f8
+QUERY UPDATE oc_customer_login SET total = (total + 1), date_modified = '2016-03-17 07:37:55' WHERE customer_login_id = '1'
+
+
+HASH 44edc47a301a3aab66669c7dc5680b7c
+QUERY DELETE FROM oc_cart WHERE customer_id = '0' AND date_added < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+
+
+HASH 5b97c1b24680191f34332dbcb81a797a
+QUERY INSERT INTO oc_customer_login SET email = 'test@test.de', ip = '192.168.56.1', total = 1, date_added = '2016-03-17 07:37:38', date_modified = '2016-03-17 07:37:38'
+
+
+
+------- QUERY-HASHS TO REQUESTS------
+HASH b6aea7f7a3efb0704abed94592fb7199
+REQUESTS [78, 138, 140, 141, 164, 165, 166, 171, 172, 173, 173, 173, 173]
+
+HASH 1fca910bd64360e6cd383f613ff8fc02
+REQUESTS [2, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16, 18, 23, 24, 25, 26, 27, 28, 35, 37, 44, 49, 50, 51, 52, 53, 54, 57, 76, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 98, 99, 102, 103, 104, 105, 106, 107, 108, 109, 110, 130, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172]
+
+HASH 5d196345b37d294b7756c418099adb68
+REQUESTS [159]
+
+HASH 1642c16a6af990acf4d119dc486497a6
+REQUESTS [144, 145, 146, 147, 148, 149, 150, 162, 163, 167, 168, 169, 170]
+
+HASH dbd1a1ab620a0c4e5e947b6bb8691137
+REQUESTS [2, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16, 18, 23, 24, 25, 26, 27, 28, 35, 37, 44, 49, 50, 51, 52, 53, 54, 57, 76, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 96, 98, 99, 102, 103, 104, 105, 106, 107, 108, 109, 110, 130, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 153, 154, 155, 156, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172]
+
+HASH bbe6c171053329b2ff715690bcaaa438
+REQUESTS [135]
+
+HASH 32a5537aea3f1047442fbb4985ff43f8
+REQUESTS [142]
+
+HASH 44edc47a301a3aab66669c7dc5680b7c
+REQUESTS [2, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16, 18, 23, 24, 25, 26, 27, 28, 35, 37, 44, 49, 50, 51, 52, 53, 54, 57, 76, 81, 82, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 102, 103, 104, 105, 106, 109, 130, 134, 135, 136, 137, 138, 139, 140, 141, 142, 153, 154, 155, 156, 158, 159, 160, 161, 164, 165, 166, 171, 172]
+
+HASH 5b97c1b24680191f34332dbcb81a797a
+REQUESTS [130]
+
