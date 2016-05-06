@@ -12,7 +12,7 @@ fi
 case $1 in
     "--mount")
 
-	#echo "trying to mount virtual disk image to $3"
+	echo "trying to mount virtual disk image to $3"
 	
 	filename=$(basename "$2")
 	extension="${filename##*.}"
@@ -27,9 +27,9 @@ case $1 in
 	
 	modprobe nbd
 	qemu-nbd -c /dev/nbd0 $2
-	mount -o loop /dev/nbd0p1 $3;;
+	mount -o loop /dev/nbd0p1 $3
 
-	#echo "mount success";;
+	echo "mount success";;
     
     "--dismount")
 
