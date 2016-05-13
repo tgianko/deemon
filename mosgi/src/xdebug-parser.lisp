@@ -122,3 +122,5 @@
 		 :trace-content (parse-xdebug-trace stream)))
 
 
+(defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
+  (error "NYI"))

@@ -10,23 +10,34 @@ This file contains code to parse serialized php-sessions
 
 
 (defclass php-session ()
-  ((elements 
+  ((session-id
+    :initarg :session-id
+    :initform (error "parameter session-id has to be provided")
+    :reader session-id)
+   (elements 
     :initarg :elements
     :reader elements)))
 
 
-(defun make-php-session (session-file-content)
+(defun make-php-session (session-file-stream session-id)
   (make-instance 'php-session 
-		 :elements (parse-string-serialized-session session-file-content)))
+		 :elements (parse-string-serialized-session session-file-stream)
+		 :session-id session-id))
+
+
+(defun create-empty-php-session (session-id)
+  (make-instance 'php-session
+		 :elements nil
+		 :session-id session-id))
+
+
+(defun extract-session-id (filename &key (full-path-p T))
+  (error "NYI"))
 
 
 (defmethod add-element ((session php-session) element-name element-content)
   (setf (gethash element-name (slot-value session 'elements))
 	element-content))
-
-
-(defmethod diff-sessions ((session-a php-session) (session-b php-session))  
-  (error "NYI"))
 
 
 (defun extract-size (char-list)
@@ -36,6 +47,17 @@ This file contains code to parse serialized php-sessions
 	   :format-arguments (list char-list)))
   (values (parse-integer (coerce (subseq (cdr char-list) 0 (position #\: (cdr char-list) :test #'char=)) 'string)) ;this is horrible in type safety (but convinent)
 	  (subseq (cdr char-list) (position #\: (cdr char-list) :test #'char=))))
+
+
+(defun array-elements->element-table (array-elements)
+  (when (not (= (mod (length array-elements) 2) 0))
+    (error 'php-text-serialized-session-parsing-condition
+	   :format-control "uneven content of array - expected associative array?"))
+  (do ((table (make-hash-table :test 'equalp))
+       (remaining array-elements (cddr array-elements)))
+      ((not remaining) table)
+    (setf (gethash (cdar remaining) table)
+	  (cadr remaining))))
 
 
 (defun parse-array (char-list)
@@ -53,7 +75,7 @@ This file contains code to parse serialized php-sessions
 	 (rem-char-list (cddr rem-char-list))
 	 (array-elements nil))
 	((= i (* 2 result)) (if (char= (car rem-char-list) #\})
-				(values (reverse array-elements)
+				(values (array-elements->element-table (reverse array-elements))
 					rem-char-list) ;due to the mindfuck of the syntax need to return } for multiple array nesting
 				(error 'php-text-serialized-session-parsing-condition
 				       :format-control "bad format detected - expected } but encountered ~a"
@@ -127,10 +149,9 @@ This file contains code to parse serialized php-sessions
 	      (push result elements))))))
     
     
-(defun parse-string-serialized-session (string)
-  (with-input-from-string (stream string)
-    (do ((line (read-line stream nil nil)
-	       (read-line stream nil nil))
-	 (session-elements nil))
-	((not line) session-elements)
-      (push (parse-line-string-serialized-session line) session-elements))))
+(defun parse-string-serialized-session (stream)
+  (do ((line (read-line stream nil nil)
+	     (read-line stream nil nil))
+       (session-elements nil))
+      ((not line) session-elements)
+    (push (parse-line-string-serialized-session line) session-elements)))

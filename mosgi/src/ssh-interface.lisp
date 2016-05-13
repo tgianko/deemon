@@ -1,7 +1,7 @@
-(in-package :de.uni-saarland.syssec.mosgi.file-transfer)
+(in-package :de.uni-saarland.syssec.mosgi.ssh-interface)
 
 
-(defun run-remote-shell-command (command host username password result-handler)
+(defun run-remote-shell-command (command result-handler username host password)
   "executes a shell command on the given host and gives the resulting stream
 to the result handler. The result of the result-handler will be returned"
   (libssh2:with-ssh-connection session (host
@@ -15,7 +15,7 @@ to the result handler. The result of the result-handler will be returned"
       (funcall result-handler stream))))
 
 
-(defun scp (host guest-file host-file password username)
+(defun scp (guest-file host-file username host password)
   "copies a the guest file to the target file from the given host using
 provided password and username with scp"
   (libssh2:with-ssh-connection session (host
@@ -28,7 +28,7 @@ provided password and username with scp"
     (libssh2:scp-get guest-file host-file)))
 
 
-(defun folder-content-guest (host folder username password)
+(defun folder-content-guest (folder username host password)
   "returns a string list with the folder content of the provided folder
 path on the given host using password and username to log in"
   (run-remote-shell-command (FORMAT nil "ls -p ~a | grep -v /" folder) host username password
