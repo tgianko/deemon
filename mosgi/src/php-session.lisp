@@ -9,8 +9,8 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 :<TYPE-CHAR>:<SIZE-NUMBER>:<CONTENT>
 -> :s:<SIZE>:"<STRING-CONTENT>"
 -> :a:<SIZE>:{<ARRAY-CONTENT>}
-
 |#
+
 (in-package :de.uni-saarland.syssec.mosgi.php-session)
 
 
@@ -29,6 +29,10 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :reader content-type)))
 
 
+(defgeneric diff (old-element new-element)
+  (:documentation "diff the two given elements"))
+
+
 (defclass php-session-string-element (php-session-content)
   ((content
     :initarg :content
@@ -40,7 +44,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 (defmethod print-object ((content-element php-session-string-element) stream)
   (with-slots (content-type content)
       content-element
-    (FORMAT stream "(~a . ~a)" content-type content)))
+    (FORMAT stream "(~a ~a)" content-type content)))
 
 
 (defun parse-content-element-string (size char-list)
@@ -67,14 +71,22 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :initform :array)))
 
 
+(defmethod get-keys ((array-element php-session-array-element))
+  (get-hashtable-keys (slot-value array-element 'elements)))
+
+
+(defmethod get-element ((array-element php-session-array-element) key)
+  (gethash key (slot-value array-element 'elements)))
+
+
 (defmethod print-object ((content-element php-session-array-element) stream)
   (with-slots (content-type elements)
       content-element
-    (FORMAT stream "( ~a . (~{ ~a ~}))" 
+    (FORMAT stream "( ~a (~{ ~a ~}))" 
 	    content-type
 	    (mapcar #'(lambda(key)
 			(FORMAT nil "(:STRING . ~a ) => ~a" key (gethash key elements)))
-		    (get-hashtable-keys elements)))))
+		    (sort (get-hashtable-keys elements) #'string<=)))))
 
 
 (defun array-content->hashtable (array-elements)
@@ -124,6 +136,10 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :initform :element)))
 
 
+(defmethod print-object ((element php-session-element) stream)
+  (FORMAT stream "( ~a ~a )" (name element) (content element)))
+
+
 (defun parse-session-content-element-head (char-list)
   (when (not (and (>= (count #\: char-list :test #'char=) 3)
 		  (char= (car char-list) #\:)))
@@ -169,11 +185,15 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :reader elements)))
 
 
+(defmethod print-object ((session php-session) stream)
+  (FORMAT stream "( ~a (~{ ~a ~}))" (session-id session) (elements session)))
+
+
 (defun parse-php-session (stream session-id)
   (do ((line (read-line stream nil nil)
 	     (read-line stream nil nil))
        (session-elements nil))
-      ((not line) (make-instance 'php-session :elements session-elements :session-id session-id))
+      ((not line) (make-instance 'php-session :elements (sort session-elements #'string<= :key #'name) :session-id session-id))
     (let ((char-list (coerce line 'list)))
       (when (not (find #\| char-list :test #'char=))
 	(error 'php-text-serialized-session-parsing-condition
@@ -182,13 +202,6 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
       (push (parse-session-element (subseq char-list (+ (position #\| char-list :test #'char=) 1))
 				   (coerce (subseq char-list 0 (position #\| char-list :test #'char=)) 'string))
 	    session-elements))))
-
-
-
-(defun make-php-session (session-file-stream session-id)
-  (make-instance 'php-session 
-		 :elements (parse-string-serialized-session session-file-stream)
-		 :session-id session-id))
 
 
 (defun create-empty-php-session (session-id)
