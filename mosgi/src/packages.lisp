@@ -31,7 +31,8 @@
 	   make-php-session
 	   session-id
 	   elements
-	   extract-session-id))
+	   extract-session-id
+	   diff))
 	   
 
 (defpackage :de.uni-saarland.syssec.mosgi.xdebug

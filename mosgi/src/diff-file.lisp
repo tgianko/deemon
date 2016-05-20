@@ -1,3 +1,8 @@
+#|
+Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
+This file provides code to generate and diff file-history-states for
+clustering of page requests
+|#
 (in-package :de.uni-saarland.syssec.mosgi.diff)
 	   
 

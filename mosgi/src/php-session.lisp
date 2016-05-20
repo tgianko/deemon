@@ -7,8 +7,9 @@ as pure list/tree I go for an OOP approach:
 http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 :<TYPE-CHAR>:<SIZE-NUMBER>:<CONTENT>
--> :s:<SIZE>:"<STRING-CONTENT>"
--> :a:<SIZE>:{<ARRAY-CONTENT>}
+-> s:<SIZE>:"<STRING-CONTENT>";
+-> a:<SIZE>:{<ARRAY-CONTENT>}
+-> N;
 |#
 
 (in-package :de.uni-saarland.syssec.mosgi.php-session)
@@ -31,6 +32,11 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 (defgeneric diff (old-element new-element)
   (:documentation "diff the two given elements"))
+
+
+(defclass php-session-nil-element (php-session-content)
+  ((content-type
+    :initform :nil)))
 
 
 (defclass php-session-string-element (php-session-content)
@@ -60,7 +66,11 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 	       :format-arguments (list size char-list))
 	(values (make-instance 'php-session-string-element 
 			       :content (coerce (subseq char-list 1 string-content-end) 'string))
-		(subseq char-list (+ string-content-end 1))))))
+		(if (not (char= #\; (car (subseq char-list (+ string-content-end 1)))))
+		    (error 'php-text-serialized-session-parsing-condition
+			   :format-control "expected ; as string delimiter but encountered ~a in ~a"
+			   :format-arguments (list (car (subseq char-list (+ string-content-end 1))) char-list))
+		    (cdr (subseq char-list (+ string-content-end 1))))))))
 
 
 (defclass php-session-array-element (php-session-content)
@@ -141,11 +151,11 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 
 (defun parse-session-content-element-head (char-list)
-  (when (not (and (>= (count #\: char-list :test #'char=) 3)
+  #|(when (not (and (>= (count #\: char-list :test #'char=) 3) ;;well there is no leading :
 		  (char= (car char-list) #\:)))
     (error 'php-text-serialized-session-parsing-condition
 	   :format-control "malformed session element string at head ~a"
-	   :format-arguments (list char-list)))
+	   :format-arguments (list char-list)))|#
   (let* ((first-colon 0)
 	 (second-colon (position #\: char-list :start (+ first-colon 1) :test #'char=))
 	 (third-colon  (position #\: char-list :start (+ second-colon 1) :test #'char=)))
@@ -160,13 +170,19 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 	 
 
 (defun parse-session-content-element (char-list)
-  (multiple-value-bind (type size rest)
-      (parse-session-content-element-head char-list)
-    (ecase type
-      (#\s
-       (parse-content-element-string size rest))
-      (#\a
-       (parse-content-element-array size rest)))))
+  (if (char= #\N (car char-list))
+      (if (char= #\; (cadr char-list))
+	  (values (make-instance 'php-session-nil-element) (cddr char-list))
+	  (error 'php-text-serialized-session-parsing-condition
+		 :format-control "encountered N session element but delimiter was not ; but ~a in ~a"
+		 :format-arguments (list (cadr char-list) char-list)))
+      (multiple-value-bind (type size rest)
+	  (parse-session-content-element-head char-list)
+	(ecase type
+	  (#\s
+	   (parse-content-element-string size rest))
+	  (#\a
+	   (parse-content-element-array size rest))))))
       
 
 (defun parse-session-element (char-list element-name)

@@ -1,3 +1,10 @@
+#|
+Author: Simon Koch <s9sikoch@stud.uni-saarland.de>
+This file contains the code to parse xdebug trace files with 
+trace_format = 1. 
+It also provides the means to extract all fopen calls of the
+given trace and returns all parameters passed to those calls.
+|#
 (in-package :de.uni-saarland.syssec.mosgi.xdebug)
 
 
@@ -98,24 +105,38 @@
 
 (defun parse-xdebug-trace-line (line)
   (destructuring-bind (level function-nr always &rest rest)
-      (cl-ppcre:split "\t" line)
-    (ecase always
-      ("0"
+      (cl-ppcre:split "\\t" line)
+    (cond
+      ((and (string= "" level)
+	    (string= "" function-nr)
+	    (string= "" always))
+       nil)
+      ((string= "0" always)
        (make-entry-records (append (list level function-nr always) rest)))
-      ("1"
+      ((string= "1" always)
        (make-exit-records (append (list level function-nr always) rest)))
-      ("R"
-       (make-return-records (append (list level function-nr always) rest))))))
-
+      ((string= "R" always)
+       (make-return-records (append (list level function-nr always) rest)))
+      (T
+       (error 'simple-error 
+	      :format-control "there aint no such thing as ~a as the always record part in ~a"
+	      :format-arguments (list always line))))))
+       
 
 (defun parse-xdebug-trace (stream)
+  (read-line stream nil nil) ;the first three
+  (read-line stream nil nil) ;lines are really
+  (read-line stream nil nil) ;not needed
   (do ((line (read-line stream nil nil)
 	     (read-line stream nil nil))
-       (records nil))
-      ((not line) (reverse records))
-    (push (parse-xdebug-trace-line line)
-	  records)))
-
+       (records nil)
+       (stop-p nil))
+      (stop-p (reverse records))
+    (let ((last (parse-xdebug-trace-line line)))
+      (if last 
+	  (push last records)
+	  (setf stop-p T)))))
+	  
 
 (defun make-xdebug-trace (stream)
   (make-instance 'xdebug-trace
@@ -123,4 +144,9 @@
 
 
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
-  (error "NYI"))
+  (mapcar #'(lambda(fopen-call)
+	      (parameters fopen-call))
+	  (remove-if-not #'(lambda (record)
+			     (and (typep record 'entry-record)
+				  (string= (function-name record) "fopen")))
+			 (trace-content xdebug-trace))))

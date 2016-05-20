@@ -1,3 +1,9 @@
+#|
+Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
+This file contains the interface code wrapping the libssh2
+library into neat lil' calls which are less verbose and 
+handle all the nasty stuff we do not want/need to think about
+|#
 (in-package :de.uni-saarland.syssec.mosgi.ssh-interface)
 
 

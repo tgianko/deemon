@@ -1,3 +1,10 @@
+#|
+Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
+This file provides the interface for communication
+with the proxy. It creates a communication handler
+which provides an interface for receiving and sending
+single chars which represent order/answer codes
+|#
 (in-package :de.uni-saarland.syssec.mosgi.communication)
 
 
@@ -11,7 +18,6 @@
    (iostream
     :initarg :iostream
     :accessor iostream)))
-
 
 
 (defun create-communication-handler (listen-ip listen-port)
@@ -46,8 +52,7 @@
 		(error (e)
 		  (FORMAT T "ECOUNTERED ERROR ~a~%" e)))	   
        (close-communication-handler ,handler))))
-	    
-     
+
 
 (defmethod receive-character ((handler communication-handler))
   (read-char (iostream handler) nil 'eof))

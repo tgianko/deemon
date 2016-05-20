@@ -1,3 +1,9 @@
+#|
+Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
+This file is (as the name suggests) the main file. It parses
+the passed cmd arguments and starts the whole service and
+waits/responds for commands and executes given commands
+|#
 (in-package :de.uni-saarland.syssec.mosgi)
 
 
