@@ -40,23 +40,6 @@ def print_status_code_distr(queryhash,queryhash_response_code_dict):
         print "{} : {:5.2%} [{}]".format(key,((1.0 * value)/response_codes_length),value)
 
 
-def same_lists(elements,comp):
-    sub_clusters = []
-    sub_clusters.append( [ elements[0] ] )
-    
-    for element in elements[1:]:
-        set_p = False
-        for sub_cluster in sub_clusters:
-            if comp(element,sub_cluster[0]):
-                sub_cluster.append(element)
-                set_p = True
-                break
-            
-        if not set_p:
-            sub_clusters.append( [ element ] )
-
-    return sub_clusters
-                
             
 def main(argv=sys.argv):
     requests = analysis_classes.generate_request_objects(analysis_classes.get_relevant_request_ids(argv[1],

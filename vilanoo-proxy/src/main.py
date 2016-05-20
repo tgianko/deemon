@@ -24,6 +24,11 @@ import time
 import os.path
 import config
 
+#Too many files are kept open - this should increase the limit sufficiently
+import resource
+resource.setrlimit(resource.RLIMIT_NOFILE, (4096, 4096))
+
+
 # ------------------------ HACK VIA HOOK --------------------------
 
 
