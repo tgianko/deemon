@@ -51,7 +51,7 @@ Labels:
 			  change-bindings))
 		  (diff-array-elements (cdr old-elements) (cdr new-elements) diff-table))))))
     (let ((diff-table (diff-array-elements (get-keys old) (get-keys new) (make-hash-table :test 'equalp))))
-      (if (= (hash-table-size diff-table) 0)
+      (if (= (hash-table-count diff-table) 0)
 	  nil
 	  (cons (make-instance 'php-session-array-element :elements diff-table) :CHANGED)))))
 		    
@@ -76,6 +76,7 @@ Labels:
 	(cons diff-bindings :CHANGED)
 	nil)))
 
+(trace diff)
 
 (defmethod diff ((old php-session) (new php-session))
   (labels ((diff-elements (old-elements new-elements)
@@ -101,14 +102,19 @@ Labels:
 		    (diff (car old-elements)
 			  (car new-elements))
 		  (if diff-bindings
-		      (cons (cons (car new-elements) :CHANGED)
+		      (cons diff-bindings
 			    (diff-elements (cdr old-elements)
 					   (cdr new-elements)))
 		      (diff-elements (cdr old-elements)
 				     (cdr new-elements))))))))		      		    
     (when (not (string= (session-id old) (session-id new)))
       (error 'php-session-diif-condition 
-	     :format-control "connot compare two different sessions"))))
+	     :format-control "connot compare two different sessions"))
+    (let ((diff (diff-elements (elements old)
+			       (elements new))))
+      (if diff
+	  (make-instance 'php-session :elements diff :session-id (session-id new))
+	  nil))))
   
   
   

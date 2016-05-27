@@ -48,9 +48,9 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 
 (defmethod print-object ((content-element php-session-string-element) stream)
-  (with-slots (content-type content)
+  (with-slots (content)
       content-element
-    (FORMAT stream "(~a ~a)" content-type content)))
+    (FORMAT stream "(:STRING . ~a)" content)))
 
 
 (defun parse-content-element-string (size char-list)
@@ -90,10 +90,9 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 
 (defmethod print-object ((content-element php-session-array-element) stream)
-  (with-slots (content-type elements)
+  (with-slots (elements)
       content-element
-    (FORMAT stream "( ~a (~{ ~a ~}))" 
-	    content-type
+    (FORMAT stream "( :ARRAY (~{ ~a ~}))" 
 	    (mapcar #'(lambda(key)
 			(FORMAT nil "(:STRING . ~a ) => ~a" key (gethash key elements)))
 		    (sort (get-hashtable-keys elements) #'string<=)))))
@@ -156,17 +155,16 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     (error 'php-text-serialized-session-parsing-condition
 	   :format-control "malformed session element string at head ~a"
 	   :format-arguments (list char-list)))|#
-  (let* ((first-colon 0)
-	 (second-colon (position #\: char-list :start (+ first-colon 1) :test #'char=))
-	 (third-colon  (position #\: char-list :start (+ second-colon 1) :test #'char=)))
-    (when (or (not (= (- second-colon first-colon) 2))
-	      (not (> (- third-colon second-colon 1))))
+  (let* ((first-colon (position #\: char-list :start 0 :test #'char=))
+	 (second-colon  (position #\: char-list :start (+ first-colon 1) :test #'char=)))
+    (when (or (not (= first-colon 1))
+	      (not (> (- second-colon first-colon) 1)))
       (error 'php-text-serialized-session-parsing-condition
-	     :format-control "malformed session element content at head need exact 1 char for type and at least 1 char for size : ~a"
-	     :format-arguments (list char-list)))
-    (values (car (subseq char-list (+ first-colon 1) second-colon))
-	    (parse-integer (coerce (subseq char-list (+ second-colon 1) third-colon) 'string))
-	    (subseq char-list (+ third-colon 1)))))
+	     :format-control "malformed session element content at head need exact 1 (got:~a) char for type and at least 1 (got:~a) char for size : ~{~a~}"
+	     :format-arguments (list first-colon (- second-colon first-colon) char-list)))
+    (values (car (subseq char-list 0 first-colon))
+	    (parse-integer (coerce (subseq char-list (+ first-colon 1) second-colon) 'string))
+	    (subseq char-list (+ second-colon 1)))))
 	 
 
 (defun parse-session-content-element (char-list)
@@ -205,7 +203,9 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
   (FORMAT stream "( ~a (~{ ~a ~}))" (session-id session) (elements session)))
 
 
+;in this function are debug printsd
 (defun parse-php-session (stream session-id)
+  (FORMAT T "generating session ~a from stream ~a~%" session-id stream)
   (do ((line (read-line stream nil nil)
 	     (read-line stream nil nil))
        (session-elements nil))
@@ -226,6 +226,12 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 		 :session-id session-id))
     
     
+(defun extract-session-id (full-file-path)
+  (cl-ppcre:regex-replace "/.*/sess_" 
+			  full-file-path
+			  ""))
+
+
 
 	  
 

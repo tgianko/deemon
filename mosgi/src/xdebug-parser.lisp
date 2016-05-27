@@ -8,6 +8,16 @@ given trace and returns all parameters passed to those calls.
 (in-package :de.uni-saarland.syssec.mosgi.xdebug)
 
 
+(defun get-xdebug-trace-file (folder-files)
+  (let ((rel-files (remove-if-not #'(lambda (file-path)
+				      (cl-ppcre:scan ".*/trace\.[0-9]+\.xt" file-path))
+				  folder-files)))
+    (when (> (length rel-files) 1)
+      (warn "more than one possible trace file detected - select lexicographical first"))
+    (car rel-files)))
+	  
+
+
 (defclass xdebug-trace ()
   ((trace-content
     :initarg :trace-content

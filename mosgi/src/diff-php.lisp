@@ -15,8 +15,13 @@ clustering of page requests
     :reader php-sessions)))
 
 
+(defmethod print-object ((pss php-session-state) stream)
+  (FORMAT stream "~{Session:~a~^~%~}" (php-sessions pss)))
+
+
 (defmethod diff-history-state ((old php-session-state) (new php-session-state))
   (labels ((php-sessions-diff (old-sessions new-sessions) ;assumes string<= ordered indexes - true by definition of file-history-state
+	     (FORMAT T "~a/~a~%" (type-of (car old-sessions)) (type-of (car new-sessions)))
 	     (cond 
 	       ((not old-sessions)
 		(mapcar #'(lambda (session) (cons session :ADDED)) new-sessions))
@@ -40,13 +45,16 @@ clustering of page requests
     (make-php-session-diff-entry :diffs (php-sessions-diff (php-sessions old) (php-sessions new)))))
 
 
+;in this function are debug prints
 (defun make-php-session-history-state (php-session-folder user host pwd)
   (make-instance 'php-session-state
 		 :php-sessions (sort (mapcar #'(lambda(php-session-file)
-						 (cl-fad:with-open-temporary-file (stream)
+						 (FORMAT T "get/parse file:~a~%" php-session-file)
+						 (cl-fad:with-open-temporary-file (stream :direction :io :element-type 'character)
 						   (ssh:scp php-session-file (pathname stream) user host pwd)
 						   (finish-output stream)
-						   (php-session:make-php-session stream (php-session:extract-session-id php-session-file))))
+						   (php-session:parse-php-session stream 
+										  (php-session:extract-session-id php-session-file))))
 					     (ssh:folder-content-guest php-session-folder user host pwd))
 				     #'string<=
 				     :key #'php-session:session-id)))

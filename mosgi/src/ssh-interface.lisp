@@ -7,7 +7,7 @@ handle all the nasty stuff we do not want/need to think about
 (in-package :de.uni-saarland.syssec.mosgi.ssh-interface)
 
 
-(defun run-remote-shell-command (command result-handler username host password)
+(defun run-remote-shell-command (command username host password result-handler)
   "executes a shell command on the given host and gives the resulting stream
 to the result handler. The result of the result-handler will be returned"
   (libssh2:with-ssh-connection session (host
@@ -37,11 +37,14 @@ provided password and username with scp"
 (defun folder-content-guest (folder username host password)
   "returns a string list with the folder content of the provided folder
 path on the given host using password and username to log in"
-  (run-remote-shell-command (FORMAT nil "ls -p ~a | grep -v /" folder) host username password
+  (when (not (char= #\/ (car (last (coerce folder 'list)))))
+    (error 'simple-error
+	   :format-control "expected / terminated folder path"))
+  (run-remote-shell-command (FORMAT nil "ls -p ~a | grep -v /" folder) username host password
 			    #'(lambda(stream)
 				(do* ((line (read-line stream nil nil nil)
 					    (read-line stream nil nil nil))
-				      (files (list line)
-					     (cons line files)))
+				      (files (list (FORMAT nil "~a~a" folder line))
+					     (cons (FORMAT nil "~a~a" folder line) files)))
 				     ((not line) (cdr files))))))
 

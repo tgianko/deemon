@@ -11,7 +11,8 @@
 	   make-file-history-state
 	   make-php-session-history-state
 	   state-trace
-	   php-session-state))
+	   php-session-state
+	   make-empty-state-history))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.ssh-interface
@@ -28,7 +29,7 @@
   (:export diff-sessions
 	   new-session
 	   deleted-session
-	   make-php-session
+	   parse-php-session
 	   session-id
 	   elements
 	   extract-session-id
@@ -39,7 +40,8 @@
   (:use :cl)
   (:nicknames :xdebug)
   (:export get-changed-files-paths
-	   make-xdebug-trace))
+	   make-xdebug-trace
+	   get-xdebug-trace-file))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.communication

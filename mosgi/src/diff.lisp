@@ -29,14 +29,26 @@ the general interface.
     :accessor current-state)))
 
 
+
+(defun make-empty-state-history ()
+  (make-instance 'state-trace))
+
+
+(defmethod print-object ((st state-trace) stream)
+  (with-slots (state-history diff-history current-state)
+      st
+    (FORMAT stream "state history size:~a~%diff-history-size:~a~%current-state:~%~a"
+	    state-history diff-history current-state)))
+				 
+
 (defmethod add-next-state-* ((trace state-trace) (new-state history-state))
   (with-slots (state-history diff-history current-state diff-function)
       trace 
-    (if (not state-history)
+    (if (not current-state)
 	(progn
 	  (setf (slot-value new-state 'entry-nr) 0))
 	(progn 
-	  (push (diff-history-state new-state (car state-history)) diff-history)
+	  (push (diff-history-state new-state current-state) diff-history)
 	  (push current-state state-history)
 	  (setf (slot-value new-state 'entry-nr) (+ (slot-value (car state-history) 'entry-nr) 1))))
     (setf current-state new-state)))
