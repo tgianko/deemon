@@ -21,7 +21,6 @@ clustering of page requests
 
 (defmethod diff-history-state ((old php-session-state) (new php-session-state))
   (labels ((php-sessions-diff (old-sessions new-sessions) ;assumes string<= ordered indexes - true by definition of file-history-state
-	     (FORMAT T "~a/~a~%" (type-of (car old-sessions)) (type-of (car new-sessions)))
 	     (cond 
 	       ((not old-sessions)
 		(mapcar #'(lambda (session) (cons session :ADDED)) new-sessions))
@@ -53,7 +52,7 @@ clustering of page requests
 						 (cl-fad:with-open-temporary-file (stream :direction :io :element-type 'character)
 						   (ssh:scp php-session-file (pathname stream) user host pwd)
 						   (finish-output stream)
-						   (ssh:convert-to-utf8-encoding (pathname stream)) ;this is just because encoding is stupid
+						   (ssh:convert-to-utf8-encoding (namestring (pathname stream))) ;this is just because encoding is stupid
 						   (php-session:parse-php-session stream 
 										  (php-session:extract-session-id php-session-file))))
 					     (ssh:folder-content-guest php-session-folder user host pwd))

@@ -19,6 +19,7 @@ to the result handler. The result of the result-handler will be returned"
 						    (user-homedir-pathname))))
     (libssh2:with-execute*  (stream session command)
       (funcall result-handler stream))))
+  
 
 
 (defun scp (guest-file host-file username host password)
