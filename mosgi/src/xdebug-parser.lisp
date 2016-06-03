@@ -14,6 +14,8 @@ given trace and returns all parameters passed to those calls.
 				  folder-files)))
     (when (> (length rel-files) 1)
       (warn "more than one possible trace file detected - select lexicographical first"))
+    (when (= (length rel-files) 0)
+      (error "no xdebug trace detected!"))
     (car rel-files)))
 	  
 

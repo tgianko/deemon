@@ -16,7 +16,7 @@ fmt = "{:>5}  {:>5}  {:<5} {:<30}"
 sqlitedb = os.path.expanduser("~") + "/.vilanoo/vilanoo.db"
 sqlite_schema = "./proxyDbSchema.sql"
 mosgi_interface="127.0.0.1"
-mosgi_port=9393
+mosgi_port=9292
 mosgi_start_command_char='D'
 mosgi_finish_response_char='F'
 mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -190,15 +190,11 @@ def request(context, flow):
     
 def response(context, flow):
     #well now that the queries are processed let call our lord and master mosgi
-    mosgi_lock.acquire()
-    try:
-        print "calling mosgi"
-        mosgi_connection.send(mosgi_start_command_char)
-        print "started mosgi"
-        rcv = mosgi_connection.recv(1)
-        print "mosgi done - I am done"
-    finally:
-        mosgi_lock.release()
+    print "calling mosgi"
+    mosgi_connection.send(mosgi_start_command_char)
+    print "started mosgi"
+    rcv = mosgi_connection.recv(1)
+    print "mosgi done - I am done"
     try:
         
         if "db_request_id" in flow.request.__dict__: #if no such id exists the response is of no interest for us

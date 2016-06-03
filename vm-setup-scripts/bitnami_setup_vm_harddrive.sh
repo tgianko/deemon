@@ -51,7 +51,8 @@ cp `which redir` $mount_point$bitnami_tool_dir #and redir in bitnami_tool_dir of
 
 
 ##general startup configuration configuration
-echo '#!/bin/sh -e' > $mount_point$bitnami_startup_script
+echo '#!/bin/sh -e' > "${mount_point}${bitnami_startup_script}"
+
 chmod +x $mount_point$bitnami_startup_script
 
 #make iptables accept incoming connections
@@ -63,17 +64,19 @@ echo "/${bitnami_tool_dir}/redir --lport=${bitnami_incoming_port} --cport=${bitn
 echo "ifconfig eth0 | grep 'inet addr' | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> $mount_point$bitnami_startup_script
 
 #enabling a root password
-mv ./bitnami_shadow "{$mount_point}/etc/shadow"
-chmod "{$mount_point}/etc/shadow" "u-x,g-x,o-wx"
+cp ./bitnami_shadow "${mount_point}/etc/shadow"
+chmod "u-x,g-x,o-wx" "${mount_point}/etc/shadow" 
 
 #enabling ssh
 mv "${mount_point}/etc/init/ssh.conf.back" "${mount_point}/etc/init/ssh.conf"
 
 #enabling root login with root account
-sed -i -- 's/without-password/yes/g' 
+sed -i -- 's/without-password/yes/g' "${mount_point}/etc/ssh/sshd_config" 
 
 #adding trace generation
+echo ""                                         >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "[XDebug]"                                 >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "zend_extension=\"/opt/bitnami/php/lib/php/extensions/xdebug.so\"" >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.collect.params=4"                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_format=1"                    >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.collect_return=1"                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"

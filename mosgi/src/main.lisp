@@ -106,8 +106,6 @@ waits/responds for commands and executes given commands
 	      (FORMAT T "Received Command: ~a~%" (cdr (find received-order *legal-communication-chars* :key #'car)))
 	      (ecase (cdr (find received-order *legal-communication-chars* :key #'car))
 		(:START-DIFF 
-		 (read-char)
-		 (FORMAT T "~%")
 		 (make-diff (getf options :php-session-folder) 
 			    (getf options :xdebug-trace-file)
 			    (getf options :target-system-root)
@@ -121,7 +119,3 @@ waits/responds for commands and executes given commands
        :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications - kneel before thy master"
        :suffix "so that's how it works…"
        :usage-of "run.sh"))))
-
-
-
-(main)
