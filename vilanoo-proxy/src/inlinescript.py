@@ -105,6 +105,7 @@ def update_request_status(db_request_id,status_code):
 Return true if the request can be async.
 """
 def is_async_request(context, request):
+    """
     host = request.headers["host"][0]
     
     # If request is for an external, let's send it async
@@ -119,6 +120,7 @@ def is_async_request(context, request):
                "css", "woff2",
                "js"]:
         return True
+    """
 
     return False
 

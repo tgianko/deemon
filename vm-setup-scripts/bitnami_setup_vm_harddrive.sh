@@ -62,6 +62,26 @@ echo "/${bitnami_tool_dir}/redir --lport=${bitnami_incoming_port} --cport=${bitn
 
 echo "ifconfig eth0 | grep 'inet addr' | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> $mount_point$bitnami_startup_script
 
+#enabling a root password
+mv ./bitnami_shadow "{$mount_point}/etc/shadow"
+chmod "{$mount_point}/etc/shadow" "u-x,g-x,o-wx"
+
+#enabling ssh
+mv "${mount_point}/etc/init/ssh.conf.back" "${mount_point}/etc/init/ssh.conf"
+
+#enabling root login with root account
+sed -i -- 's/without-password/yes/g' 
+
+#adding trace generation
+echo "[XDebug]"                                 >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.collect.params=4"                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.trace_format=1"                    >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.collect_return=1"                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.collect_assignments=1"             >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.trace_options=0"                   >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.trace_output_name=trace.fix42.xt"  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.trace_output_dir=/tmp/"            >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+
 #database specific configuration
 case $2 in
     "mysql") sh ${setup_dir}${mysql_script} ${mount_point} ${bitnami_tool_dir} ${target_host_ip} ${bitnami_outgoing_port} ${bitnami_startup_script} ${bitnami_database_port};;
