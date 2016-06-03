@@ -79,11 +79,12 @@ waits/responds for commands and executes given commands
 								     user host pwd))
 	     (pathname xdebug-tmp-stream) user host pwd)
     (finish-output xdebug-tmp-stream)
+    (ssh:convert-to-utf8-encoding (pathname xdebug-tmp-stream)) ;this is just because encoding is stupid
     (diff:add-next-state-* *file-diff-state* 
 			   (diff:make-file-history-state 
 			    (xdebug:get-changed-files-paths 
 			     (xdebug:make-xdebug-trace xdebug-tmp-stream))
-			    (list user host pwd)))))
+			    user host pwd))))
 
 
 (defun main ()

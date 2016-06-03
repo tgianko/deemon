@@ -48,3 +48,7 @@ path on the given host using password and username to log in"
 					     (cons (FORMAT nil "~a~a" folder line) files)))
 				     ((not line) (cdr files))))))
 
+
+
+(defun convert-to-utf8-encoding (file-path)
+  (sb-ext:run-program "/usr/bin/vim" (list "+set nobomb | set fenc=utf8 | x" file-path)))

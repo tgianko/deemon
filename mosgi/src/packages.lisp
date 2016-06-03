@@ -20,7 +20,8 @@
   (:nicknames ssh)
   (:export scp
 	   folder-content-guest
-	   run-remote-shell-command))
+	   run-remote-shell-command
+	   convert-to-utf8-encoding))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.php-session

@@ -38,10 +38,11 @@ the general interface.
   (with-slots (state-history diff-history current-state)
       st
     (FORMAT stream "state history size:~a~%diff-history-size:~a~%current-state:~%~a"
-	    state-history diff-history current-state)))
+	    state-history (length diff-history) current-state)))
 				 
 
 (defmethod add-next-state-* ((trace state-trace) (new-state history-state))
+  (FORMAT T "adding next state~%")
   (with-slots (state-history diff-history current-state diff-function)
       trace 
     (if (not current-state)

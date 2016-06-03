@@ -155,7 +155,7 @@ given trace and returns all parameters passed to those calls.
 
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
   (mapcar #'(lambda(fopen-call)
-	      (parameters fopen-call))
+	      (cl-ppcre:regex-replace-all "'" (car (parameters fopen-call)) ""))
 	  (remove-if-not #'(lambda (record)
 			     (and (typep record 'entry-record)
 				  (string= (function-name record) "fopen")))

@@ -53,6 +53,7 @@ clustering of page requests
 						 (cl-fad:with-open-temporary-file (stream :direction :io :element-type 'character)
 						   (ssh:scp php-session-file (pathname stream) user host pwd)
 						   (finish-output stream)
+						   (ssh:convert-to-utf8-encoding (pathname stream)) ;this is just because encoding is stupid
 						   (php-session:parse-php-session stream 
 										  (php-session:extract-session-id php-session-file))))
 					     (ssh:folder-content-guest php-session-folder user host pwd))

@@ -9,32 +9,31 @@ clustering of page requests
 (defstruct file-diff-entry diffs)
 
 
-(defclass file-history-state ()
+(defclass file-history-state (history-state)
   ((file-index 
     :initarg :file-index
     :reader file-index)))
 
 
 (defmethod print-object ((object file-history-state) stream)
-  (FORMAT stream "[~%~{~{~a:~a~}~%~}]" (file-index object)))
+  (FORMAT stream "[~{~a~^~%~}]" (file-index object)))
    
 
-(defun make-file-history-state (relevant-file-paths login-credentials)
+(defun make-file-history-state (relevant-file-paths user host pwd)
+  (declare (ignore user host pwd))
+  (FORMAT T "making file history state ~a ~%" (listp relevant-file-paths))
   (make-instance 'file-history-state
-		 :file-index (destructuring-bind (user host pwd)
-				 login-credentials
-			       (sort 
-				(mapcar #'(lambda (file-path)
-					    (cl-fad:with-open-temporary-file (temp-file-stream)
-					      (ssh:scp file-path (pathname temp-file-stream) user host pwd)
-					      (finish-output temp-file-stream)
-					      (list file-path (file-length temp-file-stream))))
-					relevant-file-paths)
-				#'string<=
-				:key #'car))))
+		 :file-index (sort 
+			      relevant-file-paths
+			      #'string-lessp)))
   
 
 (defmethod diff-history-state ((old file-history-state) (new file-history-state))
+  (make-file-diff-entry :diffs (remove-if #'(lambda (file-path)
+					      (find file-path (file-index old) :test #'string=))
+					  (file-index old))))
+
+#|(defmethod diff-history-state ((old file-history-state) (new file-history-state))
   (labels ((index-diff (old-index new-index) ;assumes string<= ordered indexes - true by definition of file-history-state
 	     (cond 
 	       ((not old-index)
@@ -54,3 +53,4 @@ clustering of page requests
 	       (T
 		(index-diff (cdr old-index) (cdr new-index))))))
     (make-file-diff-entry :diffs (index-diff (file-index old) (file-index new)))))
+|#
