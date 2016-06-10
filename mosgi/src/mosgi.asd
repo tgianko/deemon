@@ -20,6 +20,9 @@
 						"php-session"
 						"php-session-diff"))
 		 (:file "ssh-interface" :depends-on ("packages"))
+		 (:file "database" :depends-on ("packages"
+						"diff-file"
+						"diff-php"))
 		 (:file "main" :depends-on ("packages"
 					    "ssh-interface"
 					    "php-session"

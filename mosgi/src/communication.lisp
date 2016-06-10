@@ -66,7 +66,7 @@ integer"
        (rem-bytes (reverse byte-array) (cdr rem-bytes)))
       ((not rem-bytes) integer)
     (FORMAT T "setting byte ~a~%" (car rem-bytes))
-    (setf integer (dpb (car rem-bytes) (byte 8 (* counter 8)) integer)))))
+    (setf integer (dpb (car rem-bytes) (byte 8 (* counter 8)) integer))))
 
 
 (defmethod receive-nbyte-number ((handler communication-handler) &optional (bytes-count 4)) ;receives number in bytes - default 32b number
