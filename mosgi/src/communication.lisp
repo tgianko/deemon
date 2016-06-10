@@ -3,7 +3,7 @@ Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
 This file provides the interface for communication
 with the proxy. It creates a communication handler
 which provides an interface for receiving and sending
-single chars which represent order/answer codes
+single bytes which represent order/answer codes
 |#
 (in-package :de.uni-saarland.syssec.mosgi.communication)
 
@@ -32,7 +32,7 @@ single chars which represent order/answer codes
       (make-instance 'communication-handler
 		     :server server
 		     :connection connected-socket
-		     :iostream (sb-bsd-sockets:socket-make-stream connected-socket :input T :output T :buffering :none)))))
+		     :iostream (sb-bsd-sockets:socket-make-stream connected-socket :input T :output T :buffering :none :element-type '(unsigned-byte 8))))))
 
 
 (defmethod close-communication-handler ((handler communication-handler))
@@ -45,17 +45,17 @@ single chars which represent order/answer codes
 
 (defmacro with-connected-communication-handler ((handler listen-ip listen-port) &body body)
   `(let ((,handler (create-communication-handler ,listen-ip ,listen-port)))
-	 (unwind-protect 
-	      (handler-case
-		  (progn 
-		    ,@body)
-		(error (e)
-		  (FORMAT T "ECOUNTERED ERROR ~a~%" e)))	   
+     (unwind-protect 
+	  (restart-case
+	      (progn 
+		,@body)
+	    (shut-down-handler ()
+	      nil))
        (close-communication-handler ,handler))))
 
 
-(defmethod receive-character ((handler communication-handler))
-  (read-char (iostream handler) nil 'eof))
+(defmethod receive-byte ((handler communication-handler))
+  (read-byte (iostream handler) nil 42))
 
 
 (defun byte-array->integer (byte-array)
@@ -65,7 +65,6 @@ integer"
        (counter 0 (+ 1 counter))
        (rem-bytes (reverse byte-array) (cdr rem-bytes)))
       ((not rem-bytes) integer)
-    (FORMAT T "setting byte ~a~%" (car rem-bytes))
     (setf integer (dpb (car rem-bytes) (byte 8 (* counter 8)) integer))))
 
 
@@ -73,7 +72,7 @@ integer"
   (let ((collection nil))
     (dotimes (i bytes-count)
       (push (read-byte (iostream handler) nil 'eof) collection))
-    (byte-array->integer collection)))
+    (byte-array->integer (reverse collection))))
     
 
 (defmethod receive-32b-unsigned-integer ((handler communication-handler))
@@ -84,9 +83,8 @@ integer"
   (receive-nbyte-number handler 8))
 
 
-(defmethod send-character ((handler communication-handler) (char character))
-  (FORMAT T "~a~%" (stream-element-type (iostream handler)))
-  (write-char char (iostream handler))
+(defmethod send-byte ((handler communication-handler) byte)
+  (write-byte byte (iostream handler))
   (finish-output (iostream handler)))
 
 

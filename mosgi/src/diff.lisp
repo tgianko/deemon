@@ -37,7 +37,7 @@ the general interface.
   (with-slots (state-history diff-history current-state)
       st
     (FORMAT stream "state history size:~a~%diff-history-size:~a~%current-state:~%~a"
-	    state-history (length diff-history) current-state)))
+	    (length state-history) (length diff-history) current-state)))
 				 
 
 (defmethod add-next-state-* ((trace state-trace) (new-state history-state))
@@ -46,12 +46,14 @@ the general interface.
       trace 
     (if (not current-state)
 	(progn
+	  (FORMAT T "no diff~%")
 	  (setf (slot-value new-state 'entry-nr) 0))
 	(progn 
-	  (push (diff-history-state new-state current-state) diff-history)
+	  (FORMAT T "apply diff~%")
+	  (setf (diff-history trace) (append (list (diff-history-state new-state current-state)) (diff-history trace)))
 	  (push current-state state-history)
 	  (setf (slot-value new-state 'entry-nr) (+ (slot-value (car state-history) 'entry-nr) 1))))
-    (setf current-state new-state)))
+    (setf (slot-value trace 'current-state) new-state)))
   
     
 

@@ -17,8 +17,8 @@ sqlitedb = os.path.expanduser("~") + "/.vilanoo/vilanoo.db"
 sqlite_schema = "./proxyDbSchema.sql"
 mosgi_interface="127.0.0.1"
 mosgi_port=9292
-mosgi_start_command_char='D'
-mosgi_finish_response_char='F'
+mosgi_start_command_byte=0
+mosgi_finish_response_byte=2
 mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 mosgi_connection.connect((mosgi_interface,mosgi_port))
 mosgi_lock = threading.Lock()
@@ -50,27 +50,51 @@ def check_and_create():
                 cur.executescript(schema)
 
         
+def insert_http_request(stuff_we_really_do_not_care_about,request):
+    host = request.headers["host"][0]
+    url = "{}{}".format(host, request.path)
+    headers = ""
+    for key,value in request.headers.items():
+        headers = headers + key + "=" + value + ";"
+    body = "{0}".format(request.content)
+    cookies =""
+    for element in request.headers.lst:
+        if element[0] == 'Cookie':
+            cookies = cookies + element[1]
+        
+    cookies.replace(" ","")
+            
+    method_type = request.method
+    check_and_create()    
+    with sql_lock:        
+        con = lite.connect(sqlitedb)        
+        with con:            
+            cur = con.cursor()            
+            ##inserting the http_request that triggered the sql_queries            
+            http_request_query_data = (datetime.datetime.now(),url,headers,body,method_type,cookies,"unknown")
+            cur.execute("INSERT INTO http_requests (time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?)",
+                        http_request_query_data)
+            request_id = cur.lastrowid
+            global_last_request_id = request_id
+
+    request.db_request_id = lambda: None
+    setattr(request,'db_request_id',request_id)
+
+    return request_id
+
+
 """
 Handle input into the sqlite database
 http_request is a string representing the http_request url
 query_array is an array of tuples consisting of (query_type,query_string)
 """
 sql_lock = threading.Lock()
-def insert_http_query_data(http_request_url,headers,body,method,cookies,query_array):
-    check_and_create()
-    
+def insert_http_query_data(query_array,request_id):
+    print "insert query data"
     with sql_lock:        
-        con = lite.connect(sqlitedb)
-        
+        con = lite.connect(sqlitedb)        
         with con:            
-            cur = con.cursor()
-            
-            ##inserting the http_request that triggered the sql_queries            
-            http_request_query_data = (datetime.datetime.now(),http_request_url,headers,body,method,cookies,"unknown")
-            cur.execute("INSERT INTO http_requests (time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?)",
-                        http_request_query_data)
-            request_id = cur.lastrowid
-            
+            cur = con.cursor()            
             ##inserting the related sql_queries 
             sql_query_query_data = []
             counter = 0
@@ -78,11 +102,9 @@ def insert_http_query_data(http_request_url,headers,body,method,cookies,query_ar
                 insert_tuple = (request_id,counter,query[0],query[1])
                 sql_query_query_data.append(insert_tuple)
                 counter += 1
-
-            cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
-                            sql_query_query_data)
-
-            return request_id
+                
+                cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
+                                sql_query_query_data)                
 
 
 """
@@ -123,7 +145,6 @@ def is_async_request(context, request):
                "js"]:
         return True
     """
-
     return False
 
 """
@@ -150,65 +171,40 @@ def process_queries(context, request, queries):
             st_ch += 1
         if sql[0].tokens[0].value.upper() in ["DROP"]:
             st_ch += 1
-
+            
+    insert_http_query_data(queries_array,request.db_request_id)
     host = request.headers["host"][0]
     url = "{}{}".format(host, request.path)
-    
-    headers = ""
-    for key,value in request.headers.items():
-        headers = headers + key + "=" + value + ";"
-
-    body = "{0}".format(request.content)
-        
-    cookies =""
-    for element in request.headers.lst:
-        if element[0] == 'Cookie':
-            cookies = cookies + element[1]
-
-    cookies.replace(" ","")
-            
-    method_type = request.method
-            
-    request_id = insert_http_query_data(url,headers,body,method_type,cookies,queries_array)
-    global_last_request_id = request_id
-
-    #in this code block I force a new attribute into a code block
-    request.db_request_id = lambda: None
-    setattr(request,'db_request_id',request_id)
-    #ugly hack end
-    
     print fmt.format(*[sel, st_ch, request.method, url])
     
 
 
-#this function is called - tested througholy
+#ACTHUNG -
+#this function is called - tested sufficiently but threaded for no reason at all
+#probably to mess with any logic using this function and expecting it not to
+#threaded and completly out of sync with the rest of the stuff in this file - ACHTUNG!
 def request(context, flow):
-    #flow.request.a = lambda: None
-    #setattr(flow.request,'a',42)
-    #print flow.request.__dict__
     pass
-    #print "handle request: {}{}".format(flow.request.host, flow.request.path)
+
     
-def get_current_request_id()
-    
+#ACHTUNG-
+#THIS COULD BE ASYNC AS WELL - NO IDEA HOW TO HANDLE OR EVEN
+#FIGURE THIS OUT o_O - ACHTUNG    
 def response(context, flow):
-    #well now that the queries are processed let call our lord and master mosgi
-    print "calling mosgi"
-    if global_last_request_id == -1:
-        raise "last request id is not set!"
-    else:
-        mosgi_connection.send(mosgi_start_command_char)
+    try:
+        #well now that the queries are processed let call our lord and master mosgi
+        command = bytearray([mosgi_start_command_byte])
+        mosgi_connection.send(command)
         #this should explode the int into 4 bytes and transmit them to mosgi
-        array = [(global_last_request_id>>(8*i))&0xff for i in range(3,-1,-1)]
-        print array
-        mosgi_connection.send(array[0])
-        mosgi_connection.send(array[1])
-        mosgi_connection.send(array[2])
-        mosgi_connection.send(array[3])
-        global_last_request_id = -1 #reset request_id to ensure it is always aprop set
-    print "started mosgi"
-    rcv = mosgi_connection.recv(1)
-    print "mosgi done - I am done"
+        request_id = bytearray( [ ((flow.request.db_request_id>>24) & 0xff) ,
+                             ((flow.request.db_request_id>>16) & 0xff), 
+                             ((flow.request.db_request_id>>8) & 0xff), 
+                             (flow.request.db_request_id & 0xff) ] )
+        mosgi_connection.send(request_id)
+        rcv = mosgi_connection.recv(1)
+    except Exception as inst:
+        print inst
+
     try:
         
         if "db_request_id" in flow.request.__dict__: #if no such id exists the response is of no interest for us

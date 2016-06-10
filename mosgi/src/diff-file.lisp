@@ -28,10 +28,9 @@ clustering of page requests
 			      #'string-lessp)))
   
 
-(defmethod diff-history-state ((old file-history-state) (new file-history-state))
-  (make-file-diff-entry :diffs (remove-if #'(lambda (file-path)
-					      (find file-path (file-index old) :test #'string=))
-					  (file-index old))))
+(defmethod diff-history-state ((new file-history-state) (current file-history-state))
+  (declare (ignore current))
+  (make-file-diff-entry :diffs (file-index new)))
 
 #|(defmethod diff-history-state ((old file-history-state) (new file-history-state))
   (labels ((index-diff (old-index new-index) ;assumes string<= ordered indexes - true by definition of file-history-state

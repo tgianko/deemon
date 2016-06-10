@@ -76,7 +76,9 @@ Labels:
 	(cons diff-bindings :CHANGED)
 	nil)))
 
-(trace diff)
+(defmethod diff ((old php-session-nil-element) (new php-session-nil-element))
+  nil)
+
 
 (defmethod diff ((old php-session) (new php-session))
   (labels ((diff-elements (old-elements new-elements)
@@ -108,7 +110,7 @@ Labels:
 		      (diff-elements (cdr old-elements)
 				     (cdr new-elements))))))))		      		    
     (when (not (string= (session-id old) (session-id new)))
-      (error 'php-session-diif-condition 
+      (error 'php-session-diff-condition 
 	     :format-control "connot compare two different sessions"))
     (let ((diff (diff-elements (elements old)
 			       (elements new))))

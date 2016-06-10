@@ -16,7 +16,9 @@
 	   file-history-state
 	   file-diff-entry-diffs
 	   diff-history
-	   php-session-diff-entry-diffs))
+	   php-session-diff-entry-diffs
+	   php-session-diff-entry
+	   file-diff-entry))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.ssh-interface
@@ -53,8 +55,8 @@
   (:use :cl)
   (:nicknames :com)
   (:export with-connected-communication-handler
-	   receive-character
-	   send-character
+	   receive-byte
+	   send-byte
 	   receive-32b-unsigned-integer
 	   receive-64b-unsigned-integer))
 

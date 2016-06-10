@@ -7,10 +7,11 @@ waits/responds for commands and executes given commands
 (in-package :de.uni-saarland.syssec.mosgi)
 
 
-(defparameter *legal-communication-chars*
-  '((#\D . :START-DIFF) 
-    (#\K . :KILL-YOURSELF) 
-    (#\F . :FINISHED-DIFF)))
+(defparameter *legal-communication-bytes*
+  '((0 . :START-DIFF) 
+    (1 . :KILL-YOURSELF) 
+    (2 . :FINISHED-DIFF)
+    (42 . :STREAM-EOF)))
 
 
 (defparameter *listen-port* 4242)
@@ -68,7 +69,7 @@ waits/responds for commands and executes given commands
 	 :arg-parser #'identity))
     
 
-(defun make-diff (php-session-folder xdebug-trace-folder user host pwd request-db-id sqlite-db-path)
+(defun make-diff (php-session-folder xdebug-trace-folder user host pwd sqlite-db-path request-db-id)
   (restart-case 
       (progn
 	(FORMAT T "running php session analysis~%")
@@ -110,13 +111,13 @@ waits/responds for commands and executes given commands
 	(FORMAT T "xdebug-trace-folder: ~a~%" (getf options :xdebug-trace-file))
 	(FORMAT T "php-session-folder: ~a~%" (getf options :php-session-folder))
 	(com:with-connected-communication-handler (handler (getf options :interface) (getf options :port))
-	  (do ((received-order (com:receive-character handler)
-			       (com:receive-character handler)))
-	      ((char= (car (find :KILL-YOURSELF *legal-communication-chars* :key #'cdr)) received-order) nil)
-	    (let ((*file-diff-state* (make-instance 'diff:state-trace))
-		  (*php-session-diff-state* (make-instance 'diff:state-trace)))
-	      (FORMAT T "Received Command: ~a~%" (cdr (find received-order *legal-communication-chars* :key #'car)))
-	      (ecase (cdr (find received-order *legal-communication-chars* :key #'car))
+	  (let ((*file-diff-state* (make-instance 'diff:state-trace))
+		(*php-session-diff-state* (make-instance 'diff:state-trace)))
+	    (do ((received-order (com:receive-byte handler)
+				 (com:receive-byte handler)))
+		((= (car (find :KILL-YOURSELF *legal-communication-bytes* :key #'cdr)) received-order) nil)	      
+	      (FORMAT T "Received Command: ~a~%" (cdr (find received-order *legal-communication-bytes* :key #'car)))
+	      (ecase (cdr (find received-order *legal-communication-bytes* :key #'car))
 		(:START-DIFF 		 
 		 (make-diff (getf options :php-session-folder) 
 			    (getf options :xdebug-trace-file)
@@ -125,11 +126,12 @@ waits/responds for commands and executes given commands
 			    (getf options :target-system-pwd)
 			    (getf options :sql-db-path)
 			    (com:receive-32b-unsigned-integer handler))))
-	      (FORMAT T "updatedstates:~%~a~%~%~a" *file-diff-state* *php-session-diff-state*)
-	      (com:send-character handler (car (find :FINISHED-DIFF *legal-communication-chars* :key #'cdr)))))))
+	      (FORMAT T "updatedstates:~%~a~%~%~a~%" *file-diff-state* *php-session-diff-state*)
+	      (com:send-byte handler (car (find :FINISHED-DIFF *legal-communication-bytes* :key #'cdr)))))))
     (unix-opts:unknown-option (err)
       (declare (ignore err))
       (opts:describe
        :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications - kneel before thy master"
        :suffix "so that's how it works…"
        :usage-of "run.sh"))))
+

@@ -5,6 +5,7 @@
 		     "--interface" "127.0.0.1"
 		     "--target-system" "192.168.56.106"
 		     "--target-root" "root"
+		     "--sql-db-path" "/home/simkoc/.vilanoo/vilanoo.db"
 		     "--host-pwd" "bitnami"))
 
 
