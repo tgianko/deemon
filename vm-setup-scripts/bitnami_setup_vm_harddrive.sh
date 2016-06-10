@@ -83,7 +83,6 @@ echo "xdebug.trace_format=1"                                            >> "${mo
 echo "xdebug.collect_return=1"                                          >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.collect_assignments=1"                                     >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_options=0"                                           >> "${mount_point}/opt/bitnami/php/etc/php.ini"
-echo "xdebug.trace_output_name=trace.fix42.xt"                          >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_output_dir=/tmp/"                                    >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 
 #database specific configuration

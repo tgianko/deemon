@@ -29,7 +29,6 @@ the general interface.
     :accessor current-state)))
 
 
-
 (defun make-empty-state-history ()
   (make-instance 'state-trace))
 

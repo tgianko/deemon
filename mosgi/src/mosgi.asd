@@ -4,7 +4,8 @@
     :author "Simon Koch <s9sikoch@stud.uni-saarland.de>"
     :depends-on (:libssh2
 		 :cl-ppcre
-		 :unix-opts)
+		 :unix-opts
+		 :clsql)
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
 		 (:file "php-session" :depends-on ("packages"))

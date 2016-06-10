@@ -22,6 +22,8 @@ mosgi_finish_response_char='F'
 mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 mosgi_connection.connect((mosgi_interface,mosgi_port))
 mosgi_lock = threading.Lock()
+global_last_request_id = -1
+
 
 def serverconnect(context, server_conn):
     pass
@@ -168,7 +170,7 @@ def process_queries(context, request, queries):
     method_type = request.method
             
     request_id = insert_http_query_data(url,headers,body,method_type,cookies,queries_array)
-
+    global_last_request_id = request_id
 
     #in this code block I force a new attribute into a code block
     request.db_request_id = lambda: None
@@ -187,11 +189,23 @@ def request(context, flow):
     pass
     #print "handle request: {}{}".format(flow.request.host, flow.request.path)
     
+def get_current_request_id()
     
 def response(context, flow):
     #well now that the queries are processed let call our lord and master mosgi
     print "calling mosgi"
-    mosgi_connection.send(mosgi_start_command_char)
+    if global_last_request_id == -1:
+        raise "last request id is not set!"
+    else:
+        mosgi_connection.send(mosgi_start_command_char)
+        #this should explode the int into 4 bytes and transmit them to mosgi
+        array = [(global_last_request_id>>(8*i))&0xff for i in range(3,-1,-1)]
+        print array
+        mosgi_connection.send(array[0])
+        mosgi_connection.send(array[1])
+        mosgi_connection.send(array[2])
+        mosgi_connection.send(array[3])
+        global_last_request_id = -1 #reset request_id to ensure it is always aprop set
     print "started mosgi"
     rcv = mosgi_connection.recv(1)
     print "mosgi done - I am done"

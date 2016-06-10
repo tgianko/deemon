@@ -58,7 +58,39 @@ single chars which represent order/answer codes
   (read-char (iostream handler) nil 'eof))
 
 
+(defun byte-array->integer (byte-array)
+  "converts a given byte array in order of high to low into an
+integer"
+  (do ((integer 0)
+       (counter 0 (+ 1 counter))
+       (rem-bytes (reverse byte-array) (cdr rem-bytes)))
+      ((not rem-bytes) integer)
+    (FORMAT T "setting byte ~a~%" (car rem-bytes))
+    (setf integer (dpb (car rem-bytes) (byte 8 (* counter 8)) integer)))))
+
+
+(defmethod receive-nbyte-number ((handler communication-handler) &optional (bytes-count 4)) ;receives number in bytes - default 32b number
+  (let ((collection nil))
+    (dotimes (i bytes-count)
+      (push (read-byte (iostream handler) nil 'eof) collection))
+    (byte-array->integer collection)))
+    
+
+(defmethod receive-32b-unsigned-integer ((handler communication-handler))
+  (receive-nbyte-number handler 4))
+
+
+(defmethod receive-64b-unsigned-integer ((handler communication-handler))
+  (receive-nbyte-number handler 8))
+
+
 (defmethod send-character ((handler communication-handler) (char character))
   (FORMAT T "~a~%" (stream-element-type (iostream handler)))
   (write-char char (iostream handler))
   (finish-output (iostream handler)))
+
+
+	 
+
+
+      

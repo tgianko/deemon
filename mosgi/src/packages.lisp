@@ -12,7 +12,11 @@
 	   make-php-session-history-state
 	   state-trace
 	   php-session-state
-	   make-empty-state-history))
+	   make-empty-state-history
+	   file-history-state
+	   file-diff-entry-diffs
+	   diff-history
+	   php-session-diff-entry-diffs))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.ssh-interface
@@ -50,5 +54,13 @@
   (:nicknames :com)
   (:export with-connected-communication-handler
 	   receive-character
-	   send-character))
+	   send-character
+	   receive-32b-unsigned-integer
+	   receive-64b-unsigned-integer))
+
+
+(defpackage :de.uni-saarland.syssec.mosgi.database
+  (:use :cl :diff)
+  (:nicknames :db-interface)
+  (:export commit-latest-diff))
 	   
