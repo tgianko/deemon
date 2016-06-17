@@ -77,6 +77,14 @@ After installing quicklisp (follow the tutorial given on the homepage) set the s
 
 in `./quicklisp/local-projects/`
 
+We also rely on a library that needs patches for our purposes. We established a external
+repository to handle this. Clone it into "./quicklisp/local-projects/"
+
+	git clone https://github.com/simkoc/cl-libssh2.git
+
+and if smth breaks and the string "libssh2" appears. Update the repo. We are in contact with
+the main author that handles the repo used by quicklisp but it takes time to push changes, thus
+relying on our own repo to fit our needs is more convienient.
 
 ## Usage
 боже мой - after successfully installing everything
