@@ -22,8 +22,8 @@ layout that is guaranteed to work.
 All scripts are based on `/bin/bash` and work with relative paths. If there are constant paths used please 
 report them as a bug.
 
-*Comment*:As a downside of this approach it it would be a very bad idea to rename folders INSIDE the repo without
-       great caution
+*Comment*: As a downside of this approach it it would be a very bad idea to rename folders INSIDE the repo without
+great caution
 
 Every script intended for direct usage can be used without parameter and reports the correct usage.
 If this is not the case please report that as a bug.
@@ -69,10 +69,12 @@ The following things are needed:
 
 After installing quicklisp (follow the tutorial given on the homepage) set the symlink
 
-        ln -s /path/to/vilanoo/mosgi/src/ mosgi` in `./quicklisp/local-projects/
+        ln -s /path/to/vilanoo/mosgi/src/ mosgi 
+
+in `./quicklisp/local-projects/`
 
 
-##Usage
+## Usage
 боже мой - after successfully installing everything
 
 ### Setting up the vm (this is only required once!)
@@ -93,8 +95,8 @@ The vm should be up and running at the end of the script and the ip
 of the vm is printed in the end. The start-up of the vm will take
 a couple minutes (see the corresponding issue).
 
-IMPORTANT: If at some step something did not work out and the problem
-is fixed it is important to do a COMPLETE reset. Basically deleting the
+**IMPORTANT**: If at some step something did not work out and the problem
+is fixed it is important to do a **COMPLETE** reset. Basically deleting the
 vm-folder and using a fresh version. No relative restart is possible and
 will just end in even more weird and confusing error messages.
 
@@ -105,20 +107,23 @@ We have to start all the proxy parts in the correct order:
 * mosgi (the lisp stuff - don't worry there is a cmd script for that)
 * vilanoo-proxy  (don't worry there is a cmd script for that)
 
-The first step is to start `mosgi`: `./vilanoo/mosgi/run.sh` all commands
-are listed using the `-h` flag. If not mentioned otherwise a command is
+The first step is to start `mosgi`: 
+
+`./vilanoo/mosgi/run.sh` 
+
+all flags are listed and explained using the `-h` flag. If not mentioned otherwise a command is
 mandatory.
 
 The second step is to start `vilanoo`: 
 
         ./vilanoo/vilano-proxy/src/ <bind_proxy_address> <bind_proxy_port> <mysql_proxy_ip> <mysql_proxy_port> <mysql_server_host> <mysql_server_port>
 
-Mosgi should display that a connection was established.
+Mosgi should (now) display, that a connection has been established.
 
-As a last step we need to configure the browser to use `vilano-proxy` as our proxy.
+As the last step we need to configure the browser to use `vilano-proxy` as our proxy.
 Then we can access the vm using the ip of the machine to access the webpage we are
-interested in (which is on the bitnami machine of course)
+interested in (that is on the bitnami machine of course)
 
 
-Any steps that do not work or are not sufficiently discribed are a bug and should be
-made a (seperate) ticket for us to fix.
+**Any steps that do not work or are not sufficiently discribed are a bug and should be
+made a (seperate) ticket for us to fix.**
