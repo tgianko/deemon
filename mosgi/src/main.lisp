@@ -103,8 +103,6 @@ waits/responds for commands and executes given commands
 	(declare (ignore free-args))
 	(FORMAT T "Congratulation you started mosgi - a program which will most likely:~%")
 	(FORMAT T "- crash your computer~%")
-	(FORMAT T "- publish your personal information on /b/~%") ;;TODO:maybe slightly inaprop for publishing publicly ;)
-	(FORMAT T "- sell you firstborn (probably also on /b/)~%")
 	(FORMAT T "Furthermore it will do/use:~%")
 	(FORMAT T "listen on ~a:~a~%" (getf options :interface) (getf options :port))
 	(FORMAT T "target ssh ~a@~a using password ~a~%" (getf options :target-system-root) (getf options :target-system-ip) (getf options :target-system-pwd))

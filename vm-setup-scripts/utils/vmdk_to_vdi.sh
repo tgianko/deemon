@@ -23,8 +23,9 @@ if [ "$file_extension" != "vmdk" ]; then
 fi
 
 echo "starting to clone vmdk file"
-vboxmanage clonehd --format vdi $1 $2
-echo "deleting old vmdk file"
-rm $1
-echo "finished conversion"
+sudo vboxmanage clonehd --format vdi $1 $2
+sudo chmod 666 $2
+#echo "deleting old vmdk file"
+#rm $1
+echo "finished conversion - remember to delete old vmdk files"
 exit

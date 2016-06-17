@@ -78,7 +78,7 @@ echo ""                                                                 >> "${mo
 echo "[XDebug]"                                                         >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "zend_extension=\"/opt/bitnami/php/lib/php/extensions/xdebug.so\"" >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.auto_trace=1"                                              >> "${mount_point}/opt/bitnami/php/etc/php.ini"
-echo "xdebug.collect.params=4"                                          >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.collect_params=4"                                          >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_format=1"                                            >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.collect_return=1"                                          >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.collect_assignments=1"                                     >> "${mount_point}/opt/bitnami/php/etc/php.ini"

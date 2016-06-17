@@ -103,8 +103,8 @@ def insert_http_query_data(query_array,request_id):
                 sql_query_query_data.append(insert_tuple)
                 counter += 1
                 
-                cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
-                                sql_query_query_data)                
+            cur.executemany("INSERT INTO sql_queries (http_request_id,query_counter,query_type,query_string) VALUES(?,?,?,?)",
+                            sql_query_query_data)                
 
 
 """

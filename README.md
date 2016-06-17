@@ -31,6 +31,10 @@ If this is not the case please report that as a bug.
 Every script contains a short description at the beginning of the file to explain what the script should be
 used for. If this is not the case please report that as a bug.
 
+Running the whole program will create a folder `~/.vilanoo/` which will contain project relevant information.
+This also means that the database used is contained in that folder and called "./vilanoo.db". Any flag
+requesting this parameter provide a path to that database.
+
 ## Installation
 
 ### VirtualBox
@@ -83,9 +87,9 @@ If the vm is in form of `.vmdk` files use:
 
          ./vilanoo/vm-setup-scripts/pamada.sh </full/path/vm.vmdk> mysql
 
-else (the vm is in the form of a `.vdi` file:
+else (the vm is in the form of a `.vdi` file):
 
-         ./vilanoo/polesno.sh </full/path/to/vm.vdi> mysql
+         ./vilanoo/vm-setup-scripts/polesno.sh </full/path/to/vm.vdi> mysql
 
 If this yields any errors please give a bug report consisting of:
 * exact command given
@@ -109,7 +113,7 @@ We have to start all the proxy parts in the correct order:
 
 The first step is to start `mosgi`: 
 
-`./vilanoo/mosgi/run.sh` 
+    ./vilanoo/mosgi/run.sh
 
 all flags are listed and explained using the `-h` flag. If not mentioned otherwise a command is
 mandatory.

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sbcl --noinform --non-interactive --load run-mosgi.lisp "$@"
+sbcl --dynamic-space-size 4000 --noinform --non-interactive --load run-mosgi.lisp "$@"

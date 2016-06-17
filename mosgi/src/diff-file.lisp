@@ -23,9 +23,11 @@ clustering of page requests
   (declare (ignore user host pwd))
   (FORMAT T "making file history state ~a ~%" (listp relevant-file-paths))
   (make-instance 'file-history-state
-		 :file-index (sort 
-			      relevant-file-paths
-			      #'string-lessp)))
+		 :file-index (remove-duplicates
+			      (sort 
+			       relevant-file-paths
+			       #'string-lessp)
+			      :test #'string=)))
   
 
 (defmethod diff-history-state ((new file-history-state) (current file-history-state))

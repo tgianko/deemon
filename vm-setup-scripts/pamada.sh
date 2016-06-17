@@ -7,8 +7,9 @@ fi
 
 vmdk=$1
 path=`echo $vmdk | grep -Eo '.*[/]'`
-vm_file_name=`echo $vmdk | awk '{gsub(/.*[/]|[.]{1}[^.]+$/, "", $0)} 1'`
-vdi=${path}${vm_file_name}.vdi
+vm_file_name=$(basename $vmdk)
+vm_file_name=`echo $vm_file_name | sed 's/\.vmdk//g'`
+vdi="${path}${vm_file_name}.vdi"
 database=$2
 
 echo $vmdk
