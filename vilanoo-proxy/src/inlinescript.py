@@ -162,7 +162,7 @@ def is_boring_request(context, request):
     if ext in ["jpg", "gif", "png", "ico",
                "css", "woff2",
                "js"]:
-        return True
+        return False
 
     return False
 
@@ -174,7 +174,6 @@ def process_queries(context, request, queries):
     sel   = 0
     st_ch = 0
     queries_array = []
-    #print queries
     for q in queries:
         sql = sqlparse.parse(q)
         query_type = sql[0].tokens[0].value.upper()
@@ -199,30 +198,25 @@ def process_queries(context, request, queries):
     
 
 
-#ACTHUNG -
-#this function is called - tested sufficiently but threaded for no reason at all
-#probably to mess with any logic using this function and expecting it not to
-#threaded and completly out of sync with the rest of the stuff in this file - ACHTUNG!
 def request(context, flow):
-    pass
+    with mosgi_lock:
+        print "start of request"
 
     
-#ACHTUNG-
-#THIS COULD BE ASYNC AS WELL - NO IDEA HOW TO HANDLE OR EVEN
-#FIGURE THIS OUT o_O - ACHTUNG    
 def response(context, flow):
     try:
         #well now that the queries are processed let call our lord and master mosgi
-        if not is_boring_request(context,flow.request):
-            command = bytearray([mosgi_start_command_byte])
-            mosgi_connection.send(command)
-            #this should explode the int into 4 bytes and transmit them to mosgi
-            request_id = bytearray( [ ((flow.request.db_request_id>>24) & 0xff) ,
-                                      ((flow.request.db_request_id>>16) & 0xff), 
-                                      ((flow.request.db_request_id>>8) & 0xff), 
-                                      (flow.request.db_request_id & 0xff) ] )
-            mosgi_connection.send(request_id)
-            rcv = mosgi_connection.recv(1)
+        with mosgi_lock:
+            if not is_boring_request(context,flow.request):
+                command = bytearray([mosgi_start_command_byte])
+                mosgi_connection.send(command)
+                #this should explode the int into 4 bytes and transmit them to mosgi
+                request_id = bytearray( [ ((flow.request.db_request_id>>24) & 0xff) ,
+                                          ((flow.request.db_request_id>>16) & 0xff), 
+                                          ((flow.request.db_request_id>>8) & 0xff), 
+                                          (flow.request.db_request_id & 0xff) ] )
+                mosgi_connection.send(request_id)
+                rcv = mosgi_connection.recv(1)
     except Exception as inst:
         print inst
 
@@ -239,5 +233,6 @@ def response(context, flow):
     except Exception as inst:
         print inst
         
+    print "end of req"
     #update_request_status(url,http_response.status_code)
 

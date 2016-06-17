@@ -151,7 +151,6 @@ def _send_decorator(self, request):
     proxy.ServerConnection._send(self, request)
     for s in master.scripts:
         nobody_cares,ret = s.run('insert_http_request',request)
-    time.sleep(2)
     buff = mysqlproxy.get_queries()
     
     for s in master.scripts:
