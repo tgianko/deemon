@@ -68,6 +68,7 @@ The following things are needed:
 * quicklisp (https://www.quicklisp.org/beta/)
 
 After installing quicklisp (follow the tutorial given on the homepage) set the symlink
+
         ln -s /path/to/vilanoo/mosgi/src/ mosgi` in `./quicklisp/local-projects/
 
 
@@ -77,8 +78,11 @@ After installing quicklisp (follow the tutorial given on the homepage) set the s
 ### Setting up the vm (this is only required once!)
 
 If the vm is in form of `.vmdk` files use:
+
          ./vilanoo/vm-setup-scripts/pamada.sh </full/path/vm.vmdk> mysql
+
 else (the vm is in the form of a `.vdi` file:
+
          ./vilanoo/polesno.sh </full/path/to/vm.vdi> mysql
 
 If this yields any errors please give a bug report consisting of:
@@ -106,6 +110,7 @@ are listed using the `-h` flag. If not mentioned otherwise a command is
 mandatory.
 
 The second step is to start `vilanoo`: 
+
         ./vilanoo/vilano-proxy/src/ <bind_proxy_address> <bind_proxy_port> <mysql_proxy_ip> <mysql_proxy_port> <mysql_server_host> <mysql_server_port>
 
 Mosgi should display that a connection was established.
