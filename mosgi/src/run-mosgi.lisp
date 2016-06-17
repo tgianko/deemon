@@ -2,7 +2,7 @@
 
 
 (handler-bind 
-    ((libssh2:ssh-unknown-hostkey #'(lambda(err)
-				      (declare (ignore err))
-				      (invoke-restart 'libssh2:accept-always))))
+    ((libssh2::ssh-authentication-failure #'(lambda(err)
+					      (declare (ignore err))
+					      (invoke-restart 'libssh2:accept-always))))
   (mosgi:main))

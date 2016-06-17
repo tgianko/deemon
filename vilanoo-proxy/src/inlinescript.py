@@ -147,6 +147,26 @@ def is_async_request(context, request):
     """
     return False
 
+
+def is_boring_request(context, request):
+    host = request.headers["host"][0]
+    
+    # If request is for an external, let's send it async
+    
+    #if host not in ["192.168.56.4"]:
+    #    return True
+    
+    url = "{}{}".format(host, request.path)
+    urlp = urlparse.urlparse(url)
+    ext  = urlp.path.split(".")[-1]
+    if ext in ["jpg", "gif", "png", "ico",
+               "css", "woff2",
+               "js"]:
+        return True
+
+    return False
+
+
 """
 Do whatever you want with the queries, e.g., dynamic taint-analysis requests vs queries
 """
@@ -193,15 +213,16 @@ def request(context, flow):
 def response(context, flow):
     try:
         #well now that the queries are processed let call our lord and master mosgi
-        command = bytearray([mosgi_start_command_byte])
-        mosgi_connection.send(command)
-        #this should explode the int into 4 bytes and transmit them to mosgi
-        request_id = bytearray( [ ((flow.request.db_request_id>>24) & 0xff) ,
-                             ((flow.request.db_request_id>>16) & 0xff), 
-                             ((flow.request.db_request_id>>8) & 0xff), 
-                             (flow.request.db_request_id & 0xff) ] )
-        mosgi_connection.send(request_id)
-        rcv = mosgi_connection.recv(1)
+        if not is_boring_request(context,flow.request):
+            command = bytearray([mosgi_start_command_byte])
+            mosgi_connection.send(command)
+            #this should explode the int into 4 bytes and transmit them to mosgi
+            request_id = bytearray( [ ((flow.request.db_request_id>>24) & 0xff) ,
+                                      ((flow.request.db_request_id>>16) & 0xff), 
+                                      ((flow.request.db_request_id>>8) & 0xff), 
+                                      (flow.request.db_request_id & 0xff) ] )
+            mosgi_connection.send(request_id)
+            rcv = mosgi_connection.recv(1)
     except Exception as inst:
         print inst
 
