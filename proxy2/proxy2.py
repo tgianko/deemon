@@ -12,90 +12,18 @@ import zlib
 import time
 import json
 import re
-import time
-import sqlite3 as lite
-import os
-import socket
-import datetime
-import traceback
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 from cStringIO import StringIO
 from subprocess import Popen, PIPE
 from HTMLParser import HTMLParser
 
-sqlitedb = os.path.expanduser("~") + "/.vilanoo/vilanoo.db"
-sqlite_schema = "./proxyDbSchema.sql"
-lock = threading.Lock()
-
-mosgi_interface="127.0.0.1"
-mosgi_port=9292
-mosgi_start_command_byte=0
-mosgi_finish_response_byte=2
-mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-mosgi_connection.connect((mosgi_interface,mosgi_port))
-
-def check_and_create():
-    if os.path.exists(sqlitedb):
-        pass
-    else:
-        con = lite.connect(sqlitedb)
-
-        with con:            
-            cur = con.cursor()
-            f = open(sqlite_schema)
-            with f:
-                schema = f.read()
-                cur.executescript(schema)
-
-
-def insert_http_request(request,request_body):
-    def parse_qsl(s):
-        return '\n'.join("%-20s %s" % (k, v) for k, v in urlparse.parse_qsl(s, keep_blank_values=True))
-
-    host = request.headers["host"][0]
-    url = "{}{}".format(host, request.path)
-    headers = ""
-    for key,value in request.headers.items():
-        headers = headers + key + "=" + value + ";"
-    body = request_body
-    cookies =""
-    cookie = request.headers.get('Cookie', '')
-    if cookie:
-        cookies = parse_qsl(re.sub(r';\s*', '&', cookie))
-            
-    method_type = request.command
-    check_and_create()    
-
-    con = lite.connect(sqlitedb)        
-    with con:            
-        cur = con.cursor()            
-        ##inserting the http_request that triggered the sql_queries            
-        http_request_query_data = (datetime.datetime.now(),url,headers,body,method_type,cookies,"unknown")
-        cur.execute("INSERT INTO http_requests (time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?)",
-                    http_request_query_data)
-        request_id = cur.lastrowid
-        global_last_request_id = request_id
-
-    request.db_request_id = lambda: None
-    setattr(request,'db_request_id',request_id)
-
-    return request_id
-
-
-def update_request_status(db_request_id,status_code):
-    con = lite.connect(sqlitedb)
-    
-    with con:            
-        cur = con.cursor()
-        cur.execute("UPDATE http_requests SET status_code=? WHERE id=? ORDER BY id desc LIMIT 1",(status_code,db_request_id))
-
 
 def with_color(c, s):
     return "\x1b[%dm%s\x1b[0m" % (c, s)
 
 
-class ThreadingHTTPServer(HTTPServer):
+class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     address_family = socket.AF_INET6
     daemon_threads = True
 
@@ -113,7 +41,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     cacert = 'ca.crt'
     certkey = 'cert.key'
     certdir = 'certs/'
-    timeout = 120  #TODO: I did modify the timeout!
+    timeout = 5
     lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
@@ -165,7 +93,6 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         try:
             s = socket.create_connection(address, timeout=self.timeout)
         except Exception as e:
-            print "unable to create socket"
             self.send_error(502)
             return
         self.send_response(200, 'Connection Established')
@@ -185,37 +112,26 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                     break
                 other.sendall(data)
 
-    def do_GET(self,recursive=0):
-        print "do_GET start"
-        print recursive
-
+    def do_GET(self):
         if self.path == 'http://proxy2.test/':
             self.send_cacert()
             return
 
-        print "do_GET prep 1"
         req = self
         content_length = int(req.headers.get('Content-Length', 0))
         req_body = self.rfile.read(content_length) if content_length else None
 
-        print "do_GET prep 2"
         if req.path[0] == '/':
             if isinstance(self.connection, ssl.SSLSocket):
                 req.path = "https://%s%s" % (req.headers['Host'], req.path)
             else:
                 req.path = "http://%s%s" % (req.headers['Host'], req.path)
 
-        print "do_GET prep 3"
-        req_body_modified = None
-        if recursive == 0:
-            req_body_modified = self.request_handler(req, req_body)
-
-        print "do_GET prep 4"
+        req_body_modified = self.request_handler(req, req_body)
         if req_body_modified is not None:
             req_body = req_body_modified
             req.headers['Content-length'] = str(len(req_body))
 
-        print "do_GET prep 5"
         u = urlparse.urlsplit(req.path)
         scheme, netloc, path = u.scheme, u.netloc, (u.path + '?' + u.query if u.query else u.path)
         assert scheme in ('http', 'https')
@@ -223,44 +139,21 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             req.headers['Host'] = netloc
         req_headers = self.filter_headers(req.headers)
 
-        print "do_GET prep 6"
         try:
             origin = (scheme, netloc)
             if not origin in self.tls.conns:
                 if scheme == 'https':
-                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc,strict=False, timeout=self.timeout) #python is really weird - keep the strict=false as they apparently changed
+                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context()))
                 else:
-                    self.tls.conns[origin] = httplib.HTTPConnection(netloc,strict=False, timeout=self.timeout) #the default behaviour
+                    self.tls.conns[origin] = httplib.HTTPConnection(netloc, timeout=self.timeout)
             conn = self.tls.conns[origin]
-            print "do_GET request"
             conn.request(self.command, path, req_body, dict(req_headers))
-            print "do_GET get response"
             res = conn.getresponse()
-            print "do_GET got response"
             res_body = res.read()
-        except httplib.BadStatusLine as e:
-            print "BadStatusLine"
-            print recursive
+        except Exception as e:
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
             self.send_error(502)
-            return
-            if recursive == 10:
-                lock.release()
-                self.send_error(502)
-                return
-            else:
-                ret = self.do_GET(recursive=recursive + 1)
-                return                                                                
-        except Exception as e:
-            print "error while request"
-            print type(e).__name__
-            print e
-            if origin in self.tls.conns:
-                del self.tls.conns[origin]
-            print "emergency release"
-            lock.release()
-            self.send_error(502)            
             return
 
         version_table = {10: 'HTTP/1.0', 11: 'HTTP/1.1'}
@@ -345,7 +238,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             return '\n'.join("%-20s %s" % (k, v) for k, v in urlparse.parse_qsl(s, keep_blank_values=True))
 
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
-        res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
+        res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)
 
         print with_color(33, req_header_text)
 
@@ -420,51 +313,14 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             if res_body_text:
                 print with_color(32, "==== RESPONSE BODY ====\n%s\n" % res_body_text)
 
-    def request_relevant_p(self,req):
-        non_relevant_extensions = [".css",".js",".png",".jpg",".jpeg",".woff2",".gif"]
-        u = urlparse.urlsplit(req.path)
-        scheme, netloc, path = u.scheme, u.netloc, (u.path + '?' + u.query if u.query else u.path)
-        filename, file_extension = os.path.splitext( u.path)
-        if any(file_extension in s for s in non_relevant_extensions) :
-            return False
-        else:
-            return True
-
-
     def request_handler(self, req, req_body):
-        #lock.acquire()
-        print "===================start========================="
-        req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
-        print with_color(33, req_header_text)
+        pass
 
-
-    def response_handler(self, req, req_body, res, res_body):        
-        if self.request_relevant_p(req):
-            print "mosgi..."
-            db_id = insert_http_request(req,req_body)
-            update_request_status(db_id,res.status)
-            command = bytearray([mosgi_start_command_byte])
-            mosgi_connection.send(command)
-            #this should explode (booooom!) the int into 4 bytes and transmit them to mosgi
-            request_id = bytearray( [ ((db_id>>24) & 0xff) ,
-                                      ((db_id>>16) & 0xff), 
-                                      ((db_id>>8) & 0xff), 
-                                      (db_id & 0xff) ] )
-            mosgi_connection.send(request_id)
-            rcv = mosgi_connection.recv(1)
-        res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
-        print with_color(32, res_header_text)
-        print "===================finishe======================"
-        #lock.release()
-
+    def response_handler(self, req, req_body, res, res_body):
+        pass
 
     def save_handler(self, req, req_body, res, res_body):
-        pass
-        #self.print_info(req, req_body, res, res_body)
-
-        
-        
-        
+        self.print_info(req, req_body, res, res_body)
 
 
 def test(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):
