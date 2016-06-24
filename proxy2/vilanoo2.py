@@ -82,13 +82,16 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
         lock.release()
 
     def request_handler(self, req, req_body):
+        """
+        TODO: Strip our retry after BadStatusLine URL parameter
+        """
         if __DEBUG__:        
             req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
             print with_color(33, req_header_text)
 
         if __MOSGI__:
             print "===================start========================="
-        
+
         return
 
     def response_handler(self, req, req_body, res, res_body):

@@ -113,6 +113,10 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 other.sendall(data)
 
     def do_GET(self):
+        """
+        retries = get_retry_param(url) # if no retry, default 0
+        """
+
         if self.path == 'http://proxy2.test/':
             self.send_cacert()
             return
@@ -143,14 +147,32 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             origin = (scheme, netloc)
             if not origin in self.tls.conns:
                 if scheme == 'https':
-                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context()))
+                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context())
                 else:
                     self.tls.conns[origin] = httplib.HTTPConnection(netloc, timeout=self.timeout)
             conn = self.tls.conns[origin]
             conn.request(self.command, path, req_body, dict(req_headers))
             res = conn.getresponse()
             res_body = res.read()
+        except httplib.BadStatusLine as e:
+            if origin in self.tls.conns:
+                print self.tls.conns[origin].sock
+                del self.tls.conns[origin]
+            """
+            if retries < __MAX_RETRIES__:
+                self.wfile.write("%s %d %s\r\n" % (self.protocol_version, 302, "Found"))
+                new_url = build_new_url_with_retry_parameter(retries + 1)
+                for line in ["Location: %s" %new_url, ]]:
+                    self.wfile.write(line)
+                self.end_headers()
+                self.wfile.flush()
+            else:
+                self.send_error(502)
+            """
+            #self.send_error(502)
+            return
         except Exception as e:
+            import SimpleHTTPServer
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
             self.send_error(502)
