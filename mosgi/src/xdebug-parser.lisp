@@ -162,3 +162,16 @@ given trace and returns all parameters passed to those calls.
 			     (and (typep record 'entry-record)
 				  (string= (function-name record) "fopen")))
 			 (trace-content xdebug-trace))))
+
+
+(defmethod get-sql-queries ((xdebug-trace xdebug-trace))
+  (mapcar #'(lambda(mysqli-call)
+	      (cl-ppcre:regex-replace-all " [ ]+"
+					  (cl-ppcre:regex-replace-all "\\"
+								      (cl-ppcre:regex-replace-all "\t|\n|'" (car (parameters mysqli-call)) "")
+								      "")
+					  ""))					  
+	  (remove-if-not #'(lambda (record)
+			     (and (typep record 'entry-record)
+				  (string= (function-name record) "mysqli->query")))
+			 (trace-content xdebug-trace))))

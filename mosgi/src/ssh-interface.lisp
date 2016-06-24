@@ -10,7 +10,8 @@ handle all the nasty stuff we do not want/need to think about
 (defun run-remote-shell-command (command username host password result-handler)
   "executes a shell command on the given host and gives the resulting stream
 to the result handler. The result of the result-handler will be returned"
-  (handler-bind ((libssh2::ssh-authentication-failure (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t)))
+  (handler-bind ((libssh2::ssh-authentication-failure (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))
+		 (libssh2::ssh-bad-hostkey (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t)))
     (libssh2:with-ssh-connection session (host
 					  (libssh2:make-password-auth username password)
 					  :hosts-db (namestring
@@ -26,7 +27,8 @@ to the result handler. The result of the result-handler will be returned"
 (defun scp (guest-file host-file username host password)
   "copies a the guest file to the target file from the given host using
 provided password and username with scp"
-    (handler-bind ((libssh2::ssh-authentication-failure (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))) ;TODO:should be handled by caller not silently here
+    (handler-bind ((libssh2::ssh-authentication-failure (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))
+		   (libssh2::ssh-bad-hostkey (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))) ;TODO:should be handled by caller not silently here
       (libssh2:with-ssh-connection session (host
 					    (libssh2:make-password-auth username password)
 					    :hosts-db (namestring

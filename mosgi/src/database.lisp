@@ -28,3 +28,13 @@
 			  :database database)))
 				      
 
+(defmethod commit-sql-queries (database request-db-id mysql-queries)
+  (do ((query mysql-queries (cdr query))
+       (counter 0 (+ counter 1)))
+      ((not query) nil)
+    (clsql:insert-records :INTO [SQL-QUERIES]
+			  :ATTRIBUTES '([HTTP-REQUEST-ID]
+					[QUERY-COUNTER]
+					[QUERY-STRING])
+			  :VALUES (list request-db-id counter (car query))
+			  :database database)))

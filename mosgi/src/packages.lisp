@@ -48,6 +48,7 @@
   (:nicknames :xdebug)
   (:export get-changed-files-paths
 	   make-xdebug-trace
+	   get-sql-queries
 	   get-xdebug-trace-file))
 
 
@@ -64,5 +65,6 @@
 (defpackage :de.uni-saarland.syssec.mosgi.database
   (:use :cl :diff)
   (:nicknames :db-interface)
-  (:export commit-latest-diff))
+  (:export commit-latest-diff
+	   commit-sql-queries))
 	   

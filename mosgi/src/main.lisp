@@ -83,14 +83,17 @@ waits/responds for commands and executes given commands
 		   (pathname xdebug-tmp-stream) user host pwd)
 	  (finish-output xdebug-tmp-stream)
 	  (ssh:convert-to-utf8-encoding (namestring (pathname xdebug-tmp-stream))) ;this is just because encoding is stupid
-	  (diff:add-next-state-* *file-diff-state* 
-				 (diff:make-file-history-state 
-				  (xdebug:get-changed-files-paths 
-				   (xdebug:make-xdebug-trace xdebug-tmp-stream))
-				  user host pwd))
-	  (clsql:with-database (database (list sqlite-db-path) :database-type :sqlite3)
-	    (db-interface:commit-latest-diff database request-db-id *php-session-diff-state*)
-	    (db-interface:commit-latest-diff database request-db-id *file-diff-state*))
+	  (let ((xdebug (xdebug:make-xdebug-trace xdebug-tmp-stream)))
+	    (diff:add-next-state-* *file-diff-state* 
+				   (diff:make-file-history-state 
+				    (xdebug:get-changed-files-paths 
+				     xdebug)
+				    user host pwd))
+	    (FORMAT T "~{~a~%~}" (xdebug:get-sql-queries xdebug))
+	    (clsql:with-database (database (list sqlite-db-path) :database-type :sqlite3)
+	      (db-interface:commit-sql-queries database request-db-id (xdebug:get-sql-queries xdebug))
+	      (db-interface:commit-latest-diff database request-db-id *php-session-diff-state*)
+	      (db-interface:commit-latest-diff database request-db-id *file-diff-state*)))
 	  (FORMAT T "finished xdebug analysis~%")))
     (FULL-STOP () (error "encountered full stop requirement"))
     (DISMISS-DIFF () (return-from make-diff nil))))

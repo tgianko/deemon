@@ -1,15 +1,14 @@
 #!/bin/bash
 
 
-if [ $# -ne 2 ]; then
-    echo "usage: ./script.sh </full/path/to/vm.vdi> <database_type_of_webapp>"
+if [ $# -ne 1 ]; then
+    echo "usage: ./polesno.sh </full/path/to/vm.vdi>"
     exit 1
 fi
 
 
 vm_vdi=$1
 vm_name="bikini-atoll"
-database_type=$2
 host_ip="NOT SET"
 incoming_port='4444'
 outgoing_port='5555'
@@ -25,7 +24,7 @@ else
 fi
 
 
-echo "sudo ./bitnami_setup_vm_harddrive.sh $vm_vdi $database_type $host_ip $com_port"
+echo "sudo ./bitnami_setup_vm_harddrive.sh $vm_vdi $host_ip $com_port"
 sudo ./bitnami_setup_vm_harddrive.sh $vm_vdi $database_type $host_ip $com_port
 
 if [ $? -ne 0 ]; then
