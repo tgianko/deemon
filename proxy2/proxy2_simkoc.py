@@ -233,7 +233,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             origin = (scheme, netloc)
             if not origin in self.tls.conns:
                 if scheme == 'https':
-                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc,strict=False, timeout=self.timeout,  context=ssl._create_unverified_context()) #python is really weird - keep the strict=false as they apparently changed
+                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc,strict=False, timeout=self.timeout,  context=ssl._create_unverified_context()
+) #python is really weird - keep the strict=false as they apparently changed
                 else:
                     self.tls.conns[origin] = httplib.HTTPConnection(netloc,strict=False, timeout=self.timeout) #the default behaviour
             conn = self.tls.conns[origin]

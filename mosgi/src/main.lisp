@@ -6,26 +6,6 @@ waits/responds for commands and executes given commands
 |#
 (in-package :de.uni-saarland.syssec.mosgi)
 
-
-(defparameter *legal-communication-bytes*
-  '((0 . :START-DIFF) 
-    (1 . :KILL-YOURSELF) 
-    (2 . :FINISHED-DIFF)
-    (42 . :STREAM-EOF)))
-
-
-(defparameter *listen-port* 4242)
-
-
-(defparameter *target-ip*  "127.0.0.1")
-
-
-(defparameter *php-session-diff-state* nil)
-
-
-(defparameter *file-diff-state* nil) 
-
-
 (opts:define-opts
   (:name :php-session-folder
 	 :description "absolute path on the guest system to the folder where the relevant php-sessions are stored"
@@ -67,38 +47,123 @@ waits/responds for commands and executes given commands
 	 :short #\s
 	 :long "sql-db-path"
 	 :arg-parser #'identity))
-    
 
-(defun make-diff (php-session-folder xdebug-trace-folder user host pwd sqlite-db-path request-db-id)
-  (restart-case 
+(defparameter *legal-communication-bytes*
+  '((0 . :START-DIFF) 
+    (1 . :KILL-YOURSELF) 
+    (2 . :FINISHED-DIFF)
+    (42 . :STREAM-EOF)))
+
+(defparameter *listen-port* 4242)
+
+(defparameter *target-ip*  "127.0.0.1")
+
+(defparameter *php-session-diff-state* nil)
+
+(defparameter *file-diff-state* nil) 
+
+(defparameter *task-mutex* (sb-thread:make-mutex :name "task mutex"))
+
+(defparameter *task-waitqueue* (sb-thread:make-waitqueue :name "task waitqueue"))
+
+(defparameter *request-queue* (sb-concurrency:make-queue :name "request queue"))
+
+(defparameter *stop-p* nil)
+
+(defparameter *print-mutex* (sb-thread:make-mutex :name "print mutex"))
+
+(defparameter *to-print-to* *standard-output*)
+
+(defun print-threaded (thread-name string)
+  (sb-thread:with-mutex (*print-mutex*)
+    (FORMAT *to-print-to* "[~a] : ~a~%" thread-name string)))
+
+(defun save-relevant-files (php-session-folder xdebug-trace-folder user host pwd request-db-id)
+  (handler-case
       (progn
-	(FORMAT T "running php session analysis~%")
-	(diff:add-next-state-* *php-session-diff-state* 
-			       (diff:make-php-session-history-state php-session-folder user host pwd))
-	(FORMAT T "finsihed php session analysis~%")
-	(cl-fad:with-open-temporary-file (xdebug-tmp-stream :direction :io :element-type 'character)
-	  (FORMAT T "running xdebug trace analysis~%")
-	  (ssh:scp (xdebug:get-xdebug-trace-file (ssh:folder-content-guest xdebug-trace-folder
-									   user host pwd))
-		   (pathname xdebug-tmp-stream) user host pwd)
-	  (finish-output xdebug-tmp-stream)
-	  (ssh:convert-to-utf8-encoding (namestring (pathname xdebug-tmp-stream))) ;this is just because encoding is stupid
-	  (let ((xdebug (xdebug:make-xdebug-trace xdebug-tmp-stream)))
-	    (diff:add-next-state-* *file-diff-state* 
-				   (diff:make-file-history-state 
-				    (xdebug:get-changed-files-paths 
-				     xdebug)
-				    user host pwd))
-	    (FORMAT T "~{~a~%~}" (xdebug:get-sql-queries xdebug))
-	    (clsql:with-database (database (list sqlite-db-path) :database-type :sqlite3)
-	      (db-interface:commit-sql-queries database request-db-id (xdebug:get-sql-queries xdebug))
-	      (db-interface:commit-latest-diff database request-db-id *php-session-diff-state*)
-	      (db-interface:commit-latest-diff database request-db-id *file-diff-state*)))
-	  (FORMAT T "finished xdebug analysis~%")))
-    (FULL-STOP () (error "encountered full stop requirement"))
-    (DISMISS-DIFF () (return-from make-diff nil))))
+	(ssh:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd)
+	(ssh:backup-all-files-from xdebug-trace-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd)
+	(sb-thread:with-mutex (*task-mutex*)
+	  (print-threaded :mover (FORMAT nil "save and added request ~a to the work queue" request-db-id))
+	  (sb-concurrency:enqueue request-db-id *request-queue*)
+	  (sb-thread:condition-broadcast *task-waitqueue*)))
+    (error (e)
+      (print-threaded :MOVER (FORMAT nil "~a" e)))))
+	    
+
+(defun make-diff (user host pwd sqlite-db-path request-db-id)
+  (let ((xdebug-trace-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id))
+	(php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id)))
+    (handler-case
+	(progn
+	  (print-threaded :differ (FORMAT nil "php session analysis for request ~a" request-db-id))
+	  (diff:add-next-state-* *php-session-diff-state* 
+				 (diff:make-php-session-history-state php-session-folder user host pwd))
+	  (cl-fad:with-open-temporary-file (xdebug-tmp-stream :direction :io :element-type 'character)
+	    (print-threaded :differ (FORMAT nil "scp xdebug file for request ~a" request-db-id))
+	    (ssh:scp (xdebug:get-xdebug-trace-file (ssh:folder-content-guest xdebug-trace-folder
+									     user host pwd))
+		     (pathname xdebug-tmp-stream) user host pwd)
+	    (finish-output xdebug-tmp-stream)
+	    (print-threaded :differ (FORMAT nil "parsing xdebug file for request ~a" request-db-id))
+	    (ssh:convert-to-utf8-encoding (namestring (pathname xdebug-tmp-stream))) ;this is just because encoding is stupid
+	    (let ((xdebug (xdebug:make-xdebug-trace xdebug-tmp-stream)))
+	      (diff:add-next-state-* *file-diff-state* 
+				     (diff:make-file-history-state 
+				      (xdebug:get-changed-files-paths 
+				       xdebug)
+				      user host pwd))
+	      (print-threaded :differ (FORMAT nil "entering xdebug results for request ~a" request-db-id))
+	      (clsql:with-database (database (list sqlite-db-path) :database-type :sqlite3)
+		(db-interface:commit-sql-queries database request-db-id (xdebug:get-sql-queries xdebug))
+		(db-interface:commit-latest-diff database request-db-id *php-session-diff-state*)
+		(db-interface:commit-latest-diff database request-db-id *file-diff-state*)))
+	    (ssh:delete-folder xdebug-trace-folder user host pwd)
+	    (ssh:delete-folder php-session-folder user host pwd)
+	    (print-threaded :differ (FORMAT nil "finished session analysis for request ~a" request-db-id))))
+      (error (e)
+	(print-threaded :differ (FORMAT nil "~a" e))))))
 
 
+(defun create-differ-thread (user host pwd sqlite-db-path)
+  (FORMAT T "creating differ thread ~a~%" *stop-p*)
+  (sb-thread:make-thread #'(lambda()
+			     (let ((*file-diff-state* (make-instance 'diff:state-trace))
+				   (*php-session-diff-state* (make-instance 'diff:state-trace)))			       
+			       (tagbody
+				check
+				  (sb-thread:with-mutex (*task-mutex*)
+				    (when *stop-p*
+				      (go end))
+				    (if (not (sb-concurrency:queue-empty-p *request-queue*))
+					(go work)
+					(sb-thread:condition-wait *task-waitqueue* *task-mutex*))
+				    (go check))
+				work
+				  (make-diff user host pwd sqlite-db-path (sb-concurrency:dequeue *request-queue*))
+				  (print-threaded :differ (FORMAT nil "~a requests for processing remaining" (sb-concurrency:queue-count *request-queue*)))
+				  (go check)
+				end
+				  (print-threaded :differ (FORMAT nil "I am done ~a" *stop-p*))
+				  nil)))
+			 :name "differ"))
+			 
+
+(defun create-mover-thread (php-session-folder xdebug-trace-folder user host pwd interface port)
+  (sb-thread:make-thread #'(lambda()
+			     (com:with-connected-communication-handler (handler interface port)
+			       (do ((received-order (com:receive-byte handler)
+						    (com:receive-byte handler)))
+				   ((= (car (find :KILL-YOURSELF *legal-communication-bytes* :key #'cdr)) received-order) nil)	      
+				 (FORMAT T "Received Command: ~a~%" (cdr (find received-order *legal-communication-bytes* :key #'car)))
+				 (ecase (cdr (find received-order *legal-communication-bytes* :key #'car))
+				   (:START-DIFF 		 
+				    (save-relevant-files php-session-folder xdebug-trace-folder user host pwd (com:receive-32b-unsigned-integer handler))))
+				 (FORMAT T "updatedstates:~%~a~%~%~a~%" *file-diff-state* *php-session-diff-state*)
+				 (com:send-byte handler (car (find :FINISHED-DIFF *legal-communication-bytes* :key #'cdr))))))
+			 :name "mover"))
+	     
+       
 (defun main ()
   (handler-case
       (multiple-value-bind (options free-args)
@@ -111,24 +176,23 @@ waits/responds for commands and executes given commands
 	(FORMAT T "target ssh ~a@~a using password ~a~%" (getf options :target-system-root) (getf options :target-system-ip) (getf options :target-system-pwd))
 	(FORMAT T "xdebug-trace-folder: ~a~%" (getf options :xdebug-trace-file))
 	(FORMAT T "php-session-folder: ~a~%" (getf options :php-session-folder))
-	(com:with-connected-communication-handler (handler (getf options :interface) (getf options :port))
-	  (let ((*file-diff-state* (make-instance 'diff:state-trace))
-		(*php-session-diff-state* (make-instance 'diff:state-trace)))
-	    (do ((received-order (com:receive-byte handler)
-				 (com:receive-byte handler)))
-		((= (car (find :KILL-YOURSELF *legal-communication-bytes* :key #'cdr)) received-order) nil)	      
-	      (FORMAT T "Received Command: ~a~%" (cdr (find received-order *legal-communication-bytes* :key #'car)))
-	      (ecase (cdr (find received-order *legal-communication-bytes* :key #'car))
-		(:START-DIFF 		 
-		 (make-diff (getf options :php-session-folder) 
-			    (getf options :xdebug-trace-file)
-			    (getf options :target-system-root)
-			    (getf options :target-system-ip)
-			    (getf options :target-system-pwd)
-			    (getf options :sql-db-path)
-			    (com:receive-32b-unsigned-integer handler))))
-	      (FORMAT T "updatedstates:~%~a~%~%~a~%" *file-diff-state* *php-session-diff-state*)
-	      (com:send-byte handler (car (find :FINISHED-DIFF *legal-communication-bytes* :key #'cdr)))))))
+	(let ((differ-thread (create-differ-thread  (getf options :target-system-root)
+						    (getf options :target-system-ip)
+						    (getf options :target-system-pwd)
+						    (getf options :sql-db-path)))
+	      (mover-thread (create-mover-thread (getf options :php-session-folder) 
+						 (getf options :xdebug-trace-file)
+						 (getf options :target-system-root)
+						 (getf options :target-system-ip)
+						 (getf options :target-system-pwd)
+						 (getf options :interface)
+						 (getf options :port))))
+	  (FORMAT T "~a~%" differ-thread)
+	  (unwind-protect
+	       (sb-thread:join-thread mover-thread)
+	    (sb-thread:with-mutex (*task-mutex*)
+	      (setf *stop-p* T)
+	      (sb-thread:join-thread differ-thread)))))
     (unix-opts:unknown-option (err)
       (declare (ignore err))
       (opts:describe

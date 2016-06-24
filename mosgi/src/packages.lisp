@@ -27,7 +27,9 @@
   (:export scp
 	   folder-content-guest
 	   run-remote-shell-command
-	   convert-to-utf8-encoding))
+	   convert-to-utf8-encoding
+	   backup-all-files-from
+	   delete-folder))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.php-session
@@ -42,7 +44,7 @@
 	   extract-session-id
 	   diff))
 	   
-
+	   
 (defpackage :de.uni-saarland.syssec.mosgi.xdebug
   (:use :cl)
   (:nicknames :xdebug)
