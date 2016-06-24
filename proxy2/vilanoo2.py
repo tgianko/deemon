@@ -76,10 +76,8 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
 
 
     def do_GET(self):
-        lock.acquire()
-        ProxyRequestHandler.do_GET(self)
-
-        lock.release()
+        with lock:
+            ProxyRequestHandler.do_GET(self)
 
     def request_handler(self, req, req_body):
         if __DEBUG__:        

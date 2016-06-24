@@ -57,3 +57,19 @@ path on the given host using password and username to log in"
 
 (defun convert-to-utf8-encoding (file-path)
   (sb-ext:run-program "/usr/bin/vim" (list "+set nobomb | set fenc=utf8 | x" file-path)))
+
+
+(defun discard-data-lambda ()
+  #'(lambda(stream)
+      (do* ((line (read-line stream nil nil nil)
+		  (read-line stream nil nil nil)))
+	   ((not line)))))
+
+
+(defun backup-all-files-from (folder target-folder user host pwd)
+  (run-remote-shell-command (FORMAT nil "mkdir ~a" target-folder) user host pwd (discard-data-lambda))
+  (run-remote-shell-command (FORMAT nil "cp ~a/* ~a" folder target-folder) user host pwd (discard-data-lambda)))
+
+
+(defun delete-folder (folder user host pwd)
+  (run-remote-shell-command (FORMAT nil "rm -rf ~a" folder) user host pwd (discard-data-lambda)))

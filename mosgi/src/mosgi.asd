@@ -5,7 +5,8 @@
     :depends-on (:libssh2
 		 :cl-ppcre
 		 :unix-opts
-		 :clsql)
+		 :clsql
+		 :sb-concurrency)
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
 		 (:file "php-session" :depends-on ("packages"))
