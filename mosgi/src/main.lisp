@@ -83,10 +83,10 @@ waits/responds for commands and executes given commands
       (progn
 	(ssh:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd)
 	(ssh:backup-all-files-from xdebug-trace-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd)
-	(sb-thread:with-mutex (*task-mutex*)
-	  (print-threaded :mover (FORMAT nil "save and added request ~a to the work queue" request-db-id))
+	(sb-thread:with-mutex (*task-mutex*)	  
 	  (sb-concurrency:enqueue request-db-id *request-queue*)
-	  (sb-thread:condition-broadcast *task-waitqueue*)))
+	  (sb-thread:condition-broadcast *task-waitqueue*)
+	  (print-threaded :mover (FORMAT nil "save and added request ~a to the work queue" request-db-id))))
     (error (e)
       (print-threaded :MOVER (FORMAT nil "~a" e)))))
 	    
@@ -155,11 +155,10 @@ waits/responds for commands and executes given commands
 			       (do ((received-order (com:receive-byte handler)
 						    (com:receive-byte handler)))
 				   ((= (car (find :KILL-YOURSELF *legal-communication-bytes* :key #'cdr)) received-order) nil)	      
-				 (FORMAT T "Received Command: ~a~%" (cdr (find received-order *legal-communication-bytes* :key #'car)))
+				 (print-threaded :mover (FORMAT nil "Received Command: ~a~%" (cdr (find received-order *legal-communication-bytes* :key #'car))))
 				 (ecase (cdr (find received-order *legal-communication-bytes* :key #'car))
 				   (:START-DIFF 		 
 				    (save-relevant-files php-session-folder xdebug-trace-folder user host pwd (com:receive-32b-unsigned-integer handler))))
-				 (FORMAT T "updatedstates:~%~a~%~%~a~%" *file-diff-state* *php-session-diff-state*)
 				 (com:send-byte handler (car (find :FINISHED-DIFF *legal-communication-bytes* :key #'cdr))))))
 			 :name "mover"))
 	     
