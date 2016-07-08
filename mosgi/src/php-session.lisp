@@ -81,6 +81,31 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :initform :array)))
 
 
+(defclass php-session-integer-element (php-session-content)
+  ((integer 
+    :initarg :int
+    :reader int)
+   (content-type
+    :initform :integer)))
+
+
+(defun parse-session-element-integer (char-list)
+  (let ((next-semicolon (position #\; char-list)))
+    (if (not next-semicolon)
+	(error 'php-text-serialized-session-parsing-condition
+	       :format-control "integer not finished with ; as expected : ~a"
+	       :format-arguments (list char-list))
+	(values (make-instance 'php-session-integer-element 
+			       :int (parse-integer (coerce (subseq char-list 0 next-semicolon) 'string)))
+		(cdr (subseq char-list next-semicolon))))))
+			       
+
+(defmethod print-object ((content-element php-session-integer-element) stream)
+  (with-slots (integer)
+      content-element
+    (FORMAT stream "(:INTEGER . ~a)" integer)))
+
+
 (defmethod get-keys ((array-element php-session-array-element))
   (get-hashtable-keys (slot-value array-element 'elements)))
 
@@ -125,7 +150,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
        (values (make-instance 'php-session-array-element :elements (array-content->hashtable (reverse elements)))
 	       (if (not (char= #\} (car rem-char-list)))
 		   (error 'php-text-serialized-session-parsing-condition
-			  :format-control "expected } to end array contetn but encountered ~a in ~a"
+			  :format-control "expected } to end array content but encountered ~a in ~a"
 			  :format-arguments (list (car rem-char-list) rem-char-list))
 		   (cdr rem-char-list))))
     (multiple-value-bind (element rem-chars)
@@ -174,19 +199,25 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 	  (error 'php-text-serialized-session-parsing-condition
 		 :format-control "encountered N session element but delimiter was not ; but ~a in ~a"
 		 :format-arguments (list (cadr char-list) char-list)))
-      (multiple-value-bind (type size rest)
-	  (parse-session-content-element-head char-list)
-	(ecase type
-	  (#\s
-	   (parse-content-element-string size rest))
-	  (#\a
-	   (parse-content-element-array size rest))))))
+      (if (char= #\i (car char-list))
+	  (parse-session-element-integer (cddr char-list))
+	  (multiple-value-bind (type size rest)
+	      (parse-session-content-element-head char-list)
+	    (ecase type
+	      (#\s
+	       (parse-content-element-string size rest))
+	      (#\a
+	       (parse-content-element-array size rest)))))))
       
 
 (defun parse-session-element (char-list element-name)
-  (make-instance 'php-session-element
-		 :name element-name
-		 :content (parse-session-content-element char-list)))
+  (multiple-value-bind (element rem-list)
+      (parse-session-content-element char-list)
+    (values 
+     (make-instance 'php-session-element
+		    :name element-name
+		    :content element)
+     rem-list)))
 
 
 (defclass php-session ()
@@ -204,7 +235,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 
 ;in this function are debug printsd
-(defun parse-php-session (stream session-id)
+(defun parse-php-session-bug (stream session-id)
   (do ((line (read-line stream nil nil)
 	     (read-line stream nil nil))
        (session-elements nil))
@@ -217,6 +248,26 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
       (push (parse-session-element (subseq char-list (+ (position #\| char-list :test #'char=) 1))
 				   (coerce (subseq char-list 0 (position #\| char-list :test #'char=)) 'string))
 	    session-elements))))
+
+
+;this function assumes single line session files
+(defun parse-php-session (stream session-id)
+  (let ((line (read-line stream nil nil)))
+    (if (not line)
+	(create-empty-php-session session-id)
+	(do ((char-list (coerce line 'list))
+	     (session-elements nil))
+	    ((not char-list) (make-instance 'php-session :elements (sort session-elements #'string<= :key #'name) :session-id session-id))
+	  (if (and (not (find #\| char-list :test #'char=))
+		   char-list)
+	      (error 'php-text-serialized-session-parsing-condition
+		     :format-arguments `(,char-list)
+		     :format-control "remaining session line does not contain expected | : ~a")
+	      (multiple-value-bind (element rem-list)
+		  (parse-session-element (subseq char-list (+ (position #\| char-list :test #'char=) 1))
+					 (coerce (subseq char-list 0 (position #\| char-list :test #'char=)) 'string))
+		(push element session-elements)
+		(setf char-list rem-list)))))))
 
 
 (defun create-empty-php-session (session-id)
