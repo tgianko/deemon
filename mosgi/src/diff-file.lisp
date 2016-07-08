@@ -21,7 +21,6 @@ clustering of page requests
 
 (defun make-file-history-state (relevant-file-paths user host pwd)
   (declare (ignore user host pwd))
-  (FORMAT T "making file history state ~a ~%" (listp relevant-file-paths))
   (make-instance 'file-history-state
 		 :file-index (remove-duplicates
 			      (sort 

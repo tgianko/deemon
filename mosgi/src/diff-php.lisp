@@ -45,16 +45,20 @@ clustering of page requests
 
 
 ;in this function are debug prints
-(defun make-php-session-history-state (php-session-folder user host pwd)
+(defun make-php-session-history-state (php-session-folder user host pwd &optional (print-func #'(lambda(string) (FORMAT T "~a~%" string))))
   (make-instance 'php-session-state
 		 :php-sessions (sort (mapcar #'(lambda(php-session-file)
-						 (FORMAT T "get/parse file:~a~%" php-session-file)
+						 (funcall print-func (FORMAT nil "get/parse file:~a" php-session-file))
 						 (cl-fad:with-open-temporary-file (stream :direction :io :element-type 'character)
+						   (funcall print-func (FORMAT nil "opened tmp file start scp"))
 						   (ssh:scp php-session-file (pathname stream) user host pwd)
-						   (finish-output stream)
+						   (funcall print-func (FORMAT nil "scp'd file:~a" php-session-file))
+						   (finish-output stream)						   
 						   (ssh:convert-to-utf8-encoding (namestring (pathname stream))) ;this is just because encoding is stupid
-						   (php-session:parse-php-session stream 
-										  (php-session:extract-session-id php-session-file))))
+						   (let ((parsed (php-session:parse-php-session stream 
+												(php-session:extract-session-id php-session-file))))
+						     (funcall print-func (FORMAT nil "parsed file:~a" php-session-file))
+						     parsed)))
 					     (ssh:folder-content-guest php-session-folder user host pwd))
 				     #'string<=
 				     :key #'php-session:session-id)))

@@ -4,10 +4,9 @@
 (clsql:file-enable-sql-reader-syntax)
 
 
-(defmethod commit-latest-diff (database request-db-id (state-trace diff:state-trace))
+(defmethod commit-latest-diff (database request-db-id (state-trace diff:state-trace))  
   (if (diff:diff-history state-trace)
-      (commit-latest-diff database request-db-id (car (diff:diff-history state-trace)))
-      (FORMAT T "no changes to commit~%")))
+      (commit-latest-diff database request-db-id (car (diff:diff-history state-trace)))))
 
 
 (defmethod commit-latest-diff (database request-db-id (fhs diff:file-diff-entry))

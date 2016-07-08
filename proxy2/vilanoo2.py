@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 from proxy2 import *
+import sqlite3 as lite
+import datetime
 import time
 
-__DEBUG__     = True
-__SIM_DELAY__ = True
-__MOSGI__     = False
+__DEBUG__     = False
+__SIM_DELAY__ = False
+__MOSGI__     = True
 
 sqlitedb = os.path.expanduser("~") + "/.vilanoo/vilanoo.db"
 sqlite_schema = "./proxyDbSchema.sql"
 lock = threading.Lock()
 
-"""mosgi_interface="127.0.0.1"
+mosgi_interface="127.0.0.1"
 mosgi_port=9292
 mosgi_start_command_byte=0
 mosgi_finish_response_byte=2
 mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-mosgi_connection.connect((mosgi_interface,mosgi_port))"""
+mosgi_connection.connect((mosgi_interface,mosgi_port))
 
 def check_and_create():
     if os.path.exists(sqlitedb):
@@ -74,7 +76,17 @@ def update_request_status(db_request_id,status_code):
 
 class VilanooProxyRequestHandler(ProxyRequestHandler):
 
+    def request_relevant_p(self,req):
+        non_relevant_extensions = [".css",".js",".png",".jpg",".jpeg",".woff2",".gif"]
+        u = urlparse.urlsplit(req.path)
+        scheme, netloc, path = u.scheme, u.netloc, (u.path + '?' + u.query if u.query else u.path)
+        filename, file_extension = os.path.splitext( u.path)
+        if any(file_extension in s for s in non_relevant_extensions) :
+            return False
+        else:
+            return True
 
+    
     def do_GET(self):
         with lock:
             ProxyRequestHandler.do_GET(self)

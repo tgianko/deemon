@@ -29,6 +29,7 @@
 	   run-remote-shell-command
 	   convert-to-utf8-encoding
 	   backup-all-files-from
+	   backup-file
 	   delete-folder))
 
 

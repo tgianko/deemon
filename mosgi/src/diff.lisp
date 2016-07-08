@@ -41,15 +41,12 @@ the general interface.
 				 
 
 (defmethod add-next-state-* ((trace state-trace) (new-state history-state))
-  (FORMAT T "adding next state~%")
   (with-slots (state-history diff-history current-state diff-function)
       trace 
     (if (not current-state)
 	(progn
-	  (FORMAT T "no diff~%")
 	  (setf (slot-value new-state 'entry-nr) 0))
 	(progn 
-	  (FORMAT T "apply diff~%")
 	  (setf (diff-history trace) (append (list (diff-history-state new-state current-state)) (diff-history trace)))
 	  (push current-state state-history)
 	  (setf (slot-value new-state 'entry-nr) (+ (slot-value (car state-history) 'entry-nr) 1))))

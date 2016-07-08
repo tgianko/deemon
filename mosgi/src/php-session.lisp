@@ -205,7 +205,6 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 ;in this function are debug printsd
 (defun parse-php-session (stream session-id)
-  (FORMAT T "generating session ~a from stream ~a~%" session-id stream)
   (do ((line (read-line stream nil nil)
 	     (read-line stream nil nil))
        (session-elements nil))
