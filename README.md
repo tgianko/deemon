@@ -15,8 +15,8 @@ This is the code base for the Vilanoo project. The goal of this project is study
 The whole project relies on multiple different technologies. Though we tried to provide a general interface
 to hide that fact each part needs to be addressed independently. First we describe installation then 
 usage (which is the easier part). We use the project on Ubuntu 14.04 with gnome3 and, thus, any dependency
-is relative to this OS as a baseline. We will try to give version numbers for every tool used, though it
-is quite likely that other versions will work just fine, they are just intended to give a perfect system
+is relative to this OS as a baseline. We try to give version numbers for every tool used, though it
+is quite likely that other versions work just fine, they are just intended to give a perfect system
 layout that is guaranteed to work.
 
 All scripts are based on `/bin/bash` and work with relative paths. If there are constant paths used please 
@@ -33,7 +33,7 @@ used for. If this is not the case please report that as a bug.
 
 Running the whole program will create a folder `~/.vilanoo/` which will contain project relevant information.
 This also means that the database used is contained in that folder and called "./vilanoo.db". Any flag
-requesting this parameter provide a path to that database.
+requesting this parameter needs a path to that database.
 
 ## Installation
 
@@ -50,17 +50,8 @@ tools are needed:
 * `umount`   (version 2.20.1)
 * `rmmod`    (version 15)
 
-Additionally the bitnami machines lack the tools:
-* `socat` (version 1.7.2.3)
-* `redir` (version 2.2.1)
-Those are copied onto the machine from the host system and thus need to be available and detectable using the
-`which` command.
-
-
-
-### Python
-We are using python2.7 and the needed dependencies are listed in `./vilanoo-proxy/README.md`.
-
+##Python
+We use python 2.7. No additional requirements so far. We use proxy2 as our current proxy (https://github.com/inaz2/proxy2).
 
 ### Sqlite3
 Installing `sqlite3` and `libsqlite3-dev` should suffice.
@@ -75,16 +66,18 @@ After installing quicklisp (follow the tutorial given on the homepage) set the s
 
         ln -s /path/to/vilanoo/mosgi/src/ mosgi 
 
-in `./quicklisp/local-projects/`
+in `~/quicklisp/local-projects/`
 
 We also rely on a library that needs patches for our purposes. We established a external
-repository to handle this. Clone it into "./quicklisp/local-projects/"
+repository to handle this. Clone it into "~/quicklisp/local-projects/" before executing any
+further steps using lisp.
 
 	git clone https://github.com/simkoc/cl-libssh2.git
 
-and if smth breaks and the string "libssh2" appears. Update the repo. We are in contact with
-the main author that handles the repo used by quicklisp but it takes time to push changes, thus
-relying on our own repo to fit our needs is more convienient.
+If something breaks and the string "libssh2" appears, please update the repository before
+making a bug report. We are in contact with the main author that handles the repository
+used by quicklisp but it takes time to push changes, thus relying on our own repo to fit 
+our needs is more convienient.
 
 ## Usage
 боже мой - after successfully installing everything
@@ -93,11 +86,11 @@ relying on our own repo to fit our needs is more convienient.
 
 If the vm is in form of `.vmdk` files use:
 
-         ./vilanoo/vm-setup-scripts/pamada.sh </full/path/vm.vmdk> mysql
+         ./vilanoo/vm-setup-scripts/pamada.sh </full/path/vm.vmdk>
 
 else (the vm is in the form of a `.vdi` file):
 
-         ./vilanoo/vm-setup-scripts/polesno.sh </full/path/to/vm.vdi> mysql
+         ./vilanoo/vm-setup-scripts/polesno.sh </full/path/to/vm.vdi>
 
 If this yields any errors please give a bug report consisting of:
 * exact command given
@@ -110,7 +103,7 @@ a couple minutes (see the corresponding issue).
 **IMPORTANT**: If at some step something did not work out and the problem
 is fixed it is important to do a **COMPLETE** reset. Basically deleting the
 vm-folder and using a fresh version. No relative restart is possible and
-will just end in even more weird and confusing error messages.
+just ends in even more weird and confusing error messages.
 
 
 ### Getting the interception running
@@ -124,17 +117,18 @@ The first step is to start `mosgi`:
     ./vilanoo/mosgi/run.sh
 
 all flags are listed and explained using the `-h` flag. If not mentioned otherwise a command is
-mandatory.
+mandatory. All flags a mandatory.
 
 The second step is to start `vilanoo`: 
 
-        ./vilanoo/vilano-proxy/src/ <bind_proxy_address> <bind_proxy_port> <mysql_proxy_ip> <mysql_proxy_port> <mysql_server_host> <mysql_server_port>
+        python ./vilanoo/proxy2/src/vilanoo2.py <PORT-TO-LISTEN-FOR-INCOMING>
 
 Mosgi should (now) display, that a connection has been established.
 
-As the last step we need to configure the browser to use `vilano-proxy` as our proxy.
-Then we can access the vm using the ip of the machine to access the webpage we are
-interested in (that is on the bitnami machine of course)
+As the last step we need to configure the browser to use our proxy, this can be
+done however fits the used browser.
+Finally, we can access the vm, using the ip of the machine, to access the webpage we are
+interested in (that is on the bitnami machine of course).
 
 
 **Any steps that do not work or are not sufficiently discribed are a bug and should be
