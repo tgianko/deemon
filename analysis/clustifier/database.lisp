@@ -153,17 +153,29 @@
   (setf (slot-value sd 'session-diff-hash)
 	(hash-sha256-string (slot-value sd 'session-diff-tree))))
 
+
+(defmethod state-changing-p ((sql-query sql-query))
+  (if (or (cl-ppcre:scan "REMOVE.*" (query-string sql-query))
+	  (cl-ppcre:scan "DELETE.*" (query-string sql-query))
+	  (cl-ppcre:scan "INSERT.*" (query-string sql-query))
+	  (cl-ppcre:scan "ALTER.*" (query-string sql-query))
+	  (cl-ppcre:scan "CREATE.*" (query-string sql-query))
+	  (cl-ppcre:scan "UPDATE.*" (query-string sql-query)))
+      T 
+      NIL))
+
     
 (defun get-all-sql-queries (http-request-id db-connection)
-  (mapcar #'(lambda(tuple)
-	      (destructuring-bind (query-string)
-		  tuple
-		(make-instance 'sql-query
-			       :query-string query-string)))
-	  (clsql:select [query-string]
-			:FROM [sql-queries]
-			:WHERE [= [http-request-id] http-request-id]
-			:database db-connection)))
+  (remove-if-not #'state-changing-p
+		 (mapcar #'(lambda(tuple)
+			     (destructuring-bind (query-string)
+				 tuple
+			       (make-instance 'sql-query
+					      :query-string query-string)))
+			 (clsql:select [query-string]
+				       :FROM [sql-queries]
+				       :WHERE [= [http-request-id] http-request-id]
+				       :database db-connection))))
 
 
 (defun get-all-changed-files (http-request-id db-connection)
