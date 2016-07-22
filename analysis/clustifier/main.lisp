@@ -25,6 +25,11 @@
 	 :description "the id up until which to extract http-requests from the database - this option is optional and defaults to 'up until the end'"
 	 :short #\e
 	 :long "end-id"
+	 :arg-parser #'parse-integer)
+  (:name :uselessness-threshold
+	 :description "how many elements a cluster needs so that all contained requests are considered useless"
+	 :short #\u 
+	 :long "uselessness-threshold"
 	 :arg-parser #'parse-integer))
 
 
@@ -42,10 +47,13 @@
 					(getf options :start-id)
 					:end-id (if (getf options :end-id)
 						    (getf options :end-id)
-						    nil))
-	     (getf options :dump-folder))))
+						    nil))					
+	     (getf options :dump-folder)
+	     (if (getf options :uselessness-threshold)
+		 (getf options :uselessness-threshold)
+		 2))))
     (error (err)
-      (declare (ignore err))
+      (FORMAT T "~a~%" err)
       (opts:describe
        :prefix "This program is the badass doing all the clustering work to differentiate state changes of actions on webapplications - kneel before thy master"
        :suffix "so that's how it works…"

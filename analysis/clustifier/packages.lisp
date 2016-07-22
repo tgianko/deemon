@@ -11,7 +11,10 @@
 	   sql-hash
 	   file-hash
 	   session-hash
-	   get-all-requests))
+	   get-all-requests
+	   query-hash
+	   sql-queries
+	   delete-useless-queries))
 
 
 (defpackage :de.uni-saarland.syssec.clustifier.result-printer

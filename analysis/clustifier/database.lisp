@@ -79,6 +79,8 @@
 
 (defmethod initialize-instance :after ((hr http-request) &rest stuff)
   (declare (ignore stuff))
+  (setf (slot-value hr 'sql-queries )
+	(remove-duplicates (slot-value hr 'sql-queries) :test #'string= :key #'query-hash))
   (setf (slot-value hr 'sql-hash)
 	(hash-sha256-string (apply 'concatenate 'string 
 				   (sort (mapcar #'query-hash (sql-queries hr)) #'string<=))))
@@ -88,6 +90,26 @@
 	(hash-sha256-string (apply 'concatenate 'string 
 				   (sort (mapcar #'session-diff-hash (session-diffs hr)) #'string<=)))))
   
+
+
+(defmethod delete-useless-queries ((http-request http-request) useless-queries)
+  (with-slots (http-request-id timestamp request-url request-body header method-type cookies status-code
+			       sql-queries changed-files session-diffs)
+      http-request
+    (make-instance 'http-request
+		   :http-request-id http-request-id
+		   :timestamp timestamp
+		   :request-url request-url
+		   :request-header header
+		   :request-body request-body
+		   :methode-type method-type
+		   :cookies cookies
+		   :status-code status-code
+		   :sql-queries (remove-if #'(lambda (query) 
+					       (find (query-hash query) useless-queries :test #'string=))
+					   sql-queries)
+		   :changed-files changed-files
+		   :session-diffs session-diffs)))
 
 (defclass sql-query ()
   ((query-string
