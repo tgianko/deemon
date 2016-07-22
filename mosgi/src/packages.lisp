@@ -18,7 +18,9 @@
 	   diff-history
 	   php-session-diff-entry-diffs
 	   php-session-diff-entry
-	   file-diff-entry))
+	   file-diff-entry
+	   current-state
+	   php-sessions))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.ssh-interface
@@ -69,5 +71,6 @@
   (:use :cl :diff)
   (:nicknames :db-interface)
   (:export commit-latest-diff
-	   commit-sql-queries))
+	   commit-sql-queries
+	   commit-full-sessions))
 	   

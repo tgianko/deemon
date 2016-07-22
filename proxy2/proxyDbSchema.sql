@@ -28,6 +28,15 @@ CREATE TABLE sql_queries (
 );
 
 
+CREATE TABLE sessions (
+       http_request_id	integer,
+       session_id	character varying,
+       session_string	character varying,
+       PRIMARY KEY (http_request_id, session_id),
+       FOREIGN KEY (http_request_id)
+       REFERENCES  http_request(id)
+);
+
 CREATE TABLE changed_files (
        http_request_id 	   integer,
        file_path	   character varying,

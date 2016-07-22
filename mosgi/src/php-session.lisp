@@ -38,6 +38,9 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
   ((content-type
     :initform :nil)))
 
+(defmethod print-object ((psne php-session-nil-element) stream)
+  (FORMAT stream "(:NIL . N)"))
+
 
 (defclass php-session-string-element (php-session-content)
   ((content

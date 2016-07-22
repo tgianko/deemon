@@ -4,6 +4,14 @@
 (clsql:file-enable-sql-reader-syntax)
 
 
+(defmethod commit-full-sessions (database request-db-id php-session-list)
+  (dolist (session php-session-list)
+    (clsql:insert-records :into [SESSIONS]
+			  :ATTRIBUTES '([HTTP-REQUEST-ID] [SESSION-ID] [SESSION-STRING])
+			  :VALUES (list request-db-id (php-session:session-id session)
+					(FORMAT nil "~a" session))
+			  :database database)))
+
 (defmethod commit-latest-diff (database request-db-id (state-trace diff:state-trace))  
   (if (diff:diff-history state-trace)
       (commit-latest-diff database request-db-id (car (diff:diff-history state-trace)))))

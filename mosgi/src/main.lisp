@@ -122,6 +122,7 @@ waits/responds for commands and executes given commands
 	      (clsql:with-database (database (list sqlite-db-path) :database-type :sqlite3)
 		(db-interface:commit-sql-queries database request-db-id (xdebug:get-sql-queries xdebug))
 		(db-interface:commit-latest-diff database request-db-id *php-session-diff-state*)
+		(db-interface:commit-full-sessions database request-db-id (diff:php-sessions (diff:current-state *php-session-diff-state*)))
 		(db-interface:commit-latest-diff database request-db-id *file-diff-state*)))
 	    (ssh:delete-folder xdebug-trace-folder user host pwd)
 	    (print-threaded :differ (FORMAT nil "finished session analysis for request ~a" request-db-id))))
