@@ -4,7 +4,8 @@
   :version "1.0"
   :depends-on (:ironclad
 	       :unix-opts
-	       :clsql)
+	       :clsql
+	       :cl-ppcre)
   :components ((:file "packages")
 	       (:file "database" :depends-on ("packages"))
 	       (:file "result-printer" :depends-on ("packages"

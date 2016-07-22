@@ -1,7 +1,7 @@
 (defpackage :de.uni-saarland.syssec.clustifier
   (:use :cl)
   (:nicknames :clustifier)
-  (:export ))
+  (:export main))
 
 
 (defpackage :de.uni-saarland.syssec.clustifier.database

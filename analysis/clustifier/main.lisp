@@ -1,11 +1,11 @@
 (in-package :de.uni-saarland.syssec.clustifier)
 
 (opts:define-opts 
-  (:name :sql-query-hasher
+#|  (:name :sql-query-hasher
 	 :description "python script to hash a given sql query conforming our defined standards"
 	 :short #\q
 	 :long "sql-hasher"
-	 :arg-parser #'identity)
+	 :arg-parser #'identity)|#
   (:name :dump-folder 
 	 :description "the folder the results shall be dumped into"
 	 :short #\f
@@ -22,7 +22,7 @@
 	 :long "start-id"
 	 :arg-parser #'parse-integer)
   (:name :end-id
-	 :description "the id up until which to extract http-requests from the database"
+	 :description "the id up until which to extract http-requests from the database - this option is optional and defaults to 'up until the end'"
 	 :short #\e
 	 :long "end-id"
 	 :arg-parser #'parse-integer))
@@ -34,22 +34,24 @@
       (multiple-value-bind (options free-args)
 	  (opts:get-opts)
 	(declare (ignore free-args))
-	(print:dump-results-into-folder
-	 (database:get-all-requests (getf options :database-path) 
-				    (getf options :start-id)
-				    :end-id (if (getf options :end-id)
-						(getf options :end-id)
-						nil))
-	 (getf options :dump-folder)))
-    (unix-opts:unknown-option (err)
+	(if (or (not (getf options :database-path))
+		(not (getf options :start-id)))
+	    (error "missing parameters!")	     
+	    (print:dump-results-into-folder
+	     (database:get-all-requests (getf options :database-path) 
+					(getf options :start-id)
+					:end-id (if (getf options :end-id)
+						    (getf options :end-id)
+						    nil))
+	     (getf options :dump-folder))))
+    (error (err)
       (declare (ignore err))
       (opts:describe
        :prefix "This program is the badass doing all the clustering work to differentiate state changes of actions on webapplications - kneel before thy master"
        :suffix "so that's how it works…"
        :usage-of "run.sh"))))
 
-
-(print:dump-results-into-folder
+#|(print:dump-results-into-folder
  (database:get-all-requests "/home/simkoc/.vilanoo/abantecart/abantecard-create-account-201607221205.db"
 			    "0"
 			    :end-id nil)
@@ -92,3 +94,4 @@
  "/home/simkoc/tmp/vilanoo-opencart-change-email/")
 
 (sb-thread:destroy-thread (cadr (sb-thread:list-all-threads)))
+|#
