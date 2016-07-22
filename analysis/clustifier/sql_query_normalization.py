@@ -29,6 +29,19 @@ def remove_rhs_values(tree):
 
     return tree
 
+
+def remove_right_side_of_values (tree):
+    position = -1
+    for element in tree.tokens: 
+        position = position + 1
+        if element.match(sqlparse.tokens.Keyword,["VALUES"]):
+            break
+
+    if position != -1:
+        tree.tokens = tree.tokens[0:position + 1]
+        
+    return tree
+
         
 def order_alphabetically(tree):
     if tree.is_group():
@@ -38,7 +51,7 @@ def order_alphabetically(tree):
 
 
 def normalize_query_syntax_tree(tree):
-    return order_alphabetically(remove_rhs_values(remove_whitespaces(tree)))
+    return order_alphabetically(remove_right_side_of_values(remove_rhs_values(remove_whitespaces(tree))))
     #return remove_rhs_values(remove_whitespaces(tree))
     #return remove_rhs_values(tree)
 
