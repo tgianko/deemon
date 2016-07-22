@@ -1,5 +1,6 @@
 import hashlib
 import sqlparse
+import sys
 
 
 def remove_whitespaces(tree):
@@ -50,3 +51,10 @@ def generate_query_hash(query_string):
     return hashlib.md5(query_string).hexdigest()
 
 
+
+def main ():
+    print generate_normalized_query_hash(sys.argv[1])
+
+
+if __name__ == "__main__":
+    main()

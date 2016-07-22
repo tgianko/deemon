@@ -117,9 +117,9 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 (defmethod print-object ((content-element php-session-array-element) stream)
   (with-slots (elements)
       content-element
-    (FORMAT stream "( :ARRAY (~{ ~a ~}))" 
+    (FORMAT stream "(:ARRAY (~{~a ~}))" 
 	    (mapcar #'(lambda(key)
-			(FORMAT nil "(:STRING . ~a ) => ~a" key (gethash key elements)))
+			(FORMAT nil "(:STRING . ~a) => ~a" key (gethash key elements)))
 		    (sort (get-hashtable-keys elements) #'string<=)))))
 
 
@@ -131,9 +131,12 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
        (remaining array-elements (cddr remaining)))
       ((not remaining) table)
     (when (not (eq (content-type (car remaining)) :string))
-      (error 'php-text-serialized-session-parsing-condition
-	     :format-control "expected 0 + (2*d - 1) element of array to be of type string not ~a in ~a"
-	     :format-arguments (list (content-type (car remaining)) array-elements)))
+      (if (eq (content-type (car remaining)) :integer)
+	  (setf (car remaining) (make-instance 'php-session-string-element 
+					       :content (FORMAT nil "~a" (int (car remaining)))))
+	  (error 'php-text-serialized-session-parsing-condition
+		 :format-control "expected 0 + (2*d - 1) element of array to be of type string not ~a in ~a"
+		 :format-arguments (list (content-type (car remaining)) array-elements))))
     (setf (gethash (content (car remaining)) table)
 	  (cadr remaining))))
 
@@ -170,8 +173,28 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :initform :element)))
 
 
+(defclass php-session-bool-element (php-session-content)
+  ((boolean 
+    :initarg :bool
+    :reader bool)
+   (content-type
+    :initform :bool)))
+
+
+(defmethod print-object ((psbe php-session-bool-element) stream)
+  (FORMAT stream "(:BOOL . ~a)" (bool psbe)))
+
+
+(defun parse-content-element-bool (char-list)
+  (values (make-instance 'php-session-bool-element 
+			 :bool (if (char= #\1 (car char-list))
+				   T
+				   NIL))
+	  (cddr char-list)))
+
+
 (defmethod print-object ((element php-session-element) stream)
-  (FORMAT stream "( ~a ~a )" (name element) (content element)))
+  (FORMAT stream "(~a ~a)" (name element) (content element)))
 
 
 (defun parse-session-content-element-head (char-list)
@@ -193,21 +216,23 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 	 
 
 (defun parse-session-content-element (char-list)
-  (if (char= #\N (car char-list))
-      (if (char= #\; (cadr char-list))
-	  (values (make-instance 'php-session-nil-element) (cddr char-list))
-	  (error 'php-text-serialized-session-parsing-condition
-		 :format-control "encountered N session element but delimiter was not ; but ~a in ~a"
-		 :format-arguments (list (cadr char-list) char-list)))
-      (if (char= #\i (car char-list))
-	  (parse-session-element-integer (cddr char-list))
-	  (multiple-value-bind (type size rest)
-	      (parse-session-content-element-head char-list)
-	    (ecase type
-	      (#\s
-	       (parse-content-element-string size rest))
-	      (#\a
-	       (parse-content-element-array size rest)))))))
+  (if (char= #\b (car char-list))
+      (parse-content-element-bool (cddr char-list)) 
+      (if (char= #\N (car char-list))
+	  (if (char= #\; (cadr char-list))
+	      (values (make-instance 'php-session-nil-element) (cddr char-list))
+	      (error 'php-text-serialized-session-parsing-condition
+		     :format-control "encountered N session element but delimiter was not ; but ~a in ~a"
+		     :format-arguments (list (cadr char-list) char-list)))
+	  (if (char= #\i (car char-list))
+	      (parse-session-element-integer (cddr char-list))
+	      (multiple-value-bind (type size rest)
+		  (parse-session-content-element-head char-list)
+		(ecase type
+		  (#\s
+		   (parse-content-element-string size rest))
+		  (#\a
+		   (parse-content-element-array size rest))))))))
       
 
 (defun parse-session-element (char-list element-name)
@@ -231,7 +256,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 
 (defmethod print-object ((session php-session) stream)
-  (FORMAT stream "( ~a (~{ ~a ~}))" (session-id session) (elements session)))
+  (FORMAT stream "(~a (~{ ~a ~}))" (session-id session) (elements session)))
 
 
 ;in this function are debug printsd
@@ -280,8 +305,6 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
   (cl-ppcre:regex-replace "/.*/sess_" 
 			  full-file-path
 			  ""))
-
-
 
 	  
 

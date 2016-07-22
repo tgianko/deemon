@@ -62,6 +62,17 @@ Labels:
       (cons new :CHANGED)))
 
 
+(defmethod diff ((old php-session-integer-element) (new php-session-integer-element))
+  (if (= (int old) (int new))
+      nil
+      (cons new :CHANGED)))
+
+
+(defmethod diff ((old php-session-bool-element) (new php-session-bool-element))
+  (if (eq (bool old) (bool new))
+      nil
+      (cons new :CHANGED)))
+
 (defmethod diff ((old php-session-content) (new php-session-content))
   (when (eq (content-type old) (content-type new))
     (error 'php-session-diif-condition

@@ -175,6 +175,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             import SimpleHTTPServer
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
+            print e
             self.send_error(502)
             return
 
