@@ -87,14 +87,14 @@ our needs is more convienient.
 If the vm is in form of `.vmdk` files use:
 
 
-    cd /path/to/vialnoo/vm-setup-scripts/
+    cd /path/to/vilanoo/vm-setup-scripts/
     ./pamada.sh </full/path/vm.vmdk>
 
 
 else (the vm is in the form of a `.vdi` file):
 
 
-    cd /path/to/vialnoo/vm-setup-scripts/
+    cd /path/to/vilanoo/vm-setup-scripts/
     ./polesno.sh </full/path/to/vm.vdi>
 
 
