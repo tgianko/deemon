@@ -64,7 +64,7 @@ The following things are needed:
 
 After installing quicklisp (follow the tutorial given on the homepage) set the symlink
 
-        ln -s /path/to/vilanoo/mosgi/src/ mosgi 
+    ln -s /path/to/vilanoo/mosgi/src/ mosgi 
 
 in `~/quicklisp/local-projects/`
 
@@ -72,7 +72,7 @@ We also rely on a library that needs patches for our purposes. We established a 
 repository to handle this. Clone it into "~/quicklisp/local-projects/" before executing any
 further steps using lisp.
 
-	git clone https://github.com/simkoc/cl-libssh2.git
+    git clone https://github.com/simkoc/cl-libssh2.git
 
 If something breaks and the string "libssh2" appears, please update the repository before
 making a bug report. We are in contact with the main author that handles the repository
@@ -86,11 +86,17 @@ our needs is more convienient.
 
 If the vm is in form of `.vmdk` files use:
 
-         ./vilanoo/vm-setup-scripts/pamada.sh </full/path/vm.vmdk>
+
+    cd /path/to/vialnoo/vm-setup-scripts/
+    ./pamada.sh </full/path/vm.vmdk>
+
 
 else (the vm is in the form of a `.vdi` file):
 
-         ./vilanoo/vm-setup-scripts/polesno.sh </full/path/to/vm.vdi>
+
+    cd /path/to/vialnoo/vm-setup-scripts/
+    ./polesno.sh </full/path/to/vm.vdi>
+
 
 If this yields any errors please give a bug report consisting of:
 * exact command given
@@ -121,7 +127,7 @@ mandatory. All flags a mandatory.
 
 The second step is to start `vilanoo`: 
 
-        python ./vilanoo/proxy2/src/vilanoo2.py <PORT-TO-LISTEN-FOR-INCOMING>
+    python ./vilanoo/proxy2/src/vilanoo2.py <PORT-TO-LISTEN-FOR-INCOMING>
 
 Mosgi should (now) display, that a connection has been established.
 
