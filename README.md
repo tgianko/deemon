@@ -50,6 +50,9 @@ tools are needed:
 * `umount`   (version 2.20.1)
 * `rmmod`    (version 15)
 
+Additionally, our scripts require:
+* `netcat` for OpenBSD (traditional netcat will not work, see Issue #43)
+
 ##Python
 We use python 2.7. No additional requirements so far. We use proxy2 as our current proxy (https://github.com/inaz2/proxy2).
 
