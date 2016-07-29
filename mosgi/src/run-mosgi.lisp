@@ -1,8 +1,9 @@
 (ql:quickload "mosgi")
 
 
-(handler-bind 
-    ((libssh2::ssh-authentication-failure #'(lambda(err)
-					      (declare (ignore err))
-					      (invoke-restart 'libssh2:accept-always))))
-  (mosgi:main))
+(handler-case
+    (mosgi:main)
+  (sb-sys:interactive-interrupt ()
+    (mosgi:print-threaded :mosgi "user invoked shutdown"))
+  (error (e)
+    (mosgi:print-threaded :mosgi (FORMAT nil "encountered fatal error '~a'~%" e))))

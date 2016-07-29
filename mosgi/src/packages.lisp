@@ -1,7 +1,8 @@
 (defpackage :de.uni-saarland.syssec.mosgi
   (:use :cl)
   (:nicknames mosgi)
-  (:export main))
+  (:export main
+	   print-threaded))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.diff

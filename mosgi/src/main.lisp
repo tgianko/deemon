@@ -156,22 +156,25 @@ waits/responds for commands and executes given commands
 (defun create-mover-thread (php-session-folder xdebug-trace-folder user host pwd interface port)
   (sb-thread:make-thread #'(lambda()
 			     (unwind-protect 
-				  (com:with-connected-communication-handler (handler interface port)
-				    (print-threaded :mover "connection established")
-				    (do ((received-order (com:receive-byte handler)
-							 (com:receive-byte handler))
-					 (com-broken-p nil))
-					((or com-broken-p
-					     (= (car (find :KILL-YOURSELF *legal-communication-bytes* :key #'cdr)) received-order)) nil)
-				      (print-threaded :mover (FORMAT nil "Received Command: ~a" (cdr (find received-order *legal-communication-bytes* :key #'car))))
-				      (ecase (cdr (find received-order *legal-communication-bytes* :key #'car))
-					(:START-DIFF 		 
-					 (save-relevant-files php-session-folder xdebug-trace-folder user host pwd (com:receive-32b-unsigned-integer handler))
-					 (com:send-byte handler (car (find :FINISHED-DIFF *legal-communication-bytes* :key #'cdr)))
-					 (print-threaded :mover "Finished backup - send FINISHED-DIFF - waiting for next command"))					
-					(:STREAM-EOF
-					 (setf com-broken-p T)
-					 (print-threaded :mover "connection closed from remote end")))))
+				  (handler-case 
+				      (com:with-connected-communication-handler (handler interface port)
+					(print-threaded :mover "connection established")
+					(do ((received-order (com:receive-byte handler)
+							     (com:receive-byte handler))
+					     (com-broken-p nil))
+					    ((or com-broken-p
+						 (= (car (find :KILL-YOURSELF *legal-communication-bytes* :key #'cdr)) received-order)) nil)
+					  (print-threaded :mover (FORMAT nil "Received Command: ~a" (cdr (find received-order *legal-communication-bytes* :key #'car))))
+					  (ecase (cdr (find received-order *legal-communication-bytes* :key #'car))
+					    (:START-DIFF 		 
+					     (save-relevant-files php-session-folder xdebug-trace-folder user host pwd (com:receive-32b-unsigned-integer handler))
+					     (com:send-byte handler (car (find :FINISHED-DIFF *legal-communication-bytes* :key #'cdr)))
+					     (print-threaded :mover "Finished backup - send FINISHED-DIFF - waiting for next command"))					
+					    (:STREAM-EOF
+					     (setf com-broken-p T)
+					     (print-threaded :mover "connection closed from remote end")))))
+				    (error (e)
+				      (print-threaded :mover (FORMAT nil "encountered fatal error ~a" e))))
 			       (print-threaded :mover "I am done")))
 			 :name "mover"))
 	     
@@ -188,7 +191,7 @@ waits/responds for commands and executes given commands
 	(FORMAT T "listen on ~a:~a~%" (getf options :interface) (getf options :port))
 	(FORMAT T "target ssh ~a@~a using password ~a~%" (getf options :target-system-root) (getf options :target-system-ip) (getf options :target-system-pwd))
 	(FORMAT T "xdebug-trace-folder: ~a~%" (getf options :xdebug-trace-file))
-	(FORMAT T "php-session-folder: ~a~%" (getf options :php-session-folder))
+	(FORMAT T "php-session-folder: ~a~%" (getf options :php-session-folder))	
 	(let ((differ-thread (create-differ-thread  (getf options :target-system-root)
 						    (getf options :target-system-ip)
 						    (getf options :target-system-pwd)
@@ -200,21 +203,22 @@ waits/responds for commands and executes given commands
 						 (getf options :target-system-pwd)
 						 (getf options :interface)
 						 (getf options :port))))
-	  (ssh:register-machine (getf options :target-system-root)
-				(getf options :target-system-ip)
-				(getf options :target-system-pwd))
 	  (unwind-protect
-	       (handler-case
-		   (progn 
-		     (print-threaded :main (FORMAT nil "Started threads Differ [~a] / Mover [~a]" (sb-thread:thread-alive-p differ-thread) (sb-thread:thread-alive-p mover-thread)))
-		     (sb-thread:join-thread mover-thread)
-		     (print-threaded :main "Mover thread done"))
-		 (sb-thread:thread-error (e)
-		   (print-threaded :main (FORMAT nil "Error in thread mover ~a" e))))
+	       (progn 
+		 (ssh:register-machine (getf options :target-system-root)
+				       (getf options :target-system-ip)
+				       (getf options :target-system-pwd))		       
+		 (handler-case
+		     (progn 
+		       (print-threaded :main (FORMAT nil "Started threads Differ [~a] / Mover [~a]" (sb-thread:thread-alive-p differ-thread) (sb-thread:thread-alive-p mover-thread)))
+		       (sb-thread:join-thread mover-thread)
+		       (print-threaded :main "Mover thread done"))
+		   (sb-thread:thread-error (e)
+		     (print-threaded :main (FORMAT nil "Error in thread mover ~a" e)))))
 	    (sb-thread:with-mutex (*task-mutex*)
 	      (setf *stop-p* T)
 	      (sb-thread:condition-broadcast *task-waitqueue*))
-	    (sb-thread:join-thread differ-thread))))	      
+	    (sb-thread:join-thread differ-thread))))
     (unix-opts:unknown-option (err)
       (declare (ignore err))
       (opts:describe
