@@ -200,6 +200,9 @@ waits/responds for commands and executes given commands
 						 (getf options :target-system-pwd)
 						 (getf options :interface)
 						 (getf options :port))))
+	  (ssh:register-machine (getf options :target-system-root)
+				(getf options :target-system-ip)
+				(getf options :target-system-pwd))
 	  (unwind-protect
 	       (handler-case
 		   (progn 

@@ -32,7 +32,9 @@
 	   convert-to-utf8-encoding
 	   backup-all-files-from
 	   backup-file
-	   delete-folder))
+	   delete-folder	   
+	   register-machine
+	   probe-machine))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.php-session

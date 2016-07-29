@@ -9,4 +9,13 @@
 		     "--host-pwd" "bitnami"))
 
 
+(setf *posix-argv* '("--php-session-folder" "/opt/bitnami/php/tmp/" 
+		     "--xdebug-trace-file" "/tmp/xdebug.xt" 
+		     "--port" "9292" 
+		     "--interface" "127.0.0.1" 
+		     "--target-system" "192.168.56.102" 
+		     "--target-root" "root" 
+		     "--host-pwd" "bitnami" 
+		     "--sql-db-path" "/home/simkoc/.vilanoo/vilanoo.db"))
+
 (mosgi:main)

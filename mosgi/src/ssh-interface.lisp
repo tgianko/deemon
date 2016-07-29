@@ -13,17 +13,15 @@ handle all the nasty stuff we do not want/need to think about
   "executes a shell command on the given host and gives the resulting stream
 to the result handler. The result of the result-handler will be returned"
   (sb-thread:with-mutex (*ssh-mutex*)
-    (handler-bind ((libssh2::ssh-authentication-failure (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))
-		   (libssh2::ssh-bad-hostkey (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t)))
-      (libssh2:with-ssh-connection session (host
-					    (libssh2:make-password-auth username password)
-					    :hosts-db (namestring
-						       (merge-pathnames
-							(make-pathname :directory '(:relative ".ssh")
-								       :name "libssh2-known_hosts")
-							(user-homedir-pathname))))
-	(libssh2:with-execute*  (stream session command)
-	  (funcall result-handler stream))))))
+    (libssh2:with-ssh-connection session (host
+					  (libssh2:make-password-auth username password)
+					  :hosts-db (namestring
+						     (merge-pathnames
+						      (make-pathname :directory '(:relative ".ssh")
+								     :name "libssh2-known_hosts")
+						      (user-homedir-pathname))))
+      (libssh2:with-execute*  (stream session command)
+	(funcall result-handler stream)))))
   
 
 
@@ -31,16 +29,14 @@ to the result handler. The result of the result-handler will be returned"
   "copies a the guest file to the target file from the given host using
 provided password and username with scp"
   (sb-thread:with-mutex (*ssh-mutex*)
-    (handler-bind ((libssh2::ssh-authentication-failure (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))
-		   (libssh2::ssh-bad-hostkey (lambda (c) (declare (ignore c)) (invoke-restart 'libssh2:accept-always) t))) ;TODO:should be handled by caller not silently here
-      (libssh2:with-ssh-connection session (host
-					    (libssh2:make-password-auth username password)
-					    :hosts-db (namestring
-						       (merge-pathnames
-							(make-pathname :directory '(:relative ".ssh")
-								       :name "libssh2-known_hosts")
-							(user-homedir-pathname))))
-	(libssh2:scp-get guest-file host-file)))))
+    (libssh2:with-ssh-connection session (host
+					  (libssh2:make-password-auth username password)
+					  :hosts-db (namestring
+						     (merge-pathnames
+						      (make-pathname :directory '(:relative ".ssh")
+								     :name "libssh2-known_hosts")
+						      (user-homedir-pathname))))
+      (libssh2:scp-get guest-file host-file))))
 
 
 (defun folder-content-guest (folder username host password)
@@ -82,4 +78,34 @@ path on the given host using password and username to log in"
 
 (defun delete-folder (folder user host pwd)
   (run-remote-shell-command (FORMAT nil "rm -rf ~a" folder) user host pwd (discard-data-lambda)))
+
+
+(defun probe-machine (username host password)
+  (libssh2:with-ssh-connection session (host 
+					(libssh2:make-password-auth username password)
+					:hosts-db (namestring
+						   (merge-pathnames 
+						    (make-pathname :directory '(:relative ".ssh")
+								   :name "libss2-known_hosts")
+						    (user-homedir-pathname))))))
+
+
+(defun register-machine (username host password)  
+  (handler-case 
+      (handler-bind ((libssh2::ssh-bad-hostkey #'(lambda (e) 
+						   (declare (ignore e)) 
+						   (FORMAT T "[SSH] register always bad hostkey for given machine~%")
+						   (invoke-restart 'libssh2:accept-always)))
+		     (libssh2::ssh-unknown-hostkey #'(lambda (e) 
+						       (declare (ignore e)) 
+						       (FORMAT T "[SSH] register always unknown hostkey for given machine~%")
+						       (invoke-restart 'libssh2:accept-always))))
+	(probe-machine username host password))
+    (libssh2::ssh-authentication-failure (err)
+      (declare (ignore err))))
+  (probe-machine username host password))
+	       
+
+    
+
 
