@@ -60,6 +60,8 @@ vboxmanage startvm $vm_name #--type headless
 
 echo "waiting for guest to finish starting up..."
 guest_ip=`nc -l $com_port`
+echo "taking snapshot of virgin state..."
+vboxmanage snapshot $vm_name take virgin-state
 
 echo ""
 echo "guest system name is : $vm_name"
