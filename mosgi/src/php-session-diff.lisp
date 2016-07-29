@@ -50,7 +50,7 @@ Labels:
 		    (setf (gethash (car new-elements) diff-table)
 			  change-bindings))
 		  (diff-array-elements (cdr old-elements) (cdr new-elements) diff-table))))))
-    (let ((diff-table (diff-array-elements (get-keys old) (get-keys new) (make-hash-table :test 'equalp))))
+    (let ((diff-table (diff-array-elements (sort (get-keys old) #'string<=) (sort (get-keys new) #'string<=) (make-hash-table :test 'equalp))))
       (if (= (hash-table-count diff-table) 0)
 	  nil
 	  (cons (make-instance 'php-session-array-element :elements diff-table) :CHANGED)))))
