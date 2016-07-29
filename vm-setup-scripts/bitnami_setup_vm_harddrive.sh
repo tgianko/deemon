@@ -44,12 +44,6 @@ if [ $? -ne 0 ]; then
     clean_exit $?
 fi
 
-#copy needed tools
-#mkdir $mount_point$bitnami_tool_dir
-#cp `which socat` $mount_point$bitnami_tool_dir #copy socat
-#cp `which redir` $mount_point$bitnami_tool_dir #and redir in bitnami_tool_dir of guest machine
-
-
 ##general startup configuration configuration
 echo '#!/bin/sh -e' > "${mount_point}${bitnami_startup_script}"
 
@@ -86,12 +80,12 @@ echo "xdebug.trace_options=0"                                           >> "${mo
 echo "xdebug.trace_output_dir=/tmp/"                                    >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_output_name=xdebug"                                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 
-#database specific configuration
-#case $2 in
-#    "mysql") sh ${setup_dir}${mysql_script} ${mount_point} ${bitnami_tool_dir} ${target_host_ip} ${bitnami_outgoing_port} ${bitnami_startup_script} ${bitnami_database_port};;
-#    *) echo "$2 is an unknown database type"
-#       clean_exit 1;;
-#esac
+#disabling apache mod_pagespeed
+apache_config="${mount_point}/opt/bitnami/apache2/conf/httpd.conf"
+sed -i 's/Include conf\/pagespeed.conf/#Include conf\/pagespeed.conf/g' $apache_config
+sed -i 's/Include conf\/pagespeed_libraries.conf/#Include conf\/pagespeed_libraries.conf/g' $apache_config
+
+
 
 clean_exit 0
 
