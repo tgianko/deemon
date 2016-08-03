@@ -1,14 +1,14 @@
 #!/bin/bash
 
 
-if [ $# -ne 1 ]; then
-    echo "usage: ./polesno.sh </full/path/to/vm.vdi>"
+if [ $# -ne 2 ]; then
+    echo "usage: ./polesno.sh </full/path/to/vm.vdi> <vm-name>"
     exit 1
 fi
 
 
 vm_vdi=$1
-vm_name="bikini-atoll"
+vm_name=$2
 host_ip="NOT SET"
 incoming_port='4444'
 outgoing_port='5555'
@@ -62,13 +62,14 @@ echo "waiting for guest to finish starting up..."
 guest_ip=`nc -l $com_port`
 echo "taking snapshot of virgin state..."
 vboxmanage snapshot $vm_name take virgin-state
+echo "shutting down machine again"
+vboxmanage controlvm $vm_name poweroff
 
 echo ""
 echo "guest system name is : $vm_name"
 echo "guest IP             : $guest_ip"
 echo "outgoing port        : $outgoing_port"
 echo "incoming port        : $incoming_port"
-echo "run redir --lport 8080 --caddr $guest_ip --cport=80"
-echo "to reach the webapp via 127.0.0.1:8080"
+echo "virgin snapshot      : viring-state"
 
 exit 0

@@ -81,13 +81,19 @@ path on the given host using password and username to log in"
 
 
 (defun probe-machine (username host password)
+  (folder-content-guest "/" username host password)
+  nil)
+
+#|
   (libssh2:with-ssh-connection session (host 
 					(libssh2:make-password-auth username password)
 					:hosts-db (namestring
 						   (merge-pathnames 
 						    (make-pathname :directory '(:relative ".ssh")
 								   :name "libss2-known_hosts")
-						    (user-homedir-pathname))))))
+						    (user-homedir-pathname))))|#
+			       
+			       
 
 
 (defun register-machine (username host password)  

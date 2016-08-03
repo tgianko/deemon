@@ -3,21 +3,27 @@ from proxy2 import *
 import sqlite3 as lite
 import datetime
 import time
+import sys
 
 __DEBUG__     = False
 __SIM_DELAY__ = False
 __MOSGI__     = True
 
-sqlitedb = os.path.expanduser("~") + "/.vilanoo/vilanoo.db"
+sqlitedb = sys.argv[3]
 sqlite_schema = "./proxyDbSchema.sql"
 lock = threading.Lock()
 
 mosgi_interface="127.0.0.1"
-mosgi_port=9292
+mosgi_port=int(sys.argv[2])
 mosgi_start_command_byte=0
 mosgi_finish_response_byte=2
 mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 mosgi_connection.connect((mosgi_interface,mosgi_port))
+
+print "using port:"
+print mosgi_port
+print "using database:"
+print sqlitedb
 
 def check_and_create():
     if os.path.exists(sqlitedb):
@@ -105,6 +111,8 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
         return
 
     def response_handler(self, req, req_body, res, res_body):
+        print "debug handler"
+
         if __DEBUG__:
             res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
             print with_color(32, res_header_text)

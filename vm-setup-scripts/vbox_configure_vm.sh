@@ -16,7 +16,7 @@ rm -rf $HOME/.vilanoo/$2/
 vboxmanage createvm --name $2 --basefolder $HOME/.vilanoo/
 vboxmanage registervm $HOME/.vilanoo/$2/$2.vbox
 vboxmanage storagectl $2 --add sata --name "SCSI Controller"
-vboxmanage storageattach bikini-atoll --storagectl "SCSI Controller" --medium $1 --port 0 --type hdd
+vboxmanage storageattach $2 --storagectl "SCSI Controller" --medium $1 --port 0 --type hdd
 
 
 #set up the network adapter

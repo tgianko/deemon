@@ -1,3 +1,7 @@
 #!/bin/bash
 
-sbcl --dynamic-space-size 4000 --noinform --non-interactive --load run-mosgi.lisp "$@"
+pwd=`pwd`
+
+sbcl --dynamic-space-size 4000 --noinform --non-interactive --load "${pwd}/run-mosgi.lisp" "$@"
+
+
