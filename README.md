@@ -4,9 +4,10 @@ This is the code base for the Vilanoo project. The goal of this project is study
 
 ## Components
 
- * [vilanoo](vilanoo-proxy/README.md) : HTTP + data layer proxy
+ * [vilanoo2](vilanoo2/README.md) : HTTP/S proxy that intercepts browser requests.
+ * [mosgi](mosgi/README.md): Scripts for collecting server-side execution trace, extract session data, and file I/O.
  * [zumka](vm-setup-scripts/README.md) : Scripts for setting up the vm for usage with the proxy
- * [mosgi](mosgi/README.md): Scripts for collecting server-side execution trace, extract session data, and file I/O
+
 ## License
   TBD
 
