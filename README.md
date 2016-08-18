@@ -21,32 +21,32 @@ Requirements and installation are [here](INSTALL.md)
 
 This is a quickstart guide to instrument a VM and use our toolset. 
 
-## (step 1) `zumka` - VM Instrumentation
+## Step 1 - `zumka` and VM Instrumentation
 
 zumka supports only bitnami images with PHP and MySQL. This step is executed 
 only once per VM. 
 
 If you have a `.vmdk` image files use:
 
+```bash
+cd zumka/
+./pamada.sh $vmdk_file
+```
 
-    cd /path/to/vilanoo/vm-setup-scripts/
-    ./pamada.sh </full/path/vm.vmdk>
+If you have a `.vdi` image file then use:
 
+```bash
+cd zumka/
+./polesno.sh $vdi_file
+```
 
-else (the vm is in the form of a `.vdi` file):
-
-
-    cd /path/to/vilanoo/vm-setup-scripts/
-    ./polesno.sh </full/path/to/vm.vdi>
-
-
-If this yields any errors please give a bug report consisting of:
+If this yields any errors please open an issue consisting of:
 * exact command given
 * full output from start to crash of the execution
 
-The vm should be up and running at the end of the script and the ip
-of the vm is printed in the end. The start-up of the vm will take
-a couple minutes (see the corresponding issue).
+At this point, if everything worked correctly, the VM should be up and running.
+At the end of the execution of the instrumentation scripts, you will see IP,
+ports, and snapshot name. You can use the IP to connect to the VM for testing.
 
 **IMPORTANT**: If at some step something did not work out and the problem
 is fixed it is important to do a **COMPLETE** reset. Basically deleting the
@@ -54,27 +54,39 @@ vm-folder and using a fresh version. No relative restart is possible and
 just ends in even more weird and confusing error messages.
 
 
-### Getting the interception running
+## Step 2 - MOSGI + Vilanoo2 to extract dynamic traces
 
-We have to start all the proxy parts in the correct order:
-* mosgi (the lisp stuff - don't worry there is a cmd script for that)
-* vilanoo-proxy  (don't worry there is a cmd script for that)
+Mosgi and Vilanoo2 work together. At the moment you will need to run first mosgi
+and then vilanoo2. The other way around won't work.
 
 The first step is to start `mosgi`: 
 
-    ./vilanoo/mosgi/run.sh
+```
+cd mosgi/src
+./run.sh -h
+```
 
-all flags are listed and explained using the `-h` flag. If not mentioned otherwise a command is
-mandatory. All flags are mandatory.
+Current version of MOSGI is tough like Siberian winter and does not have default
+parameter yet. All parameters are mandatory so, please, take your time and get
+them right. 
 
-For example:
+It is likely that you will use the following command line:
 
-    ./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s /path/to/db/ ?!? <- can you explain me this?
+```
+./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s /path/to/db/
+```
+
+After that, Mosgi is up and running waiting for incoming connections at localhost
+port 9292. 
+
+Now, run vilanoo2 (to intercept also HTTPS request, please read [this](vilanoo2/src/README.md):
+
+```
+cd vilanoo2/
+./vilanoo2.py -s $path_to_your_sqlitedb
+```
 
 
-The second step is to start `vilanoo`: 
-
-    python ./vilanoo/proxy2/src/vilanoo2.py <PORT-TO-LISTEN-FOR-INCOMING>
 
 Mosgi should (now) display, that a connection has been established.
 
