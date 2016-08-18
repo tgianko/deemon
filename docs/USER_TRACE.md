@@ -73,3 +73,10 @@ $ java -cp selenese-runner-java-2.9.1-SNAPSHOT.jar jp.vmi.selenium.selenese.Main
 
 where `opencart_new_user.html` is the trace captured with Selenium IDE and 
 `http://192.168.56.102/` is the base URL of the Web Application under test.
+
+To run a test in interactive mode, add `-i` ir `--interactive`:
+
+```
+$ java -cp selenese-runner-java-2.9.1-SNAPSHOT.jar jp.vmi.selenium.selenese.Main --driver firefox opencart_new_user.html --baseurl "http://192.168.56.102/" -i
+```
+
