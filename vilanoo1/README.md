@@ -1,15 +1,3 @@
 # vilanoo-proxy
 
-## Dependencies:
-
- * mitmproxy ~0.10
- * mysql-proxy >=8.5
- * sqlparse
-
-## Usage
-
-TODO
-
-## Inline Scripts
-
-TODO
+Vilanoo 1 has been officially outdated. DO NOT USE. I REPEAT, DO NOT USE.

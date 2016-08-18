@@ -4,90 +4,29 @@ This is the code base for the Vilanoo project. The goal of this project is study
 
 ## Components
 
- * [vilanoo](vilanoo-proxy/README.md) : HTTP + data layer proxy
+ * [vilanoo2](vilanoo2/README.md) : HTTP/S proxy that intercepts browser requests.
+ * [mosgi](mosgi/README.md): Scripts for collecting server-side execution trace, extract session data, and file I/O.
  * [zumka](vm-setup-scripts/README.md) : Scripts for setting up the vm for usage with the proxy
- * [mosgi](mosgi/README.md): Scripts for collecting server-side execution trace, extract session data, and file I/O
+
 ## License
   TBD
 
-# HowTo [Installation/Usage]:
+# Installation
 
-The whole project relies on multiple different technologies. Though we tried to provide a general interface
-to hide that fact each part needs to be addressed independently. First we describe installation then 
-usage (which is the easier part). We use the project on Ubuntu 14.04 with gnome3 and, thus, any dependency
-is relative to this OS as a baseline. We try to give version numbers for every tool used, though it
-is quite likely that other versions work just fine, they are just intended to give a perfect system
-layout that is guaranteed to work.
+Requirements and installation are [here](INSTALL.md)
 
-All scripts are based on `/bin/bash` and work with relative paths. If there are constant paths used please 
-report them as a bug.
+# Quick start
 
-*Comment*: As a downside of this approach it it would be a very bad idea to rename folders INSIDE the repo without
-great caution
+боже мой - after successfully installing everything.
 
-Every script intended for direct usage can be used without parameter and reports the correct usage.
-If this is not the case please report that as a bug.
+This is a quickstart guide to instrument a VM and use our toolset. 
 
-Every script contains a short description at the beginning of the file to explain what the script should be
-used for. If this is not the case please report that as a bug.
+## (step 1) `zumka` - VM Instrumentation
 
-Running the whole program will create a folder `~/.vilanoo/` which will contain project relevant information.
-This also means that the database used is contained in that folder and called "./vilanoo.db". Any flag
-requesting this parameter needs a path to that database.
+zumka supports only bitnami images with PHP and MySQL. This step is executed 
+only once per VM. 
 
-## Installation
-
-### VirtualBox
-We use VirtualBox as it provides a clean cmd interface and the shell scripts rely on `vboxmanage` being
-in the system path/known to the environment.
-
-We furthermore need to mount the `.vdi` file of the vm to do static modifications to the contained files.
-This has been tested only on `Bitnami-OpenCart (2.1.0.2.0)` so far. For the mounting the following system
-tools are needed:
-* `modprobe` (version 15)
-* `qemu-nbd` (version 0.0.1)
-* `mount`    (version 2.20.1)
-* `umount`   (version 2.20.1)
-* `rmmod`    (version 15)
-
-Additionally, our scripts require:
-* `netcat` for OpenBSD (traditional netcat will not work, see Issue #43)
-
-##Python
-We use python 2.7. No additional requirements so far. We use proxy2 as our current proxy (https://github.com/inaz2/proxy2).
-
-### Sqlite3
-Installing `sqlite3` and `libsqlite3-dev` should suffice.
-
-
-### Common-Lisp 
-The following things are needed:
-* SBCL (Steel Bank Common Lisp version 1.1.14)
-* quicklisp (https://www.quicklisp.org/beta/)
-
-After installing quicklisp (follow the tutorial given on the homepage) set the symlink
-
-    ln -s /path/to/vilanoo/mosgi/src/ mosgi 
-
-in `~/quicklisp/local-projects/`
-
-We also rely on a library that needs patches for our purposes. We established a external
-repository to handle this. Clone it into "~/quicklisp/local-projects/" before executing any
-further steps using lisp.
-
-    git clone https://github.com/simkoc/cl-libssh2.git
-
-If something breaks and the string "libssh2" appears, please update the repository before
-making a bug report. We are in contact with the main author that handles the repository
-used by quicklisp but it takes time to push changes, thus relying on our own repo to fit 
-our needs is more convienient.
-
-## Usage
-боже мой - after successfully installing everything
-
-### Setting up the vm (this is only required once!)
-
-If the vm is in form of `.vmdk` files use:
+If you have a `.vmdk` image files use:
 
 
     cd /path/to/vilanoo/vm-setup-scripts/
