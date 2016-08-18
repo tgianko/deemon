@@ -1,12 +1,13 @@
 # Vilanoo Project
 
-This is the code base for the Vilanoo project. The goal of this project is study and detection of CSRF vulnerabilities.
+This is the code base for the Vilanoo project. The goal of this project is study
+and detection of CSRF vulnerabilities.
 
 ## Components
 
  * [vilanoo2](vilanoo2/README.md) : HTTP/S proxy that intercepts browser requests.
- * [mosgi](mosgi/README.md): Scripts for collecting server-side execution trace, extract session data, and file I/O.
- * [zumka](vm-setup-scripts/README.md) : Scripts for setting up the vm for usage with the proxy
+ * [mosgi](mosgi/README.md): Server to collect Web Application execution traces, session data, and file I/O.
+ * [zumka](vm-setup-scripts/README.md) : Tools to instrument VM (bitnami + vbox only)
 
 ## License
   TBD
@@ -21,7 +22,7 @@ Requirements and installation are [here](INSTALL.md)
 
 This is a quickstart guide to instrument a VM and use our toolset. 
 
-## Step 1 - `zumka` and VM Instrumentation
+## Step 1 - zumka and VM instrumentation
 
 zumka supports only bitnami images with PHP and MySQL. This step is executed 
 only once per VM. 
@@ -30,14 +31,14 @@ If you have a `.vmdk` image files use:
 
 ```bash
 cd zumka/
-./pamada.sh $vmdk_file
+./pamada.sh  </full/path/vm.vdmk> <vm-name>
 ```
 
 If you have a `.vdi` image file then use:
 
 ```bash
 cd zumka/
-./polesno.sh $vdi_file
+./polesno.sh </full/path/vm.vdi> <vm-name>
 ```
 
 If this yields any errors please open an issue consisting of:
@@ -54,19 +55,19 @@ vm-folder and using a fresh version. No relative restart is possible and
 just ends in even more weird and confusing error messages.
 
 
-## Step 2 - MOSGI + Vilanoo2 to extract dynamic traces
+## Step 2 - mosgi + vilanoo2 to extract dynamic traces
 
 Mosgi and Vilanoo2 work together. At the moment you will need to run first mosgi
 and then vilanoo2. The other way around won't work.
 
-The first step is to start `mosgi`: 
+The first step is to start mosgi: 
 
 ```
 cd mosgi/src
 ./run.sh -h
 ```
 
-Current version of MOSGI is tough like Siberian winter and does not have default
+Current version of mosgi is tough like Siberian winter and does not have default
 parameter yet. All parameters are mandatory so, please, take your time and get
 them right. 
 
@@ -86,15 +87,10 @@ cd vilanoo2/
 ./vilanoo2.py -s $path_to_your_sqlitedb
 ```
 
+# Step 3 - Run VM and test
 
-
-Mosgi should (now) display, that a connection has been established.
-
-As the last step we need to configure the browser to use our proxy, this can be
-done however fits the used browser.
-Finally, we can access the vm, using the ip of the machine, to access the webpage we are
-interested in (that is on the bitnami machine of course).
-
+Finally, run the virtual machine and configure you browser or the testing tool 
+to use 127.0.0.1:8080 as a proxy. 
 
 **Any steps that do not work or are not sufficiently discribed are a bug and should be
 made a (seperate) ticket for us to fix.**
