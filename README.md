@@ -126,7 +126,12 @@ The first step is to start `mosgi`:
     ./vilanoo/mosgi/run.sh
 
 all flags are listed and explained using the `-h` flag. If not mentioned otherwise a command is
-mandatory. All flags a mandatory.
+mandatory. All flags are mandatory.
+
+For example:
+
+    ./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s /path/to/db/ ?!? <- can you explain me this?
+
 
 The second step is to start `vilanoo`: 
 
