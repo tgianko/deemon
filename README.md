@@ -15,12 +15,18 @@ This is the code base for the Vilanoo project. The goal of this project is study
 
 Requirements and installation are [here](INSTALL.md)
 
-## Usage
-боже мой - after successfully installing everything
+# Quick start
 
-### Setting up the vm (this is only required once!)
+боже мой - after successfully installing everything.
 
-If the vm is in form of `.vmdk` files use:
+This is a quickstart guide to instrument a VM and use our toolset. 
+
+## (step 1) `zumka` - VM Instrumentation
+
+zumka supports only bitnami images with PHP and MySQL. This step is executed 
+only once per VM. 
+
+If you have a `.vmdk` image files use:
 
 
     cd /path/to/vilanoo/vm-setup-scripts/
