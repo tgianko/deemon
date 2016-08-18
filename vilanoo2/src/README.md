@@ -1,21 +1,41 @@
 # vilanoo2
 
-Vilanoo2 replaces Vilanoo. Vilanoo2 is based on proxy2 which can be found in proxy2/. As it extends proxy2, the documentation below is derived from the one of proxy2.
-
+Vilanoo2 replaces Vilanoo. Vilanoo2 is based on proxy2 which can be found in `proxy2/`. As it extends proxy2, the documentation below is derived from the one of proxy2.
 
 ## Usage
 
-Just run as a script:
+A list of updated parameter is mantained here:
+
+```terminal
+$ ./vilanoo2.py --help
+usage: vilanoo2.py [-h] [-b IP] [-p PORT] [-M IP] [-P PORT] -s PATH
+                   [--disable-mosgi]
+
+Main vilanoo2 proxy parameters
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b IP, --bind IP      bind address
+  -p PORT, --port PORT  listenig TCP port
+  -M IP, --mosgi-address IP
+                        MOSGI address
+  -P PORT, --mosgi-port PORT
+                        MOSGI port
+  -s PATH, --sqlitedb PATH
+                        SQLite3 DB
+  --disable-mosgi       Disable MOSGI
+```
+
+This is most likely the command line that you are going to use more often:
 
 ```
-$ python vilanoo2.py
+$ ./vilanoo2.py -s $path_to_your_sqlitedb
 ```
 
-Above command runs the proxy on tcp/8080.
-To use another port, specify the port number as the first argument.
+If you don't want to connect to MOSGI use `--disable-mosgi`:
 
 ```
-$ python vilanoo2.py 3128
+$./vilanoo2.py -s $path_to_your_sqlitedb --disable-mosgi
 ```
 
 
