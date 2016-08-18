@@ -126,7 +126,12 @@ The first step is to start `mosgi`:
     ./vilanoo/mosgi/run.sh
 
 all flags are listed and explained using the `-h` flag. If not mentioned otherwise a command is
-mandatory. All flags a mandatory.
+mandatory. All flags are mandatory.
+
+For example:
+
+    ./vilanoo/mosgi/run.sh ADD AN EXAMPLE HERE!!!!
+
 
 The second step is to start `vilanoo`: 
 
