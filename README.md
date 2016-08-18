@@ -9,12 +9,22 @@ and detection of CSRF vulnerabilities.
  * [mosgi](mosgi/README.md): Server to collect Web Application execution traces, session data, and file I/O.
  * [zumka](vm-setup-scripts/README.md) : Tools to instrument VM (bitnami + vbox only)
 
+## External components
+ 
+ * [Selenium IDE](http://www.seleniumhq.org/download/): Tool to capture 
+ user-generated Selenese HTML
+ * [selenese-runner-java](https://github.com/tgianko/selenese-runner-java/tree/newfeat/interactive): 
+ Tool to run Selenese HTML. This is a forked version by Giancarlo which feature
+ a new option `--interactive` or `-i` to execute Selenese HTML step-by-step
+ upon user input
+
 ## License
   TBD
 
 # Installation
 
-Requirements and installation are [here](INSTALL.md)
+Requirements and installation of internal component are [here](INSTALL.md).
+For the external ones, please refer to the documentation of each project.
 
 # Quick start
 
