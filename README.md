@@ -92,5 +92,11 @@ cd vilanoo2/
 Finally, run the virtual machine and configure you browser or the testing tool 
 to use 127.0.0.1:8080 as a proxy. 
 
+# Step 4 - Database
+
+HTTP requests, SQL query, xdebug traces, session data, and file I/O are stored
+in the SQL Lite DB.
+
+
 **Any steps that do not work or are not sufficiently discribed are a bug and should be
 made a (seperate) ticket for us to fix.**
