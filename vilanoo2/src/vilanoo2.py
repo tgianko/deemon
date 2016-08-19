@@ -44,9 +44,10 @@ def http_to_logevt(req, res):
 def check_and_create():
     # If the DB does not exist, lite.connect does not create a folder. 
     # Check folder first...
-    if not os.path.exists(os.path.dirname(sqlitedb)):
-        v_logger.info("DB {0} does not exist. Creating...".format(os.path.dirname(sqlitedb)))
-        os.makedirs(os.path.dirname(sqlitedb))
+    dirname = os.path.dirname(sqlitedb)
+    if len(dirname) > 0 and not os.path.exists(dirname):
+        v_logger.info("DB {0} does not exist. Creating...".format(dirname))
+        os.makedirs(dirname)
 
     #if not os.path.exists(sqlite_schema):
     #    v_logger.fatal("Houston, we have a problem. sqlite_schema {0} does not exist.".format(sqlite_schema))
@@ -115,21 +116,18 @@ def request_relevant_p(req):
 class VilanooProxyRequestHandler(ProxyRequestHandler):
 
 
-    
     def do_GET(self):
         with lock:
             ProxyRequestHandler.do_GET(self)
 
     def request_handler(self, req, req_body):
-        """
-        TODO: Strip our retry after BadStatusLine URL parameter
-        """
+
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
         v_logger.debug(with_color(32, req_header_text))
 
 
         if MOSGI:
-            m_logger.info("===================start=========================")
+            m_logger.debug("===================start=========================")
 
         return
 
@@ -159,7 +157,7 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
                 # To enable these two lines, please use DEBUG
                 # res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
                 # print with_color(32, res_header_text)
-                m_logger.info("===================finished======================")
+                m_logger.debug("===================finished======================")
             
 
         
@@ -199,7 +197,7 @@ def main(args):
     parser.add_argument("-M", "--mosgi-address", dest="mosgi_addr",                help="MOSGI address",      default='127.0.0.1', metavar="IP",   type=str)
     parser.add_argument("-P", "--mosgi-port",    dest="mosgi_port",                help="MOSGI port",         default='9292',      metavar="PORT", type=int)
     parser.add_argument("-s", "--sqlitedb",      dest="sqlitedb",   required=True, help="SQLite3 DB",                              metavar="PATH", type=str)
-    parser.add_argument(      "--disable-mosgi", dest="dismosgi",                  help="Disable MOSGI",      action="store_false")
+    parser.add_argument(      "--no-mosgi",      dest="dismosgi",                  help="Disable MOSGI",      action="store_false")
     
 
     arg_obj = parser.parse_args(args)
