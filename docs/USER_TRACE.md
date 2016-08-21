@@ -107,3 +107,9 @@ user_pref("network.proxy.ssl", "127.0.0.1");
 user_pref("network.proxy.ssl_port", 8080);
 user_pref("network.proxy.type", 1);
 ```
+
+## Mouse Over events
+
+Selenium IDE does not capture onMouseOver events. Selenese can perform these 
+actions so consider to adjust selenese test cases manually to perform these 
+operations.
