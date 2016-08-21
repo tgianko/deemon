@@ -113,3 +113,16 @@ user_pref("network.proxy.type", 1);
 Selenium IDE does not capture onMouseOver events. Selenese can perform these 
 actions so consider to adjust selenese test cases manually to perform these 
 operations.
+
+## Headless Browser
+
+Install xvfb and run it:
+```
+you$ sudo Xvfb :10 -ac
+[sudo] password for you:
+```
+
+Set `DISPLAY` environment in the console you use for Firefx:
+```
+you$ export DISPLAY=:10 
+```
