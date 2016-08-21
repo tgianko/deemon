@@ -100,10 +100,12 @@ cd vilanoo2/
 ./vilanoo2.py -s $path_to_your_sqlitedb
 ```
 
-# Step 3 - Run VM and test
+# Step 3 - Run VM, Selenium IDE + Selenese Runner, and tests
 
-Finally, run the virtual machine and configure you browser or the testing tool 
-to use 127.0.0.1:8080 as a proxy. 
+Run the virtual machine and configure you browser or the testing tool to use 
+127.0.0.1:8080 as a proxy. 
+
+A guide to capture user traces and selenese runner is [here](vilanoo/docs/USER_TRACE.md)
 
 # Step 4 - Database
 
