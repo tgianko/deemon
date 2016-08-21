@@ -6,6 +6,8 @@ import datetime
 import time
 import utils.log as log
 import argparse
+import netaddr
+import socket
 
 
 DEBUG     = False
@@ -35,7 +37,8 @@ sqlite_schema = os.path.join(os.getcwd(), "../../data/DBSchema.sql")
 # Lock to remove async requests toward upstream server
 lock = threading.Lock()
 
-
+# return 404 for external requests
+noextreq = False
 
 
 def http_to_logevt(req, res):
@@ -88,7 +91,6 @@ def insert_http_request(request,request_body):
         cur.execute("INSERT INTO http_requests (time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?)",
                     http_request_query_data)
         request_id = cur.lastrowid
-        global_last_request_id = request_id
 
     request.db_request_id = lambda: None
     setattr(request,'db_request_id',request_id)
@@ -103,22 +105,39 @@ def update_request_status(db_request_id,status_code):
         cur = con.cursor()
         cur.execute("UPDATE http_requests SET status_code=? WHERE id=? ORDER BY id desc LIMIT 1",(status_code,db_request_id))
 
+def external_request(req):
+    u = urlparse.urlsplit(req.path)
+    ip = netaddr.IPAddress(socket.gethostbyname(u.netloc))
+    if ip.is_private():
+        return False
+
+    if ip.is_loopback():
+        return False
+
+    return True
+
 def request_relevant_p(req):
     non_relevant_extensions = [".css", ".js",".png",".jpg",".jpeg",".woff2", ".woff", ".gif", ".ico"]
     u = urlparse.urlsplit(req.path)
-    scheme, netloc, path = u.scheme, u.netloc, (u.path + '?' + u.query if u.query else u.path)
-    filename, file_extension = os.path.splitext( u.path)
+    
+    if external_request(req):
+        return False
+
+    filename, file_extension = os.path.splitext(u.path)
     if file_extension in non_relevant_extensions:
         return False
-    else:
-        return True
+    
+    return True
 
 class VilanooProxyRequestHandler(ProxyRequestHandler):
-
+    Q=[]
 
     def do_GET(self):
-        with lock:
+        if external_request(self):
             ProxyRequestHandler.do_GET(self)
+        else:
+            with lock:
+                ProxyRequestHandler.do_GET(self)
 
     def request_handler(self, req, req_body):
 
@@ -198,6 +217,7 @@ def main(args):
     parser.add_argument("-P", "--mosgi-port",    dest="mosgi_port",                help="MOSGI port",         default='9292',      metavar="PORT", type=int)
     parser.add_argument("-s", "--sqlitedb",      dest="sqlitedb",   required=True, help="SQLite3 DB",                              metavar="PATH", type=str)
     parser.add_argument(      "--no-mosgi",      dest="dismosgi",                  help="Disable MOSGI",      action="store_false")
+    parser.add_argument(      "--no-ext-req",    dest="noextreq",                  help="Return 404 for external requests", action="store_true")
     
 
     arg_obj = parser.parse_args(args)
@@ -210,6 +230,8 @@ def main(args):
     sqlitedb      = arg_obj.sqlitedb
     global MOSGI
     MOSGI         = arg_obj.dismosgi
+    global noextreq
+    noextreq      = arg_obj.noextreq
 
     v_logger.info("DEBUG     enabled {0}".format(DEBUG))
     v_logger.info("MOSGI     enabled {0}".format(MOSGI))
