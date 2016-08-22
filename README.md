@@ -18,6 +18,10 @@ and detection of CSRF vulnerabilities.
  a new option `--interactive` or `-i` to execute Selenese HTML step-by-step
  upon user input.
 
+## Requirements
+
+ * `tmux`
+
 ## License
   TBD
 
