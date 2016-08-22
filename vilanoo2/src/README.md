@@ -23,7 +23,7 @@ optional arguments:
                         MOSGI port
   -s PATH, --sqlitedb PATH
                         SQLite3 DB
-  --disable-mosgi       Disable MOSGI
+  --no-mosgi            Disable MOSGI
 ```
 
 This is most likely the command line that you are going to use more often:
@@ -32,10 +32,10 @@ This is most likely the command line that you are going to use more often:
 $ ./vilanoo2.py -s $path_to_your_sqlitedb
 ```
 
-If you don't want to connect to MOSGI use `--disable-mosgi`:
+If you don't want to connect to MOSGI use `--no-mosgi`:
 
 ```
-$./vilanoo2.py -s $path_to_your_sqlitedb --disable-mosgi
+$./vilanoo2.py -s $path_to_your_sqlitedb --no-mosgi
 ```
 
 
