@@ -64,3 +64,10 @@ class SeleneseTestSuite(object):
         for a in self.tree.xpath('//tr//td//a'):
             yield SeleneseTestCase(join(self.dirname, a.attrib["href"]))
 
+
+
+def is_suite(filename):
+    tree = html.parse(filename)
+    if tree.xpath('//title')[0].text == "Test Suite":
+        return True
+    return False

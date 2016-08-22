@@ -5,8 +5,19 @@ sqlite queries,file diff and session diff trees
 
 autor: Simon Koch <s9sikoch@stud.uni-saarland.de>
 */
+
+CREATE TABLE selenese_commands (
+       id               integer,
+       tcname           character varying,
+       command          character varying,
+       target           character varying,
+       value            character varying,
+       PRIMARY KEY (id)
+);
+
 CREATE TABLE http_requests (
        id    		   integer,
+       command_id       integer,
        time		   character varying,
        request_url 	   character varying,
        request_body 	   character varying,
