@@ -46,4 +46,11 @@ CREATE TABLE session_diff_trees (
        REFERENCES http_request(id)
 );
 
-
+CREATE TABLE sessions (
+       http_request_id		integer,
+       session_id		character varying,
+       session_string		character varying,
+       PRIMARY KEY(http_request_id,session_id),
+       FOREIGN KEY(http_request_id)
+       REFERENCES http_request(id)      
+);
