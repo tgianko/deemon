@@ -54,6 +54,29 @@ path on the given host using password and username to log in"
 				     ((not line) (cdr files))))))
 
 
+(defun get-all-contained-files-as-strings (folder-path username host password)
+  "returns a list of strings that represent the content of the files contained
+in folder path using ssh connection with provided username host and password"
+  (mapcar #'(lambda(file-path)
+	      (get-file-as-string file-path username host password))
+	  (folder-content-guest folder-path username host password)))
+
+
+(defun get-file-as-string (file-path username host password)
+  "returns the string that represents the contetn of the file specified as file-path
+using ssh connection with provided username host and password"
+  (cl-fad:with-open-temporary-file (tmp-stream :direction :io :element-type 'character)   
+    (scp file-path (pathname tmp-stream) username host password)
+    (finish-output tmp-stream)
+    (ssh:convert-to-utf8-encoding (namestring (pathname tmp-stream))) ;this is just because encoding is stupid
+    (when (not (file-position tmp-stream 0))
+      (error "unable to move to start of tmp file"))
+    (with-output-to-string (stream)
+      (do ((line (read-line tmp-stream nil nil)
+		 (read-line tmp-stream nil nil)))
+	  ((not line) nil)
+	(FORMAT stream "~a~%" line))))) ;;TODO:conditional new line of FORMAT usen
+
 
 (defun convert-to-utf8-encoding (file-path)
   (sb-ext:run-program "/usr/bin/vim" (list "+set nobomb | set fenc=utf8 | x" file-path)))
@@ -83,17 +106,6 @@ path on the given host using password and username to log in"
 (defun probe-machine (username host password)
   (folder-content-guest "/" username host password)
   nil)
-
-#|
-  (libssh2:with-ssh-connection session (host 
-					(libssh2:make-password-auth username password)
-					:hosts-db (namestring
-						   (merge-pathnames 
-						    (make-pathname :directory '(:relative ".ssh")
-								   :name "libss2-known_hosts")
-						    (user-homedir-pathname))))|#
-			       
-			       
 
 
 (defun register-machine (username host password)  
