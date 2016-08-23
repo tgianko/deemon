@@ -116,27 +116,32 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun parse-xdebug-trace-line (line)
-  (destructuring-bind (level function-nr always &rest rest)
-      (cl-ppcre:split "\\t" line)
-    (cond
-      ((and (string= "" level)
-	    (string= "" function-nr)
-	    (string= "" always))
-       nil)
-      ((string= "0" always)
-       (make-entry-records (append (list level function-nr always) rest)))
-      ((string= "1" always)
-       (make-exit-records (append (list level function-nr always) rest)))
-      ((string= "R" always)
-       (make-return-records (append (list level function-nr always) rest)))
-      (T
-       (error 'simple-error 
-	      :format-control "there aint no such thing as ~a as the always record part in ~a"
-	      :format-arguments (list always line))))))
+  (if (not line)
+      nil
+      (destructuring-bind (level function-nr always &rest rest)
+	  (cl-ppcre:split "\\t" line)
+	(cond
+	  ((and (string= "" level)
+		(string= "" function-nr)
+		(string= "" always))
+	   nil)
+	  ((string= "0" always)
+	   (make-entry-records (append (list level function-nr always) rest)))
+	  ((string= "1" always)
+	   (make-exit-records (append (list level function-nr always) rest)))
+	  ((string= "R" always)
+	   (make-return-records (append (list level function-nr always) rest)))
+	  (T
+	   (error 'simple-error 
+		  :format-control "there aint no such thing as ~a as the always record part in ~a"
+		  :format-arguments (list always line)))))))
        
 
 (defun parse-xdebug-trace (string)
   (let ((stream (make-string-input-stream string)))
+    (parse-xdebug-trace-helper stream)))
+
+(defun parse-xdebug-trace-helper (stream)
     (read-line stream nil nil) ;the first three
     (read-line stream nil nil) ;lines are really
     (read-line stream nil nil) ;not needed
@@ -148,7 +153,7 @@ given trace and returns all parameters passed to those calls.
       (let ((last (parse-xdebug-trace-line line)))
 	(if last 
 	    (push last records)
-	    (setf stop-p T))))))
+	    (setf stop-p T)))))
 	  
 
 (defun make-xdebug-trace (stream)
@@ -176,6 +181,5 @@ given trace and returns all parameters passed to those calls.
 			     (and (typep record 'entry-record)
 				  (string= (function-name record) "mysqli->query")))
 			 (trace-content xdebug-trace))))
-
-
-
+			   
+			   
