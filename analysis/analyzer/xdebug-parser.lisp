@@ -138,8 +138,10 @@ given trace and returns all parameters passed to those calls.
        
 
 (defun parse-xdebug-trace (string)
-  (let ((stream (make-string-input-stream string)))
-    (parse-xdebug-trace-helper stream)))
+  (if string 
+      (let ((stream (make-string-input-stream string)))
+	(parse-xdebug-trace-helper stream))
+      (FORMAT T "WARNING: NO XDEBUG DUMP FUND - CONTINUING ANYWAYS!~%")))
 
 (defun parse-xdebug-trace-helper (stream)
     (read-line stream nil nil) ;the first three
