@@ -123,7 +123,7 @@ def insert_http_request(request,request_body):
         cur = con.cursor()            
         ##inserting the http_request that triggered the sql_queries            
         http_request_query_data = (sel_cmd_id,datetime.datetime.now(),request.path,headers,body,method_type,cookies,"unknown")
-        cur.execute("INSERT INTO http_requests (command_id,time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?)",
+        cur.execute("INSERT INTO http_requests (command_id,time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?,?)",
                     http_request_query_data)
         request_id = cur.lastrowid
 
