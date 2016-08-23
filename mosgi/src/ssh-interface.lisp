@@ -58,7 +58,7 @@ path on the given host using password and username to log in"
   "returns a list of strings that represent the content of the files contained
 in folder path using ssh connection with provided username host and password"
   (mapcar #'(lambda(file-path)
-	      (get-file-as-string file-path username host password))
+	      (cons file-path (get-file-as-string file-path username host password)))
 	  (folder-content-guest folder-path username host password)))
 
 
@@ -75,7 +75,7 @@ using ssh connection with provided username host and password"
       (do ((line (read-line tmp-stream nil nil)
 		 (read-line tmp-stream nil nil)))
 	  ((not line) nil)
-	(FORMAT stream "~a~%" line))))) ;;TODO:conditional new line of FORMAT usen
+	(FORMAT stream "~&~a" line))))) ;;TODO:conditional new line of FORMAT usen
 
 
 (defun convert-to-utf8-encoding (file-path)

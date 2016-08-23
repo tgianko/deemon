@@ -121,26 +121,29 @@ waits/responds for commands and executes given commands
 
 
 (defun transfer-relevant-files (database-path request-db-id user host pwd)
-  (let ((xdebug-trace-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id))
+  (let ((xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/xdebug.xt" request-db-id))
 	(php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id)))
-    (handler-case
-	(progn
+    (handler-case 
+	(clsql:with-database (database-connection (list database-path) :database-type :sqlite3)
 	  (print-threaded :saver (FORMAT nil "copy php sessions for request ~a onto host" request-db-id))	  
 	  (database:enter-sessions-raw-into-db (ssh:get-all-contained-files-as-strings php-session-folder user host pwd)
-					       database-connection #'(lambda(string)
-								       (print-threaded :saver string)))
+					       request-db-id
+					       database-connection 
+					       #'(lambda(string)
+						   (print-threaded :saver string)))
 	  (ssh:delete-folder php-session-folder user host pwd)
 	  (print-threaded :saver (FORMAT nil "copy xdebug dump for request ~a onto host" request-db-id))	  
-	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-string xdebug-trace-folder user host pwd)
+	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-string xdebug-trace-file user host pwd)
+						  request-db-id
 						  database-connection 
 						  #'(lambda(string)
 						      (print-threaded :saver string)))
-	  (ssh:delete-folder xdebug-trace-folder user host pwd))
+	  (ssh:delete-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd))
       (error (e)
 	(print-threaded :saver (FORMAT nil "ERROR ~a" e))))))
 
 
-(defun create-differ-thread (user host pwd sqlite-db-path)
+(defun create-saver-thread (user host pwd sqlite-db-path)
   (sb-thread:make-thread #'(lambda()
 			     (unwind-protect 
 				  (tagbody
@@ -153,11 +156,11 @@ waits/responds for commands and executes given commands
 					   (sb-thread:condition-wait *task-waitqueue* *task-mutex*))
 				       (go check))
 				   work
-				     (make-diff sqlite-db-path (sb-concurrency:dequeue *request-queue*) user host pwd)
+				     (transfer-relevant-files sqlite-db-path (sb-concurrency:dequeue *request-queue*) user host pwd)
 				     (print-threaded :saver (FORMAT nil "~a requests for processing remaining" (sb-concurrency:queue-count *request-queue*)))
 				     (go check)
 				   end))
-			     (print-threaded :differ "I am done"))
+			     (print-threaded :saver "I am done"))
 			 :name "savior"))
 	  	     
        
@@ -174,7 +177,7 @@ waits/responds for commands and executes given commands
 	(FORMAT T "target ssh ~a@~a using password ~a~%" (getf options :target-system-root) (getf options :target-system-ip) (getf options :target-system-pwd))
 	(FORMAT T "xdebug-trace-folder: ~a~%" (getf options :xdebug-trace-file))
 	(FORMAT T "php-session-folder: ~a~%" (getf options :php-session-folder))	
-	(let ((differ-thread (create-differ-thread  (getf options :target-system-root)
+	(let ((differ-thread (create-saver-thread  (getf options :target-system-root)
 						    (getf options :target-system-ip)
 						    (getf options :target-system-pwd)
 						    (getf options :sql-db-path)))

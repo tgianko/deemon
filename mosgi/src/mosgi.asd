@@ -10,8 +10,10 @@
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
 		 (:file "ssh-interface" :depends-on ("packages"))
+		 (:file "database" :depends-on ("packages"))
 		 (:file "main" :depends-on ("packages"
 					    "communication"
+					    "database"
 					    "ssh-interface"))))
 
 

@@ -48,7 +48,7 @@ fi
 echo "waiting for guest to finish starting up..."
 
 
-tmux new -s ${start_state_name} "sbcl --dynamic-space-size 4000 --noinform --non-interactive --load ${mosgi_start_relative} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -p ${inter_com_port} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${vilanoo_db_path}; sleep 10" \; \
+tmux new -s ${start_state_name} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -p ${inter_com_port} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${vilanoo_db_path}; sleep 10" \; \
                                  split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -p ${vilanoo_listen_port} -P ${inter_com_port} -s ${vilanoo_db_path}; sleep 10" \; attach \;
 
 

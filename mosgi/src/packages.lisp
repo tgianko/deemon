@@ -32,7 +32,7 @@
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.database
-  (:use :cl :diff)
+  (:use :cl)
   (:nicknames :database)
   (:export enter-sessions-raw-into-db
 	   enter-xdebug-file-raw-into-db))
