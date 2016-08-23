@@ -4,7 +4,7 @@ This file contains the generic code for generating a history
 of certain aspects one wants to monitor. It should be considered
 the general interface.
 |#
-(in-package :de.uni-saarland.syssec.mosgi.diff)
+(in-package :de.uni-saarland.syssec.analyzer.analysis)
 
 
 (defclass history-state ()

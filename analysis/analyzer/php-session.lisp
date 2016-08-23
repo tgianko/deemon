@@ -12,7 +12,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 -> N;
 |#
 
-(in-package :de.uni-saarland.syssec.mosgi.php-session)
+(in-package :de.uni-saarland.syssec.analyzer.php-session)
 
 
 (defun get-hashtable-keys (table)

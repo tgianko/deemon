@@ -11,7 +11,7 @@ Labels:
 :ADDED   -> this element was not present in the old session but is now
 |#
 
-(in-package :de.uni-saarland.syssec.mosgi.php-session)
+(in-package :de.uni-saarland.syssec.analyzer.php-session)
 
 
 (define-condition php-session-diif-condition (simple-error)
