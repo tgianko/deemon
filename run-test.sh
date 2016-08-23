@@ -16,7 +16,7 @@ vilanoo_start_relative="./vilanoo2/src/"
 vilanoo_folder="${HOME}/.vilanoo/"
 timestamp=`date '+%Y%m%d%k%M'`
 db_postfix=".db"
-vilanoo_listen_port=4242
+vilanoo_listen_port=8080
 vilanoo_db_path="${vilanoo_folder}${test_name}-${timestamp}${db_postfix}"
 
 #default values for bitnami but else these need to become variables
