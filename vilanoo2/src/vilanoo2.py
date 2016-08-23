@@ -227,6 +227,7 @@ def start_proxy(address, port, HandlerClass=VilanooProxyRequestHandler, ServerCl
     HandlerClass.protocol_version = protocol
     httpd = ServerClass((address, port), HandlerClass)
 
+
     sa = httpd.socket.getsockname()
     v_logger.info("Serving HTTP Proxy on {0} port {1}".format(sa[0], sa[1]))
     httpd.serve_forever()
@@ -294,7 +295,7 @@ def main(args):
 
     #try:
     parser = argparse.ArgumentParser(description='Main vilanoo2 proxy parameters')
-    parser.add_argument("-b", "--bind",          dest="bind",                      help="bind address",       default='localhost', metavar="IP",   type=str)
+    parser.add_argument("-b", "--bind",          dest="bind",                      help="bind address",       default='127.0.0.1', metavar="IP",   type=str)
     parser.add_argument("-p", "--port",          dest="port",                      help="listenig TCP port",  default=8080,      metavar="PORT", type=int)
     parser.add_argument("-M", "--mosgi-address", dest="mosgi_addr",                help="MOSGI address",      default='127.0.0.1', metavar="IP",   type=str)
     parser.add_argument("-P", "--mosgi-port",    dest="mosgi_port",                help="MOSGI port",         default=9292,      metavar="PORT", type=int)
@@ -321,7 +322,6 @@ def main(args):
         insert_selenese_commands(args_obj.selenese)
         start_selenese_runner(args_obj.selenese)
 
-    print args_obj.bind, args_obj.port
     start_proxy(args_obj.bind, args_obj.port)
     
     return 0
