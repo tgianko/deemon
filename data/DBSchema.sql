@@ -21,9 +21,9 @@ CREATE TABLE http_requests (
        time		   character varying,
        request_url 	   character varying,
        request_body 	   character varying,
-       header 		   character varying,
+       headers 	   character varying,
        method_type 	   character varying,       
-       cookies		   character varying,
+       cookies	   character varying,
        status_code 	   character varying NULL,
        PRIMARY KEY (id)
 );
