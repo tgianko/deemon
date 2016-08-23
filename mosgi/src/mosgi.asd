@@ -9,6 +9,17 @@
 		 :sb-concurrency)
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
+		 (:file "ssh-interface" :depends-on ("packages"))
+		 (:file "database" :depends-on ("packages"))
+		 (:file "main" :depends-on ("packages"
+					    "communication"
+					    "database"
+					    "ssh-interface"))))
+
+
+
+
+#|
 		 (:file "php-session" :depends-on ("packages"))
 		 (:file "php-session-diff" :depends-on ("packages"
 							"php-session"))
@@ -28,4 +39,4 @@
 					    "ssh-interface"
 					    "php-session"
 					    "communication"))))
-		    
+|#		    

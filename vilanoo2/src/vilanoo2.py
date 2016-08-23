@@ -37,8 +37,9 @@ mosgi_start_command_byte=0
 mosgi_finish_response_byte=2    
 
 # Database parameters
+sqlitedb = None
+sqlite_schema = os.path.join(os.getcwd(), "../../data/DBSchemaDump.sql")
 
-sqlite_schema = os.path.join(os.getcwd(), "../../data/DBSchema.sql")
 
 # Lock to remove async requests toward upstream server
 lock = threading.Lock()
