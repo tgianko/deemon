@@ -49,26 +49,27 @@ lock = threading.Lock()
 selrun_thr = None
 
 # Selenese command
-sel_cmd_id = 0
+sel_cmd_id = -1
 
 
 
 def http_to_logevt(req, res):
     return "{:3s} {:5s} {:2s} {:70s} {:3s} {:10s}".format(str(sel_cmd_id), req.command, "" if request_relevant_p(req) else "I!" , req.path, str(res.status), res.reason)
 
-def check_and_create():
+def sqlitedb_init():
     # If the DB does not exist, lite.connect does not create a folder. 
     # Check folder first...
     dirname = os.path.dirname(args_obj.sqlitedb)
     if len(dirname) > 0 and not os.path.exists(dirname):
-        v_logger.info("DB {0} does not exist. Creating...".format(dirname))
+        v_logger.info("Folder {0} does not exist. Creating...".format(dirname))
         os.makedirs(dirname)
+
 
     #if not os.path.exists(sqlite_schema):
     #    v_logger.fatal("Houston, we have a problem. sqlite_schema {0} does not exist.".format(sqlite_schema))
 
     if not os.path.exists(args_obj.sqlitedb):
-        v_logger.info("DB {0} does not exist. Creating...".format(args_obj.sqlitedb))
+        v_logger.info("SQLite DB file {0} does not exist. Creating from {1}".format(args_obj.sqlitedb, sqlite_schema))
         
         f = open(sqlite_schema)
         con = lite.connect(args_obj.sqlitedb)
@@ -77,8 +78,9 @@ def check_and_create():
             with f:
                 schema = f.read()
                 cur.executescript(schema)
+        v_logger.info("SQLite DB file {0} created.".format(args_obj.sqlitedb))
 
-def insert_selenese_commands(filename):
+def store_sel_commands(filename):
     tcs = []
     
     if selenese.is_suite(filename):
@@ -103,7 +105,7 @@ def insert_selenese_commands(filename):
 
     
 
-def insert_http_request(request,request_body):
+def store_httpreq(request,request_body):
     def parse_qsl(s):
         return '\n'.join("%-20s %s" % (k, v) for k, v in urlparse.parse_qsl(s, keep_blank_values=True))
 
@@ -117,7 +119,7 @@ def insert_http_request(request,request_body):
         cookies = parse_qsl(re.sub(r';\s*', '&', cookie))
             
     method_type = request.command
-    check_and_create()    
+    sqlitedb_init()    
 
     con = lite.connect(args_obj.sqlitedb)        
     with con:            
@@ -134,7 +136,7 @@ def insert_http_request(request,request_body):
     return request_id
 
 
-def update_request_status(db_request_id,status_code):
+def update_httpreq_status(db_request_id,status_code):
     con = lite.connect(args_obj.sqlitedb)
     
     with con:            
@@ -194,8 +196,8 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
         
         if request_relevant_p(req):
             v_logger.debug("Storing HTTP request and body into DB")
-            db_id = insert_http_request(req,req_body)
-            update_request_status(db_id,res.status)
+            db_id = store_httpreq(req,req_body)
+            update_httpreq_status(db_id,res.status)
             if args_obj.dismosgi:
                 command = bytearray([mosgi_start_command_byte])
                 v_logger.info("Passing {0} to MOSGI".format(command))
@@ -235,6 +237,7 @@ def start_proxy(address, port, HandlerClass=VilanooProxyRequestHandler, ServerCl
     
 
 def connect_to_mosgi(address, port):
+    m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
     global mosgi_connection
     mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mosgi_connection.connect((address, port))
@@ -285,42 +288,84 @@ def start_selenese_runner(fname):
             s_logger.error("selenese-runner terminated (unexpectedly?!) with code {}. Sending SIGTERM.".format(proc.poll()))
             os.kill(os.getpid(), signal.SIGTERM)
 
+        s_logger.info("selenese-runner has terminated.")
+
     global selrun_thr
     selrun_thr = threading.Thread(target=_run, name="Selenese Runner")
     selrun_thr.start()
 
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Main vilanoo2 proxy parameters')
+    parser.add_argument("-b", "--bind",
+                        dest="bind",                      
+                        help="Vilanoo proxy binding IPv4 address. This address is also used for the proxy configuration of selenese-runner.",       
+                        default='127.0.0.1', 
+                        metavar="IP",   
+                        type=str)
+    
+    parser.add_argument("-p", "--port",          
+                        dest="port",                      
+                        help="TCP port for the Vilanoo proxy. This port is also used for the proxy configuration of selenese-runner.",  
+                        default=8080,      
+                        metavar="PORT", 
+                        type=int)
 
+    parser.add_argument("-M", "--mosgi-address", 
+                        dest="mosgi_addr",                
+                        help="MOSGI listening address.",      
+                        default='127.0.0.1',            
+                        metavar="IP",   
+                        type=str)
+    parser.add_argument("-P", "--mosgi-port",
+                        dest="mosgi_port",
+                        help="MOSGI TCP port.",         
+                        default=9292,      
+                        metavar="PORT", 
+                        type=int)
+
+    parser.add_argument("-s", "--sqlitedb",      
+                        dest="sqlitedb",   
+                        required=True, 
+                        help="SQLite3 DB file.",                              
+                        metavar="PATH", 
+                        type=str)
+
+    parser.add_argument(      "--no-mosgi",      
+                        dest="dismosgi",                  
+                        help="By default, MOSGI is enabled. Use this option to disable MOSGI.",      
+                        action="store_false") 
+
+    parser.add_argument("-S", "--selenese",      
+                        dest="selenese",                  
+                        help="Specify the selenese test case/suite to run. Vilanoo uses selenese-runner-java (modified to be interactive).",            
+                        metavar="PATH", type=str)  
+
+    parser.add_argument(      "--selenese-args", 
+                        dest="selenese_args",             
+                        help="Use this parameter to pass additional CLI arguments to selenese-runner-jave",            
+                        metavar="PATH", 
+                        type=str)  
+
+    parser.add_argument("-w", "--wait",          
+                        dest="wait",                      
+                        help="Waiting time in seconds before the next Selenese command is executed.",  
+                        default='2',    
+                        metavar="SEC", 
+                        type=float)
+    
+    return parser.parse_args(args)
 
 def main(args):
-    program_name = os.path.basename(sys.argv[0])
-
-    #try:
-    parser = argparse.ArgumentParser(description='Main vilanoo2 proxy parameters')
-    parser.add_argument("-b", "--bind",          dest="bind",                      help="bind address",       default='127.0.0.1', metavar="IP",   type=str)
-    parser.add_argument("-p", "--port",          dest="port",                      help="listenig TCP port",  default=8080,      metavar="PORT", type=int)
-    parser.add_argument("-M", "--mosgi-address", dest="mosgi_addr",                help="MOSGI address",      default='127.0.0.1', metavar="IP",   type=str)
-    parser.add_argument("-P", "--mosgi-port",    dest="mosgi_port",                help="MOSGI port",         default=9292,      metavar="PORT", type=int)
-    parser.add_argument("-s", "--sqlitedb",      dest="sqlitedb",   required=True, help="SQLite3 DB",                              metavar="PATH", type=str)
-    parser.add_argument(      "--no-mosgi",      dest="dismosgi",                  help="Disable MOSGI",      action="store_false")  
-    parser.add_argument(      "--selenese",      dest="selenese",                  help="Use Selenese Test Case/Suite",            metavar="PATH", type=str)  
-    parser.add_argument("-w", "--wait",          dest="wait",                      help="wait secs before next Selenese command",  default='2',    metavar="SEC", type=float)
-    
     global args_obj
-    args_obj = parser.parse_args(args)
-
-    v_logger.info("DEBUG     enabled {0}".format(DEBUG))
-    v_logger.info("MOSGI     enabled {0}".format(args_obj.dismosgi))
-    v_logger.info("SIM_DELAY enabled {0}".format(SIM_DELAY))
-    v_logger.info("sqlitedb          {0}".format(args_obj.sqlitedb))
-    v_logger.info("sqlite_schema     {0}".format(sqlite_schema))
+    args_obj = parse_args(args)
     
-    check_and_create()
+    sqlitedb_init()
 
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
     
     if args_obj.selenese:
-        insert_selenese_commands(args_obj.selenese)
+        store_sel_commands(args_obj.selenese)
         start_selenese_runner(args_obj.selenese)
 
     start_proxy(args_obj.bind, args_obj.port)
