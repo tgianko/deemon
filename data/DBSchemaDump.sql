@@ -28,6 +28,16 @@ CREATE TABLE http_requests (
        PRIMARY KEY (id)
 );
 
+CREATE TABLE http_responses (
+       id               integer,
+       req_id           integer,
+       time             character varying,
+       status_code      character varying,
+       header           character varying, 
+       content          character varying,
+       PRIMARY KEY (id)
+);
+
 CREATE TABLE xdebug_dumps (
        http_request_id  integer,
        dump_content     character varying,
