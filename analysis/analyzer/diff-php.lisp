@@ -3,7 +3,7 @@ Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
 This file provides code to generate and diff php-session-history-states for
 clustering of page requests
 |#
-(in-package :de.uni-saarland.syssec.mosgi.diff)
+(in-package :de.uni-saarland.syssec.analyzer.analysis)
 
 
 (defstruct php-session-diff-entry diffs)
@@ -45,20 +45,13 @@ clustering of page requests
 
 
 ;in this function are debug prints
-(defun make-php-session-history-state (php-session-folder user host pwd &optional (print-func #'(lambda(string) (FORMAT T "~a~%" string))))
+(defun make-php-session-history-state (php-session-entries)
   (make-instance 'php-session-state
-		 :php-sessions (sort (mapcar #'(lambda(php-session-file)
-						 (funcall print-func (FORMAT nil "get/parse file:~a" php-session-file))
-						 (cl-fad:with-open-temporary-file (stream :direction :io :element-type 'character)
-						   (funcall print-func (FORMAT nil "opened tmp file start scp"))
-						   (ssh:scp php-session-file (pathname stream) user host pwd)
-						   (funcall print-func (FORMAT nil "scp'd file:~a" php-session-file))
-						   (finish-output stream)						   
-						   (ssh:convert-to-utf8-encoding (namestring (pathname stream))) ;this is just because encoding is stupid
-						   (let ((parsed (php-session:parse-php-session stream 
-												(php-session:extract-session-id php-session-file))))
-						     (funcall print-func (FORMAT nil "parsed file:~a" php-session-file))
-						     parsed)))
-					     (ssh:folder-content-guest php-session-folder user host pwd))
+		 :php-sessions (sort (mapcar #'(lambda(php-session-entry)
+						 (destructuring-bind (file-path content-string)
+						     php-session-entry
+						   (php-session:parse-php-session (make-string-input-stream content-string)
+										  (php-session:extract-session-id file-path))))
+					     php-session-entries)
 				     #'string<=
 				     :key #'php-session:session-id)))

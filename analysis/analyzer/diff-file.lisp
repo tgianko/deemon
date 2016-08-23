@@ -3,7 +3,7 @@ Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
 This file provides code to generate and diff file-history-states for
 clustering of page requests
 |#
-(in-package :de.uni-saarland.syssec.mosgi.diff)
+(in-package :de.uni-saarland.syssec.analyzer.analysis)
 	   
 
 (defstruct file-diff-entry diffs)
@@ -19,8 +19,7 @@ clustering of page requests
   (FORMAT stream "[~{~a~^~%~}]" (file-index object)))
    
 
-(defun make-file-history-state (relevant-file-paths user host pwd)
-  (declare (ignore user host pwd))
+(defun make-file-history-state (relevant-file-paths)
   (make-instance 'file-history-state
 		 :file-index (remove-duplicates
 			      (sort 

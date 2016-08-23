@@ -5,7 +5,7 @@ trace_format = 1.
 It also provides the means to extract all fopen calls of the
 given trace and returns all parameters passed to those calls.
 |#
-(in-package :de.uni-saarland.syssec.mosgi.xdebug)
+(in-package :de.uni-saarland.syssec.analyzer.xdebug)
 
 
 (defun get-xdebug-trace-file (folder-files)
@@ -135,19 +135,20 @@ given trace and returns all parameters passed to those calls.
 	      :format-arguments (list always line))))))
        
 
-(defun parse-xdebug-trace (stream)
-  (read-line stream nil nil) ;the first three
-  (read-line stream nil nil) ;lines are really
-  (read-line stream nil nil) ;not needed
-  (do ((line (read-line stream nil nil)
-	     (read-line stream nil nil))
-       (records nil)
-       (stop-p nil))
-      (stop-p (reverse records))
-    (let ((last (parse-xdebug-trace-line line)))
-      (if last 
-	  (push last records)
-	  (setf stop-p T)))))
+(defun parse-xdebug-trace (string)
+  (let ((stream (make-string-input-stream string)))
+    (read-line stream nil nil) ;the first three
+    (read-line stream nil nil) ;lines are really
+    (read-line stream nil nil) ;not needed
+    (do ((line (read-line stream nil nil)
+	       (read-line stream nil nil))
+	 (records nil)
+	 (stop-p nil))
+	(stop-p (reverse records))
+      (let ((last (parse-xdebug-trace-line line)))
+	(if last 
+	    (push last records)
+	    (setf stop-p T))))))
 	  
 
 (defun make-xdebug-trace (stream)
