@@ -109,9 +109,8 @@ def store_httpreq(request,request_body):
     def parse_qsl(s):
         return '\n'.join("%-20s %s" % (k, v) for k, v in urlparse.parse_qsl(s, keep_blank_values=True))
 
-    headers = ""
-    for key,value in request.headers.items():
-        headers = headers + key + "=" + value + ";"
+    headers = "\r\n".join(["{}: {}".format(k,v) for k,v in request.headers.items()])
+    
     body = request_body
     cookies =""
     cookie = request.headers.get('Cookie', '')
@@ -119,15 +118,15 @@ def store_httpreq(request,request_body):
         cookies = parse_qsl(re.sub(r';\s*', '&', cookie))
             
     method_type = request.command
-    sqlitedb_init()    
+    
 
     con = lite.connect(args_obj.sqlitedb)        
     with con:            
         cur = con.cursor()            
         ##inserting the http_request that triggered the sql_queries            
-        http_request_query_data = (sel_cmd_id,datetime.datetime.now(),request.path,headers,body,method_type,cookies,"unknown")
-        cur.execute("INSERT INTO http_requests (command_id,time,request_url,header,request_body,method_type,cookies,status_code) VALUES(?,?,?,?,?,?,?,?)",
-                    http_request_query_data)
+        data = (sel_cmd_id, datetime.datetime.now(), request.path, headers,body, method_type, cookies, "unknown")
+        cur.execute("INSERT INTO http_requests (command_id, time, request_url, headers, request_body, method_type, cookies, status_code) VALUES(?,?,?,?,?,?,?,?)",
+                    data)
         request_id = cur.lastrowid
 
     request.db_request_id = lambda: None
@@ -135,6 +134,21 @@ def store_httpreq(request,request_body):
 
     return request_id
 
+def store_httpresp(req_id, response, body):
+
+    headers = "\r\n".join(["{}: {}".format(k,v) for k,v in response.headers.items()])
+    #for key,value in response.headers.items():
+    #    headers = headers + key + "=" + value + ";"
+
+    con = lite.connect(args_obj.sqlitedb)   
+    con.text_factory = str     
+    with con:            
+        cur = con.cursor()           
+        data = (req_id, datetime.datetime.now(), response.status, headers, body)
+        cur.execute("INSERT INTO http_responses (req_id, time, status_code, headers, content) VALUES(?,?,?,?,?)",
+                    data)
+
+    return
 
 def update_httpreq_status(db_request_id,status_code):
     con = lite.connect(args_obj.sqlitedb)
@@ -189,18 +203,18 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
     def response_handler(self, req, req_body, res, res_body):
         res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)   
         v_logger.debug(with_color(32, res_header_text))
-        
-        #if DEBUG:
-        #    res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
-        #    print with_color(32, res_header_text)
-        
+               
         if request_relevant_p(req):
-            v_logger.debug("Storing HTTP request and body into DB")
-            db_id = store_httpreq(req,req_body)
-            update_httpreq_status(db_id,res.status)
+            
+            v_logger.debug("Storing HTTP request and responses into DB")
+            db_id = store_httpreq(req, req_body)
+            update_httpreq_status(db_id, res.status)
+            store_httpresp(db_id, res, res_body)
+            
             if args_obj.dismosgi:
                 command = bytearray([mosgi_start_command_byte])
-                v_logger.info("Passing {0} to MOSGI".format(command))
+                v_logger.debug("Passing {0} to MOSGI".format(command))
+                
                 mosgi_connection.send(command)
                 #this should explode (booooom!) the int into 4 bytes and transmit them to mosgi
                 request_id = bytearray( [ ((db_id>>24) & 0xff) ,
@@ -252,7 +266,7 @@ def start_selenese_runner(fname):
                     "--driver", "firefox", 
                     "--proxy", "{}:{}".format(args_obj.bind, args_obj.port),
                     "--no-proxy","*.com,*.net,*.org", 
-                    "-t", "240000",
+                    "-t", "640000",
                     "-i", 
                     "{}".format(fname)]
         s_logger.info(cmdline)
@@ -268,27 +282,27 @@ def start_selenese_runner(fname):
                 break
 
             if ">>> Press any key to continue <<<" in line:
-                s_logger.info("Selenese is now waiting...")
                 """
                 Next command
                 """
                 # Let's sleep a bit to flush pending HTTPr requests
-                s_logger.info("Sleeping {}...".format(args_obj.wait))
+                s_logger.info("Selenese ready for next command. Waiting for {}s...".format(args_obj.wait))
                 time.sleep(args_obj.wait)
-                s_logger.info("Pressing ENTER")
 
                 # Next ID
                 global sel_cmd_id
                 sel_cmd_id += 1
 
                 # Resume Selenese runner
+                s_logger.info("Pressing ENTER")
                 proc.stdin.write("\n")
+                s_logger.info("Pressed  ENTER")
 
         if proc.poll() is not None:
-            s_logger.error("selenese-runner terminated (unexpectedly?!) with code {}. Sending SIGTERM.".format(proc.poll()))
+            s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
             os.kill(os.getpid(), signal.SIGTERM)
 
-        s_logger.info("selenese-runner has terminated.")
+        s_logger.info("selenese-runner-jave has terminated.")
 
     global selrun_thr
     selrun_thr = threading.Thread(target=_run, name="Selenese Runner")

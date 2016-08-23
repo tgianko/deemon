@@ -2,6 +2,6 @@
 
 pwd=`pwd`
 
-sbcl --dynamic-space-size 4000 --noinform --non-interactive --load "${pwd}/run-mosgi.lisp" "$@"
+sbcl --dynamic-space-size 5000 --noinform --non-interactive --load "${pwd}/run-mosgi.lisp" "$@"
 
 
