@@ -110,7 +110,7 @@ def store_httpreq(request,request_body):
         return '\n'.join("%-20s %s" % (k, v) for k, v in urlparse.parse_qsl(s, keep_blank_values=True))
 
     headers = "\r\n".join(["{}: {}".format(k,v) for k,v in request.headers.items()])
-    
+
     body = request_body
     cookies =""
     cookie = request.headers.get('Cookie', '')
@@ -274,32 +274,38 @@ def start_selenese_runner(fname):
         proc = subprocess.Popen(cmdline, bufsize=0, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         time.sleep(0.5)
 
-        """
-        Read stdout
-        """            
-        for line in iter(proc.stdout.readline, b""):
-            if proc.poll() is not None:
-                break
+        with open("selenese.log", "w") as f:
+            """
+            Read stdout
+            """            
+            for line in iter(proc.stdout.readline, b""):
+                f.write(line)
 
-            if ">>> Press any key to continue <<<" in line:
-                """
-                Next command
-                """
-                # Let's sleep a bit to flush pending HTTPr requests
-                s_logger.info("Selenese ready for next command. Waiting for {}s...".format(args_obj.wait))
-                time.sleep(args_obj.wait)
+                if proc.poll() is not None:
+                    break
 
-                # Next ID
-                global sel_cmd_id
-                sel_cmd_id += 1
+                if ">>> Press any key to continue <<<" in line:
+                    """
+                    Next command
+                    """
+                    # Let's sleep a bit to flush pending HTTPr requests
+                    s_logger.info("Selenese ready for next command. Waiting for {}s...".format(args_obj.wait))
+                    time.sleep(args_obj.wait)
 
-                # Resume Selenese runner
-                s_logger.info("Pressing ENTER")
-                proc.stdin.write("\n")
-                s_logger.info("Pressed  ENTER")
+                    # Next ID
+                    global sel_cmd_id
+                    sel_cmd_id += 1
+
+                    # Resume Selenese runner
+                    s_logger.info("Pressing ENTER")
+                    proc.stdin.write("\n")
+                    s_logger.info("Pressed  ENTER")
+
+
 
         if proc.poll() is not None:
             s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
+            # TODO: kill only if proc.poll() != 0
             os.kill(os.getpid(), signal.SIGTERM)
 
         s_logger.info("selenese-runner-jave has terminated.")
@@ -333,7 +339,7 @@ def parse_args(args):
     parser.add_argument("-P", "--mosgi-port",
                         dest="mosgi_port",
                         help="MOSGI TCP port.",         
-                        default=9292,      
+                        default=8844,      
                         metavar="PORT", 
                         type=int)
 

@@ -27,12 +27,12 @@
 (defun copy-http-request-entries (id-list db-source-connection db-sink-connection)
   (dolist (id id-list)
     (destructuring-bind (id time request-url request-body header method-type cookies status-code)
-	(car (clsql:select [ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADER] [METHOD-TYPE] [COOKIES] [STATUS-CODE]
+	(car (clsql:select [ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE]
 			   :FROM [HTTP-REQUESTS]
 			   :WHERE [= [ID] id]
 			   :database db-source-connection))
       (clsql:insert-records :INTO [HTTP-REQUESTS]
-			    :ATTRIBUTES '([ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADER] [METHOD-TYPE] [COOKIES] [STATUS-CODE])
+			    :ATTRIBUTES '([ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE])
 			    :VALUES (list id time request-url request-body header method-type cookies status-code)
 			    :database db-sink-connection))))
 
