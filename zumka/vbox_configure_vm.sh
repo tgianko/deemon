@@ -19,6 +19,10 @@ vboxmanage storagectl $2 --add sata --name "SCSI Controller"
 vboxmanage storageattach $2 --storagectl "SCSI Controller" --medium $1 --port 0 --type hdd
 
 
+#set the hardware we want to give the vm
+vboxmanage modifyvm $2 --memory 1024 
+vboxmanage modifyvm $2 --cpus 2           
+
 #set up the network adapter
 hostonly_adapter_name=`vboxmanage list hostonlyifs | grep "Name" | head -n1 | sed 's/Name:[ ]*//'`
 echo "vboxmanage modifyvm $2 --nic1 hostonly --nictype1 82540EM --hostonlyadapter1 $hostonly_adapter_name"
