@@ -9,34 +9,57 @@ handle all the nasty stuff we do not want/need to think about
 ;;YEAH openssh is not thread save -.-
 (defparameter *ssh-mutex* (sb-thread:make-mutex :name "ssh-mutex"))
 
+
+(defmacro limited-restart (amount-restarts delay &body body)
+  (let ((counter (gensym)))
+    `(let ((,counter ,amount-restarts)
+	   (function (lambda ()
+	              ,@body)))
+       (dotimes (,(gensym) (+ ,counter 1))
+	 (handler-case 
+	     (funcall function)
+	   (error (e)
+	     (if (not (= ,counter 0))
+		 (progn 
+		   (warn (FORMAT nil "~a - ~a tries remain" e ,counter))
+		   (sleep ,delay)
+		   (decf ,counter))
+		 (error e))))))))
+	     
+       
+
+
 (defun run-remote-shell-command (command username host password result-handler)
   "executes a shell command on the given host and gives the resulting stream
-to the result handler. The result of the result-handler will be returned"
-  (sb-thread:with-mutex (*ssh-mutex*)
-    (libssh2:with-ssh-connection session (host
-					  (libssh2:make-password-auth username password)
-					  :hosts-db (namestring
-						     (merge-pathnames
-						      (make-pathname :directory '(:relative ".ssh")
-								     :name "libssh2-known_hosts")
-						      (user-homedir-pathname))))
-      (libssh2:with-execute*  (stream session command)
-	(funcall result-handler stream)))))
+to the result handler. The result of the result-handler will be returned"  
+  (limited-restart 3 4
+    (sb-thread:with-mutex (*ssh-mutex*)
+      (libssh2:with-ssh-connection session (host
+					    (libssh2:make-password-auth username password)
+					    :hosts-db (namestring
+						       (merge-pathnames
+							(make-pathname :directory '(:relative ".ssh")
+								       :name "libssh2-known_hosts")
+							(user-homedir-pathname))))
+	(libssh2:with-execute*  (stream session command)
+	  (funcall result-handler stream))))))
   
 
 
 (defun scp (guest-file host-file username host password)
   "copies a the guest file to the target file from the given host using
 provided password and username with scp"
-  (sb-thread:with-mutex (*ssh-mutex*)
-    (libssh2:with-ssh-connection session (host
-					  (libssh2:make-password-auth username password)
-					  :hosts-db (namestring
-						     (merge-pathnames
-						      (make-pathname :directory '(:relative ".ssh")
-								     :name "libssh2-known_hosts")
-						      (user-homedir-pathname))))
-      (libssh2:scp-get guest-file host-file))))
+  (limited-restart 3 4
+    (sb-thread:with-mutex (*ssh-mutex*)
+      (libssh2:with-ssh-connection session (host
+					    (libssh2:make-password-auth username password)
+					    :hosts-db (namestring
+						       (merge-pathnames
+							(make-pathname :directory '(:relative ".ssh")
+								       :name "libssh2-known_hosts")
+							(user-homedir-pathname))))
+	(libssh2:scp-get guest-file host-file)))))
+
 
 
 (defun folder-content-guest (folder username host password)
