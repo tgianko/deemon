@@ -240,6 +240,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 text = zlib.decompress(data)
             except zlib.error:
                 text = zlib.decompress(data, -zlib.MAX_WBITS)
+        elif encoding == 'br':
+            raise Exception("Brotli encoding not supported!")
         else:
             raise Exception("Unknown Content-Encoding: %s" % encoding)
         return text
