@@ -3,6 +3,8 @@ from core import *
 from cStringIO import StringIO
 import multipart
 import re
+import sqlparse
+from sqlparse.tokens import *
 
 def parse_url(url, projname):
     scheme, netloc, path, params, query, fragment = urlparse(url)
@@ -131,3 +133,27 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
     cmd_n.Value.add(DataValue(projname, value))
 
     return cmd_n
+
+def visit_sqlast(ast, i, n):
+    for el in ast.tokens:
+        if el.is_group():
+            child = SQLTokenList(n.projname)
+            n.Child.add(child)
+            visit_sqlast(el, i+1, child)
+        else:
+            if el.ttype == Token.Punctuation or el.ttype == Token.Text.Whitespace:
+                continue
+            child = SQLToken(n.projname, str(el.ttype), str(el.value))
+            n.Child.add(child)
+            
+
+def parse_sql(sql, seq, ts, projname, session, user):
+    sql_n = SQLQuery(projname, session, user, seq, sql)
+    parsed = sqlparse.parse(sql)
+    
+    for q in parsed:
+        root = SQLStatement(projname, str(q))
+        visit_sqlast(q, 1, root)
+        sql_n.Statement.add(root)
+
+    return sql_n

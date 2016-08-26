@@ -17,7 +17,53 @@ class DataValue(GraphObject):
         self.value = value
         self.tags=tags
         self.uuid = str(uuid4()) # I don't understand why without this RelatedTo does not wor
-        
+
+class SQLToken(GraphObject):
+
+    __primarykey__ = "uuid"
+
+    uuid  = Property()
+
+    ttype = Property()
+    value = Property()
+
+    def __init__(self, projname=None, ttype=None, value=None, tags=[]):
+        self.projname = projname
+        self.ttype    = ttype
+        self.value    = value
+        self.tags     = tags
+        self.uuid = str(uuid4())
+
+class SQLTokenList(GraphObject):
+
+    __primarykey__ = "uuid"
+
+    uuid  = Property()
+
+    Child = RelatedTo("SQLToken")
+
+    def __init__(self, projname=None):
+        self.projname = projname
+        self.uuid = str(uuid4())
+
+
+
+class SQLStatement(GraphObject):
+
+    __primarykey__ = "uuid"
+
+    uuid  = Property()
+
+    ttype     = Property()
+    stmt      = Property()  
+
+    Child = RelatedTo("SQLToken") 
+
+    def __init__(self, projname=None, statement=None):
+        self.projname  = projname
+        self.stmt = statement
+        self.uuid = str(uuid4())
+
 
 """
 This is a key=value data
@@ -175,8 +221,8 @@ class HTTPRequest(GraphObject):
     url      = Property()
     
     URL      = RelatedTo("URL")
-    Header   = RelatedTo("KeyValuePair")
-    Body     = RelatedTo("DataValue") # We can use any other type of node. Apparently this library does not to type enforcement for nodes.
+    Header   = RelatedTo("HeaderList")
+    Body     = RelatedTo("Body") # We can use any other type of node. Apparently this library does not to type enforcement for nodes.
 
     Next     = RelatedTo("SeleneseCommand")
     Transaction = RelatedTo("HTTPResponse")
@@ -208,8 +254,8 @@ class HTTPResponse(GraphObject):
     
     status      = Property()
 
-    Header      = RelatedTo("KeyValuePair")
-    Body        = RelatedTo("DataValue") # We can use any other type of node. Apparently this library does not to type enforcement for nodes.
+    Header      = RelatedTo("HeaderList")
+    Body        = RelatedTo("Body") # We can use any other type of node. Apparently this library does not to type enforcement for nodes.
     
 
     def __init__(self, projname=None, session=None, user=None, seq=None, ts=None, status=None):
@@ -226,32 +272,24 @@ class SQLQuery(GraphObject):
     
     __primarykey__ = "uuid"
 
-    uuid  = Property()
+    uuid      = Property()
 
-    projname = Property()
+    projname  = Property()
     
-    session  = Property()
-    user     = Property()
-    seq      = Property()
-    ts       = Property()
+    session   = Property()
+    user      = Property()
+    seq       = Property()
+    ts        = Property()
     
-    method   = Property()
-    url      = Property()
-    
-    URL      = RelatedTo("URL")
-    Header   = RelatedTo("KeyValuePair")
-    Body     = RelatedTo("DataValue") # We can use any other type of node. Apparently this library does not to type enforcement for nodes.
+    sql       = Property()
 
-    Next     = RelatedTo("SeleneseCommand")
-    Transaction = RelatedTo("HTTPResponse")
-    Caused   = RelatedTo("SQLQuery")
+    Statement = RelatedTo("SQLStatement")
 
-    def __init__(self, projname=None, session=None, user=None, seq=None, ts=None, query=None, url=None):
+    def __init__(self, projname=None, session=None, user=None, seq=None, ts=None, sql=None):
         self.projname = projname
         self.session  = session
         self.user     = user
         self.seq      = seq
         self.ts       = ts
-        self.method   = method
-        self.url      = url
+        self.sql      = sql
         self.uuid     = "{} [{} {}] {}.{}.{}".format(type(self).__name__, seq, ts, projname, session, user)

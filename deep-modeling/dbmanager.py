@@ -121,7 +121,7 @@ def load_queries_sqlite(fname):
 
 def  insert_httpreqs(reqlist, projname, session, user):
     # just in case, we order by ID.
-    reqlist = sorted(reqlist, key=lambda r:r[4]) 
+    reqlist = sorted(reqlist, key=lambda r:r[0]) 
     
     prev_hreq_n = None
     for hreq in reqlist:
@@ -150,22 +150,30 @@ def  insert_cmd2http(idlist, projname, session, user):
     for rid, cmdid in idlist:
         cmd_n = SeleneseCommand.select(graph).where(seq=cmdid, projname=projname, session=session, user=user).first()
         hreq_n = HTTPRequest.select(graph).where(seq=rid, projname=projname, session=session, user=user).first()
+        print hreq_n
         cmd_n.Caused.add(hreq_n)
         graph.push(cmd_n)
 
 def insert_queries(queries, projname, session, user):
-    
-    for hreq_id, q_id, sql in queries:
-        sql_n = SQLQuery(projname, session, user, sql)
 
-def import_sqlite(args):
+    for hreq_id, q_id, sql in queries:
+        sql_n = parse_sql(sql, q_id, None, projname, session, user)
+        hreq_n = HTTPRequest.select(graph).where(seq=hreq_id, projname=projname, session=session, user=user).first()
+        hreq_n.Caused.add(sql_n)
+        graph.push(hreq_n)
+        graph.push(sql_n)
+
+def import_all(args):
     logger.info("Importing SQLite DB {} into {}".format(args.filename, args.projname))
-    
+    #TODO ...
+
+def import_selenese(args):
     logger.info("Loading Selense commands from SQLite...")
     cmdlist = load_selcmd_sqlite(args.filename)
     logger.info("Importing...")
     insert_selenese_commands(cmdlist, args.projname, args.session, args.user)
 
+def import_http(args):
     logger.info("Loading HTTP requests from SQLite...")
     hreqs = load_hreqs_sqlite(args.filename)
     logger.info("Importing...")
@@ -176,13 +184,16 @@ def import_sqlite(args):
     logger.info("Importing...")
     insert_httpresps(hress, args.projname, args.session, args.user)
 
+def import_rel_selhttp(args):
     logger.info("Loading Selenese command to HTTP requests relationships from SQLite...")
     ids = load_cmd2http_sqlite(args.filename)
     logger.info("Importing...") 
     insert_cmd2http(ids, args.projname, args.session, args.user)
 
+def import_sql(args):
     logger.info("Loading SQL queries from SQLite...")
     ids = load_queries_sqlite(args.filename)
+    insert_queries(ids, args.projname, args.session, args.user)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -197,12 +208,33 @@ def parse_args(args):
     imp_p = subp.add_parser("import", help="Import data")
     imp_subp = imp_p.add_subparsers()
 
-    ins_sel_ts_p = imp_subp.add_parser("sqlite", help="Import SQLite3 database")
-    ins_sel_ts_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
-    ins_sel_ts_p.add_argument("projname", help="Project name")
-    ins_sel_ts_p.add_argument("session",  help="Session identifier")
-    ins_sel_ts_p.add_argument("user",     help="User identifier")
-    ins_sel_ts_p.set_defaults(func=import_sqlite)
+    imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese Commands from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_selenese)
+
+    imp_sel_p = imp_subp.add_parser("http", help="Import HTTP from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_http)
+
+    imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import Causality relationships between Selenese and HTTP from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_rel_selhttp)
+
+    imp_sel_p = imp_subp.add_parser("sql", help="Import SQL queries from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_sql)
 
     return p.parse_args(args)
 
