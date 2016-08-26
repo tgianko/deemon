@@ -2,13 +2,17 @@
 import sys
 import argparse
 import utils.log as log
-import utils.selenese as selenese
 import sqlite3 as lite
+from py2neo.database import Graph
+from ast.parsers import *
+from ast.core import *
 
-from neo4j.v1 import GraphDatabase, basic_auth
 
+NEO4J_HOST      = "localhost"
 NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "seesurf"
+
+graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME, password=NEO4J_PASSWORD)
 
 DEBUG     = False
 VERBOSITY = 1
@@ -25,116 +29,160 @@ logger    = log.getdebuglogger("dbmanager")
 # argument parser object
 args_obj = None
 
+
 def init_database(args):
     logger.info("Initialize database")
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth(NEO4J_USERNAME, NEO4J_PASSWORD))
-    session = driver.session()
-    q = "CREATE CONSTRAINT ON (cmd:SeleneseCommand) ASSERT cmd.id IS UNIQUE"
-    logger.info("Creating unique constraint onf SeleneseCommand {}".format(q))
-    session.run(q);
-    session.close()
+    names = [SeleneseCommand.__name__,
+             HTTPRequest.__name__,
+             HTTPResponse.__name__]
+    for name in names:
+        try:
+            graph.schema.create_uniqueness_constraint(name, "uuid")
+        except Exception, e:
+            logger.error(e)
 
 
 def reset_database(args):
     logger.info("Deleting nodes and relationships. To COMPLETELY reset the database please use: rm -Rf data/graph.db. WARNING: this will permanently remove data of *ALL* projects")
-    
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth(NEO4J_USERNAME, NEO4J_PASSWORD))
-    session = driver.session()
-    q= "MATCH (n)-[r]->(m) DELETE n,r,m"
-    logger.info("Creating unique constraint onf SeleneseCommand {}".format(q))
-    session.run(q);
-    session.close()
+    names = [SeleneseCommand.__name__,
+             HTTPRequest.__name__,
+             HTTPResponse.__name__]
+    for name in names:
+        try:
+            graph.schema.drop_uniqueness_constraint(name, "uuid")
+        except Exception, e:
+            logger.error(e)
+
+    graph.delete_all()
     logger.info("Done. Too late for regrets.")
 
 
-def create_project(args):
-    logger.info("Create project {}".format(args.projname))
-
-
-def insert_selenese_commands(cmdlist, projname):
+def insert_selenese_commands(cmdlist, projname, session, user):
     # just in case, we order by ID.
     cmdlist = sorted(cmdlist, key=lambda cmd:cmd[0]) 
-    
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth(NEO4J_USERNAME, NEO4J_PASSWORD))
-    session = driver.session()
-    
-    pos      = 0
-    prev_pos = -1
-    prev_cmd = None 
-    prev_id  = None
+
+    prev_cmd_n = None
     for cmd in cmdlist:
-        pos      = int(cmd[0])
-        filename = cmd[1]
-        id       = "{}_{}_{}".format(pos,      projname, filename)
+        cmd_n = parse_selcmd(cmd[2], cmd[3], cmd[4], cmd[0], None, projname, session, user)  
+
+        if prev_cmd_n:
+            prev_cmd_n.Next.add(cmd_n)
+            graph.push(prev_cmd_n)
         
-        data =  {"pos"     : pos, 
-                "tc"       : filename, 
-                "proj"     : projname, 
-                "c"        : cmd[2], 
-                "t"        : cmd[3], 
-                "v"        : cmd[4],
-                "id"       : id,
-                "prev_pos" : prev_pos,
-                "prev_id"  : prev_id}
+        graph.push(cmd_n)        
 
-        q = """CREATE (cmd:SeleneseCommand {pos:{pos}, tc:{tc}, id:{id}}), (c:String {value:{c}}), (t:String {value:{t}}), (v:String {value:{v}}),
-            (cmd)-[:SeleneseCommandName]->(c),(cmd)-[:SeleneseCommandTarget]->(t),(cmd)-[:SeleneseCommandValue]->(v)"""
-        
-        logger.info("Adding command id:{} , ({}, {}, {})".format(data["id"], data["c"], data["t"], data["v"]))
-        for e in session.run(q, parameters=data):
-            print e
-
-        if prev_cmd is not None:
-            q= """MATCH (cmd1:SeleneseCommand {id:{prev_id}}), (cmd2:SeleneseCommand {id:{id}})
-                CREATE (cmd1)-[:SeleneseNextCommand]->(cmd2)"""
-            logger.info("       cmd {} -> {}".format(data["prev_id"], data["id"]))
-            for e in session.run(q, parameters=data):
-                print e
-
-        prev_cmd = cmd
-        prev_pos = pos
-        prev_id  = id
-
-    session.close()
+        prev_cmd_n = cmd_n
 
 
-def insert_selenese_sqlite(fname, projname):
-    logger.info("        - Selenese commands")
-    con = lite.connect(fname)        
+def load_selcmd_sqlite(fname):
+    con = lite.connect(fname)    
+    cmdlist=[]    
     with con:            
         cur = con.cursor()            
         rs = cur.execute("SELECT * FROM selenese_commands ORDER BY id")
         cmdlist = list(rs)
-        insert_selenese_commands(cmdlist, projname)
-
-def  insert_httpreqs(reqlist, projname):
-    # just in case, we order by ID.
-    reqlist = sorted(reqlist, key=lambda r:r[0]) 
+    return cmdlist
     
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth(NEO4J_USERNAME, NEO4J_PASSWORD))
-    session = driver.session()
-    
-    for r in reqlist:
-        pass
-
-    session.close()
-
-def insert_httpconv_sqlite(fname, projname):
-    logger.info("        - HTTP conversation")
-    con = lite.connect(fname)        
+def load_hreqs_sqlite(fname):
+    con = lite.connect(fname)
+    reqlist = []
     with con:            
         cur = con.cursor()            
-        rs = cur.execute("SELECT * FROM selenese_commands ORDER BY id")
+        rs = cur.execute("SELECT * FROM http_requests ORDER BY id")
         reqlist = list(rs)
-        reqlist = map(lambda r: (r[0], r[2], r[3], r[4], r[5], r[6]), reqlist)
-        insert_httpreqs(reqlist, projname)
+    return reqlist
 
+def load_hres_sqlite(fname):
+    con = lite.connect(fname)        
+    resplist = []
+    with con:            
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM http_responses ORDER BY id")
+        resplist = list(rs)
+    return resplist
+
+def load_cmd2http_sqlite(fname):
+    con = lite.connect(fname)
+    ids = []    
+    with con:            
+        cur = con.cursor()            
+        rs = cur.execute("SELECT id, command_id FROM http_requests")
+        ids = list(rs)
+    return ids
+
+def load_queries_sqlite(fname):
+    con = lite.connect(fname)
+    ids = []    
+    with con:            
+        cur = con.cursor()            
+        rs = cur.execute("SELECT * FROM sql_queries")
+        ids = list(rs)
+    return ids
+
+def  insert_httpreqs(reqlist, projname, session, user):
+    # just in case, we order by ID.
+    reqlist = sorted(reqlist, key=lambda r:r[4]) 
+    
+    prev_hreq_n = None
+    for hreq in reqlist:
+        hreq_n = parse_httpreq(hreq[6], hreq[3], hreq[5], hreq[4], hreq[0], hreq[2], projname, session, user)
+        if prev_hreq_n:
+            prev_hreq_n.Next.add(hreq_n)
+            graph.push(prev_hreq_n)
+        
+        graph.push(hreq_n)            
+        prev_hreq_n = hreq_n
+
+def  insert_httpresps(resplist, projname, session, user):
+    # just in case, we order by ID.
+    resplist = sorted(resplist, key=lambda r:r[0]) 
+    
+    for hres in resplist:
+        hres_n = parse_httpres(hres[3], hres[4], hres[5], hres[0], hres[2], projname, session, user)
+        
+        hreq_n = HTTPRequest.select(graph).where(seq=hres[1], projname=projname, session=session, user=user).first()
+        hreq_n.Transaction.add(hres_n)
+        graph.push(hreq_n)
+        graph.push(hres_n)
+
+def  insert_cmd2http(idlist, projname, session, user):   
+
+    for rid, cmdid in idlist:
+        cmd_n = SeleneseCommand.select(graph).where(seq=cmdid, projname=projname, session=session, user=user).first()
+        hreq_n = HTTPRequest.select(graph).where(seq=rid, projname=projname, session=session, user=user).first()
+        cmd_n.Caused.add(hreq_n)
+        graph.push(cmd_n)
+
+def insert_queries(queries, projname, session, user):
+    
+    for hreq_id, q_id, sql in queries:
+        sql_n = SQLQuery(projname, session, user, sql)
 
 def import_sqlite(args):
     logger.info("Importing SQLite DB {} into {}".format(args.filename, args.projname))
-    insert_selenese_sqlite(args.filename, args.projname)
-    insert_httpconv_sqlite(args.filename, args.projname)
+    
+    logger.info("Loading Selense commands from SQLite...")
+    cmdlist = load_selcmd_sqlite(args.filename)
+    logger.info("Importing...")
+    insert_selenese_commands(cmdlist, args.projname, args.session, args.user)
 
+    logger.info("Loading HTTP requests from SQLite...")
+    hreqs = load_hreqs_sqlite(args.filename)
+    logger.info("Importing...")
+    insert_httpreqs(hreqs, args.projname, args.session, args.user)
+
+    logger.info("Loading HTTP responses from SQLite...")
+    hress = load_hres_sqlite(args.filename)
+    logger.info("Importing...")
+    insert_httpresps(hress, args.projname, args.session, args.user)
+
+    logger.info("Loading Selenese command to HTTP requests relationships from SQLite...")
+    ids = load_cmd2http_sqlite(args.filename)
+    logger.info("Importing...") 
+    insert_cmd2http(ids, args.projname, args.session, args.user)
+
+    logger.info("Loading SQL queries from SQLite...")
+    ids = load_queries_sqlite(args.filename)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -146,13 +194,14 @@ def parse_args(args):
     reset_p = subp.add_parser("reset", help="Reset the database")
     reset_p.set_defaults(func=reset_database)
 
-    create_p = subp.add_parser("create", help="Create a new project")
-    create_p.add_argument("projname", help="Create a new project")
-    create_p.set_defaults(func=create_project)
+    imp_p = subp.add_parser("import", help="Import data")
+    imp_subp = imp_p.add_subparsers()
 
-    ins_sel_ts_p = subp.add_parser("import_sqlite", help="Import SQLite3 database")
+    ins_sel_ts_p = imp_subp.add_parser("sqlite", help="Import SQLite3 database")
     ins_sel_ts_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
     ins_sel_ts_p.add_argument("projname", help="Project name")
+    ins_sel_ts_p.add_argument("session",  help="Session identifier")
+    ins_sel_ts_p.add_argument("user",     help="User identifier")
     ins_sel_ts_p.set_defaults(func=import_sqlite)
 
     return p.parse_args(args)
