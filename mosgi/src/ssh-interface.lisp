@@ -127,8 +127,22 @@ using ssh connection with provided username host and password"
 
 
 (defun probe-machine (username host password)
-  (folder-content-guest "/" username host password)
-  nil)
+  (sb-thread:with-mutex (*ssh-mutex*)
+    (libssh2:with-ssh-connection session (host
+					  (libssh2:make-password-auth username password)
+					  :hosts-db (namestring
+						     (merge-pathnames
+						      (make-pathname :directory '(:relative ".ssh")
+								     :name "libssh2-known_hosts")
+						      (user-homedir-pathname))))
+      (libssh2:with-execute*  (stream session "ls -p / | grep -v /")
+	  (funcall #'(lambda(stream)
+		       (do* ((line (read-line stream nil nil nil)
+				   (read-line stream nil nil nil))
+			     (files (list (FORMAT nil "/~a" line))
+				    (cons (FORMAT nil "/~a" line) files)))
+			    ((not line) (cdr files)))) 
+		   stream)))))
 
 
 (defun register-machine (username host password)  
