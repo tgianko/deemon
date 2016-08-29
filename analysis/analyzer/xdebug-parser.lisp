@@ -176,12 +176,11 @@ given trace and returns all parameters passed to those calls.
   (mapcar #'(lambda(mysqli-call)
 	      (cl-ppcre:regex-replace-all " [ ]+"
 					  (cl-ppcre:regex-replace-all "\\"
-								      (cl-ppcre:regex-replace-all "\t|\n|'" (car (parameters mysqli-call)) " ")
+								      (cl-ppcre:regex-replace-all "\\t|\\n|'" (car (parameters mysqli-call)) " ")
 								      " ")
 					  " "))					  
 	  (remove-if-not #'(lambda (record)
 			     (and (typep record 'entry-record)
-				  (string= (function-name record) "mysqli->query")))
+				  (or (string= (function-name record) "mysqli->query")
+				      (string= (function-name record) "mysql_query"))))
 			 (trace-content xdebug-trace))))
-			   
-			   
