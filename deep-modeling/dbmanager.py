@@ -2,12 +2,17 @@
 import sys
 import argparse
 import utils.log as log
-import utils.selenese as selenese
+import sqlite3 as lite
+from py2neo.database import Graph
+from ast.parsers import *
+from ast.core import *
 
-from neo4j.v1 import GraphDatabase, basic_auth
 
+NEO4J_HOST      = "localhost"
 NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "seesurf"
+
+graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME, password=NEO4J_PASSWORD)
 
 DEBUG     = False
 VERBOSITY = 1
@@ -24,67 +29,173 @@ logger    = log.getdebuglogger("dbmanager")
 # argument parser object
 args_obj = None
 
+
 def init_database(args):
     logger.info("Initialize database")
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth(NEO4J_USERNAME, NEO4J_PASSWORD))
-    session = driver.session()
-    q = "CREATE CONSTRAINT ON (cmd:SeleneseCommand) ASSERT cmd.id IS UNIQUE"
-    logger.info("Creating unique constraint onf SeleneseCommand {}".format(q))
-    session.run(q);
-    session.close()
+    names = [SeleneseCommand.__name__,
+             HTTPRequest.__name__,
+             HTTPResponse.__name__]
+    for name in names:
+        try:
+            graph.schema.create_uniqueness_constraint(name, "uuid")
+        except Exception, e:
+            logger.error(e)
 
 
 def reset_database(args):
-    logger.info("To reset the database please use: rm -Rf data/graph.db. WARNING: this will permanently remove *ALL* data of *ALL* projects")
+    logger.info("Deleting nodes and relationships. To COMPLETELY reset the database please use: rm -Rf data/graph.db. WARNING: this will permanently remove data of *ALL* projects")
+    names = [SeleneseCommand.__name__,
+             HTTPRequest.__name__,
+             HTTPResponse.__name__]
+    for name in names:
+        try:
+            graph.schema.drop_uniqueness_constraint(name, "uuid")
+        except Exception, e:
+            logger.error(e)
 
-def create_project(args):
-    logger.info("Create project {}".format(args.projname))
-
-def insert_selenese_tc(args):
-    logger.info("Insert Selenese Test Case {} into {}".format(args.filename, args.projname))
-    testcase = selenese.TestCase(args.filename)
-
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth(NEO4J_USERNAME, NEO4J_PASSWORD))
-    session = driver.session()
-    prev_cmd = None
-    pos = 0
-    for cmd in testcase:
-        data =  {"pos"    : pos, 
-                "tc"       :args.filename, 
-                "proj"     :args.projname, 
-                "c"        :cmd.command(), 
-                "t"        :cmd.target(), 
-                "v"        :cmd.value(),
-                "id"       :"{}_{}_{}".format(pos, args.projname, args.filename),
-                "prev_pos" :pos-1,
-                "prev_id"  :"{}_{}_{}".format(pos-1, args.projname, args.filename)}
-
-        q = """CREATE (cmd:SeleneseCommand {pos:{pos}, tc:{tc}, id:{id}}), (c:String {value:{c}}), (t:String {value:{t}}), (v:String {value:{v}}),
-            (cmd)-[:SeleneseCommandName]->(c),(cmd)-[:SeleneseCommandTarget]->(t),(cmd)-[:SeleneseCommandValue]->(v)"""
-        logger.info("Adding command id:{} , ({}, {}, {})".format(data["id"], data["c"], data["t"], data["v"]))
-        for e in session.run(q, parameters=data):
-            print e
-
-        if prev_cmd is not None:
-            
-            q= """MATCH (cmd1:SeleneseCommand {id:{id}}), (cmd2:SeleneseCommand {id:{prev_id}})
-                CREATE (cmd1)-[:SeleneseNextCommand]->(cmd2)"""
-            logger.info("       cmd {} -> {}".format(data["prev_id"], data["id"]))
-            for e in session.run(q, parameters=data):
-                print e
-        #for curr,next in zip (tc[0:-1], tc[1:]):
-        prev_cmd = cmd
-        pos+=1
-
-def insert_selenese_ts(args):
-    logger.info("Insert Selenese Test Suite {} into {}".format(args.filename, args.projname))
-
-def insert_http_conversation(args):
-    logger.info("Insert HTTP Conversation from {} into {}".format(args.filename, args.projname))
+    graph.delete_all()
+    logger.info("Done. Too late for regrets.")
 
 
+def insert_selenese_commands(cmdlist, projname, session, user):
+    # just in case, we order by ID.
+    cmdlist = sorted(cmdlist, key=lambda cmd:cmd[0]) 
 
-def main(args):
+    prev_cmd_n = None
+    for cmd in cmdlist:
+        cmd_n = parse_selcmd(cmd[2], cmd[3], cmd[4], cmd[0], None, projname, session, user)  
+
+        if prev_cmd_n:
+            prev_cmd_n.Next.add(cmd_n)
+            graph.push(prev_cmd_n)
+        
+        graph.push(cmd_n)        
+
+        prev_cmd_n = cmd_n
+
+
+def load_selcmd_sqlite(fname):
+    con = lite.connect(fname)    
+    cmdlist=[]    
+    with con:            
+        cur = con.cursor()            
+        rs = cur.execute("SELECT * FROM selenese_commands ORDER BY id")
+        cmdlist = list(rs)
+    return cmdlist
+    
+def load_hreqs_sqlite(fname):
+    con = lite.connect(fname)
+    reqlist = []
+    with con:            
+        cur = con.cursor()            
+        rs = cur.execute("SELECT * FROM http_requests ORDER BY id")
+        reqlist = list(rs)
+    return reqlist
+
+def load_hres_sqlite(fname):
+    con = lite.connect(fname)        
+    resplist = []
+    with con:            
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM http_responses ORDER BY id")
+        resplist = list(rs)
+    return resplist
+
+def load_cmd2http_sqlite(fname):
+    con = lite.connect(fname)
+    ids = []    
+    with con:            
+        cur = con.cursor()            
+        rs = cur.execute("SELECT id, command_id FROM http_requests")
+        ids = list(rs)
+    return ids
+
+def load_queries_sqlite(fname):
+    con = lite.connect(fname)
+    ids = []    
+    with con:            
+        cur = con.cursor()            
+        rs = cur.execute("SELECT * FROM sql_queries")
+        ids = list(rs)
+    return ids
+
+def  insert_httpreqs(reqlist, projname, session, user):
+    # just in case, we order by ID.
+    reqlist = sorted(reqlist, key=lambda r:r[0]) 
+    
+    prev_hreq_n = None
+    for hreq in reqlist:
+        hreq_n = parse_httpreq(hreq[6], hreq[3], hreq[5], hreq[4], hreq[0], hreq[2], projname, session, user)
+        if prev_hreq_n:
+            prev_hreq_n.Next.add(hreq_n)
+            graph.push(prev_hreq_n)
+        
+        graph.push(hreq_n)            
+        prev_hreq_n = hreq_n
+
+def  insert_httpresps(resplist, projname, session, user):
+    # just in case, we order by ID.
+    resplist = sorted(resplist, key=lambda r:r[0]) 
+    
+    for hres in resplist:
+        hres_n = parse_httpres(hres[3], hres[4], hres[5], hres[0], hres[2], projname, session, user)
+        
+        hreq_n = HTTPRequest.select(graph).where(seq=hres[1], projname=projname, session=session, user=user).first()
+        hreq_n.Transaction.add(hres_n)
+        graph.push(hreq_n)
+        graph.push(hres_n)
+
+def  insert_cmd2http(idlist, projname, session, user):   
+
+    for rid, cmdid in idlist:
+        cmd_n = SeleneseCommand.select(graph).where(seq=cmdid, projname=projname, session=session, user=user).first()
+        hreq_n = HTTPRequest.select(graph).where(seq=rid, projname=projname, session=session, user=user).first()
+        print hreq_n
+        cmd_n.Caused.add(hreq_n)
+        graph.push(cmd_n)
+
+def insert_queries(queries, projname, session, user):
+
+    for hreq_id, q_id, sql in queries:
+        sql_n = parse_sql(sql, q_id, None, projname, session, user)
+        hreq_n = HTTPRequest.select(graph).where(seq=hreq_id, projname=projname, session=session, user=user).first()
+        hreq_n.Caused.add(sql_n)
+        graph.push(hreq_n)
+        graph.push(sql_n)
+
+def import_all(args):
+    logger.info("Importing SQLite DB {} into {}".format(args.filename, args.projname))
+    #TODO ...
+
+def import_selenese(args):
+    logger.info("Loading Selense commands from SQLite...")
+    cmdlist = load_selcmd_sqlite(args.filename)
+    logger.info("Importing...")
+    insert_selenese_commands(cmdlist, args.projname, args.session, args.user)
+
+def import_http(args):
+    logger.info("Loading HTTP requests from SQLite...")
+    hreqs = load_hreqs_sqlite(args.filename)
+    logger.info("Importing...")
+    insert_httpreqs(hreqs, args.projname, args.session, args.user)
+
+    logger.info("Loading HTTP responses from SQLite...")
+    hress = load_hres_sqlite(args.filename)
+    logger.info("Importing...")
+    insert_httpresps(hress, args.projname, args.session, args.user)
+
+def import_rel_selhttp(args):
+    logger.info("Loading Selenese command to HTTP requests relationships from SQLite...")
+    ids = load_cmd2http_sqlite(args.filename)
+    logger.info("Importing...") 
+    insert_cmd2http(ids, args.projname, args.session, args.user)
+
+def import_sql(args):
+    logger.info("Loading SQL queries from SQLite...")
+    ids = load_queries_sqlite(args.filename)
+    insert_queries(ids, args.projname, args.session, args.user)
+
+def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
     subp = p.add_subparsers()
 
@@ -94,27 +205,42 @@ def main(args):
     reset_p = subp.add_parser("reset", help="Reset the database")
     reset_p.set_defaults(func=reset_database)
 
-    create_p = subp.add_parser("create", help="Create a new project")
-    create_p.add_argument("projname", help="Create a new project")
-    create_p.set_defaults(func=create_project)
+    imp_p = subp.add_parser("import", help="Import data")
+    imp_subp = imp_p.add_subparsers()
 
-    ins_sel_tc_p = subp.add_parser("ins_selenese_tc", help="Insert a Selenese HTML Test Case file into a project")
-    ins_sel_tc_p.add_argument("filename", help="Selenese HTML Test Case file")
-    ins_sel_tc_p.add_argument("projname", help="Project name")
-    ins_sel_tc_p.set_defaults(func=insert_selenese_tc)
+    imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese Commands from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_selenese)
 
-    ins_sel_ts_p = subp.add_parser("ins_selenese_ts", help="Insert a Selenese HTML Test Suite file into a project")
-    ins_sel_ts_p.add_argument("filename", help="Selenese HTML Test Suite file")
-    ins_sel_ts_p.add_argument("projname", help="Project name")
-    ins_sel_ts_p.set_defaults(func=insert_selenese_ts)
+    imp_sel_p = imp_subp.add_parser("http", help="Import HTTP from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_http)
 
-    ins_sel_ts_p = subp.add_parser("ins_http", help="Insert an HTTP conversation from SQLite3 file into a project")
-    ins_sel_ts_p.add_argument("filename", help="SQLite3 file as created by Vilanoo2")
-    ins_sel_ts_p.add_argument("projname", help="Project name")
-    ins_sel_ts_p.set_defaults(func=insert_http_conversation)
+    imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import Causality relationships between Selenese and HTTP from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_rel_selhttp)
 
+    imp_sel_p = imp_subp.add_parser("sql", help="Import SQL queries from SQLite3 database")
+    imp_sel_p.add_argument("filename", help="SQLite3 file as created by vilanoo2/mosgi")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_sql)
+
+    return p.parse_args(args)
+
+def main(args):
     global args_obj
-    args_obj = p.parse_args(args)
+    args_obj = parse_args(args)
 
     args_obj.func(args_obj)
 
