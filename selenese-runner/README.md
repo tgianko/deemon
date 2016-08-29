@@ -1,19 +1,41 @@
-# User Traces
+# Introduction
 
-To capture user traces we use Selenium IDE + Selenium IDE plugin for FireFox.
+This is a quick tutorial on how to install and use the toolchain Selenium IDE, 
+Selenium IDE plugin, and our custom selenese-runner.
 
-# Install:
+# Installation
 
-Follow installation guide of Selenium IDE + Selenium IDE plugin.
+## Requirements
 
-# Generate trace files:
-2. Open FireFox and run the Selenium IDE
-3. Start a VM snapshop, and record a trace (it is very intuitive to do that)
-4. From the Selenium IDE, save (or export.. I don't remember the exact action) 
-the file in HTML format. This format is specific for Selenium and contains actions written in Selenese
+User actions are recorded and replayed using Firefox. 
 
-A trace will look like that:
+## Getting started
 
+Download and install:
+
+* Selenese IDE: Installation guide is here [http://www.seleniumhq.org/docs/02_selenium_ide.jsp](http://www.seleniumhq.org/docs/02_selenium_ide.jsp)
+* Selenese IDE plugin for Firefox: You can find it here [https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/](https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/)
+
+The other required component is `selenese-runner`. The original project is on GitHub,
+but we modified with a new feature to run test cases/suites generated with Selenese IDE
+in an interactive mode (See vilanoo2).
+
+# Generate trace files
+
+Selenese IDE can generate test cases and test suites reproducing user actions. To
+do that, 
+
+1. Lunch FireFox and run the Selenium IDE (you can run it as popup or as independend window)
+2. Lunch the Web application under test
+3. Interact with the HTML UI (it is very intuitive to do that, I am not going to give much more detail about that)
+4. Save test cases and test suites in HTML.
+
+## Test cases
+
+A test case is an HTML file containing a sequence of Selenese commands. A complete list of selenese commands
+can be found in the official documentation of Selenium ([http://docs.seleniumhq.org/docs/index.jsp](http://docs.seleniumhq.org/docs/index.jsp))
+
+A test case will look like that:
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
@@ -56,7 +78,34 @@ A trace will look like that:
 </tr>
 ```
 
-# Programmatically reproduce traces
+## Test suite
+
+A selenese test suite combines together 2 or more test cases. The format looks like this example"
+
+```html
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <title>Test Suite</title>
+</head>
+<body>
+<table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
+<tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="abantecartTC01_registration.html">abantecartTC01_registration</a></td></tr>
+<tr><td><a href="abantecartTC02_change_email.html">abantecartTC02_change_email</a></td></tr>
+</tbody></table>
+</body>
+</html>
+```
+
+where `abantecartTC01_registration.html` and `abantecartTC02_change_email.html` are two
+test cases.
+
+
+
+# Selenese 
 
 To reproduce early captured traces, we can use a modified version of 
 [selenese-runner](https://github.com/tgianko/selenese-runner-java/tree/newfeat/interactive). 
@@ -82,13 +131,19 @@ $ java -cp selenese-runner-java-2.9.1-SNAPSHOT.jar jp.vmi.selenium.selenese.Main
 
 # User trace capture and troubleshooting
 
-## Mouse Over events
+# Troubleshooting:
 
-Selenium IDE does not capture onMouseOver events. Selenese can perform these 
-actions so consider to adjust selenese test cases manually to perform these 
-operations.
+## Important notes on Selenese commands:
 
-## Headless Browser
+### Selenese test case does not work
+
+*Cause 1*: Selenium IDE does not support all selenese commands. For example, events such as `mouseOver` are not supported. 
+
+*Cause 2*: Selenese runner does not support all selenese commands.
+
+*Solution*: Find a different path in the web application. In case of Cause 1, if the command is supported by selenese runner, then consider to add the missing command manually. In case of Cause 2, use a different command.
+
+### I want to run Firefox in headless mode
 
 Install xvfb and run it:
 ```
@@ -100,3 +155,6 @@ Set `DISPLAY` environment in the console you use for Firefx:
 ```
 you$ export DISPLAY=:10 
 ```
+
+In this case, for debugging reasons, you may want to consider to capture screenshots at each step. Use `-S` with `selenese-runner`
+
