@@ -48,20 +48,31 @@ optional arguments:
 
 ```
 
-This is most likely the command line that you are going to use more often:
+# Capture HTTP traffic only
 
-```
-$ ./vilanoo2.py -s $path_to_your_sqlitedb
-```
+Vilanoo2 stores HTTP traffic into a SQLite3 database. By default coordination with `mosgi` is enabled and you need to turn it off.
 
-If you don't want to connect to MOSGI use `--no-mosgi`:
+You can do that as follows:
 
-```
-$./vilanoo2.py -s $path_to_your_sqlitedb --no-mosgi
+```terminal
+$ ./vilanoo2.py -s sqlite_file.db --no-mosgi
 ```
 
+where `sqlite_file.db` is the SQLite3 database. You can use a absolute or relative path. If the path does not exist, vilanoo2 creates it.
 
-## Enable HTTPS intercept
+# Running vilanoo2 with mosgi
+
+Vilanoo2 sets up a TCP connection with mosgi. Accordingly, you will need to run mosgi before running vilanoo2.
+Then, type the following:
+
+```
+$./vilanoo2.py -s sqlite_file.db
+```
+
+Vilanoo2 will connect to the default port and IP where mosgi should be already listeining to. If this fails, vilanoo2 will shutdown. 
+
+
+## Enable HTTPS intercept (from proxy2)
 
 To intercept HTTPS connections, generate private keys and a private CA certificate:
 
