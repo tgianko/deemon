@@ -139,12 +139,14 @@ def visit_sqlast(ast, i, n):
         if el.is_group():
             child = SQLTokenList(n.projname)
             n.Child.add(child)
+            #print "SQLTokenList"
             visit_sqlast(el, i+1, child)
         else:
             if el.ttype == Token.Punctuation or el.ttype == Token.Text.Whitespace:
                 continue
             child = SQLToken(n.projname, str(el.ttype), str(el.value))
             n.Child.add(child)
+            #print "SQLTToken", el.ttype, el.value
             
 
 def parse_sql(sql, seq, ts, projname, session, user):
