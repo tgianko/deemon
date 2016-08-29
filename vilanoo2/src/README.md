@@ -2,7 +2,7 @@
 
 Vilanoo2 replaces Vilanoo. Vilanoo2 is based on proxy2 which can be found in `proxy2/`. As it extends proxy2, the documentation below is derived from the one of proxy2.
 
-# Features:
+# Features
 
 Vilanoo2 can:
 
@@ -48,7 +48,7 @@ optional arguments:
 
 ```
 
-# Capture HTTP traffic only
+## Capture HTTP traffic only
 
 Vilanoo2 stores HTTP traffic into a SQLite3 database. By default coordination with `mosgi` is enabled and you need to turn it off.
 
@@ -60,7 +60,7 @@ $ ./vilanoo2.py -s sqlite_file.db --no-mosgi
 
 where `sqlite_file.db` is the SQLite3 database. You can use a absolute or relative path. If the path does not exist, vilanoo2 creates it.
 
-# Running vilanoo2 with mosgi
+## Running vilanoo2 with mosgi
 
 Vilanoo2 sets up a TCP connection with mosgi. Accordingly, you will need to run mosgi before running vilanoo2.
 Then, type the following:
@@ -71,8 +71,25 @@ $./vilanoo2.py -s sqlite_file.db
 
 Vilanoo2 will connect to the default port and IP where mosgi should be already listeining to. If this fails, vilanoo2 will shutdown. 
 
+## Running vilanoo2 with selenese-runner
 
-## Enable HTTPS intercept (from proxy2)
+Here, we show how to use vilanoo2 with selenese-runner. To simplify the example, we will not use mosgi.
+
+The interface between vilanoo2 and selenese-runner is different then the one with mosgi. Vilanoo2 takes in input selenese test cases/suites
+and passes them to selenese runner. The parameter `-S` specifies the path of the test case/suite filename:
+
+```
+./vilanoo2.py --no-mosgi -s sqlite_file.db -S ../../selenese-runner/testcases/abantecartTS01_change_email.html 
+```
+
+This will tell vilanoo2 to load the test suite, parse it and store it in the `sqlite_file.db`. Then, vilanoo2 will run `selenese-runner` in 
+interactive mode. All HTTP requests/responses are stored in the DB and associated with the executed command. Then vilanoo2 will send a `\n` 
+byte to selenese-runner in order to execute the next command.
+
+When used with mosgi, the DB will also contains XDebug traces, session data, and files being accessed by the web application under test.
+
+
+# Enable HTTPS intercept (from proxy2)
 
 To intercept HTTPS connections, generate private keys and a private CA certificate:
 
