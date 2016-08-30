@@ -35,14 +35,20 @@ mosgi_root_pwd="bitnami"
 #yes -> error
 #no  -> restore virgin snapshot
 if vboxmanage list vms | grep --quiet "\"${vm_name}\""; then
+    
     if vboxmanage list runningvms | grep --quiet "\"${vm_name}\""; then
 	echo "test vm ${vm_name} is currently running - shut down before trying again with using die .vdi and polesno.sh"
 	exit 1
     else
-	vboxmanage snapshot ${vm_name} restore ${start_state_name}
-	vboxmanage startvm ${vm_name}	
+	echo `vboxmanage snapshot ${vm_name} restore ${start_state_name}`
+	echo `vboxmanage startvm ${vm_name}`
     fi
+    
+else
+    echo "machine ${vm_name} is unknown"
+    exit 1
 fi
+
 
 #start vm and wait for IP
 echo "waiting for guest to finish starting up..."
