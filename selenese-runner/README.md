@@ -160,7 +160,7 @@ In this case, for debugging reasons, you may want to consider to capture screens
 
 ### Selenese runner crashes
 
-*Cause 1*: You are using Firefox 47.0. There is known bug between the selenium driver used by selenese-runner and Firefox 47.0 (See [here](https://github.com/SeleniumHQ/selenium/issues/2204)
+*Cause 1*: You are using Firefox 47.0. There is known bug between the selenium driver used by selenese-runner and Firefox 47.0 (See [here](https://github.com/SeleniumHQ/selenium/issues/2204))
 
 *Solution*: Install Firefox 48.0. If you install it separately, then user `--firefox <path>` pass the executable path 
 
