@@ -269,6 +269,9 @@ def start_selenese_runner(fname):
                     "-t", "640000",
                     "-i", 
                     "{}".format(fname)]
+        if args_obj.selenese_args:
+            cmdline.insert(-1, args_obj.selenese_args) # w/ -1 inserts at the last but one position
+
         s_logger.info(cmdline)
 
         proc = subprocess.Popen(cmdline, bufsize=0, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -362,8 +365,8 @@ def parse_args(args):
 
     parser.add_argument(      "--selenese-args", 
                         dest="selenese_args",             
-                        help="Use this parameter to pass additional CLI arguments to selenese-runner-jave",            
-                        metavar="PATH", 
+                        help="Use this parameter to pass additional CLI arguments to selenese-runner-java",            
+                        metavar="ARGS", 
                         type=str)  
 
     parser.add_argument("-w", "--wait",          
