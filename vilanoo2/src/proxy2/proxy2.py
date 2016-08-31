@@ -147,7 +147,11 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             origin = (scheme, netloc)
             if not origin in self.tls.conns:
                 if scheme == 'https':
-                    self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context())
+                    ver = sys.version_info[0:3]
+                    if ver[0] == 2 and ver[1] == 7 and ver[2] < 9: 
+                        self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout)
+                    else:
+                        self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context())
                 else:
                     self.tls.conns[origin] = httplib.HTTPConnection(netloc, timeout=self.timeout)
             conn = self.tls.conns[origin]
