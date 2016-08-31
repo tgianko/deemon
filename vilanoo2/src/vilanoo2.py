@@ -270,7 +270,8 @@ def start_selenese_runner(fname):
                     "-i", 
                     "{}".format(fname)]
         if args_obj.selenese_args:
-            cmdline.insert(-1, args_obj.selenese_args) # w/ -1 inserts at the last but one position
+            for p in args_obj.selenese_args.split(" "):
+                cmdline.insert(-1, p) # w/ -1 inserts at the last but one position
 
         s_logger.info(cmdline)
 
