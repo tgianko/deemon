@@ -109,7 +109,7 @@ cd vilanoo2/
 Run the virtual machine and configure you browser or the testing tool to use 
 127.0.0.1:8080 as a proxy. 
 
-A guide to capture user traces and selenese runner is [here](selenese-runner/USER_TRACE.md)
+A guide to capture user traces and selenese runner is [here](selenese-runner/README.md)
 
 # Step 4 - Database
 
