@@ -24,13 +24,19 @@
       (clsql:execute-command (car commands) :database sink-connection)))
 
 
-(defun copy-http-request-entries (id-list db-source-connection db-sink-connection)
+(defun merge-databases (source-db-vilanoo source-db-mosgi)
+  (copy-http-request-entries (get-all-http-request-ids 0 (get-highest-http-request-id-entry source-db-vilanoo) source-db-vilanoo)
+			     source-db-vilanoo
+			     source-db-mosgi))
+
+
+(defun copy-http-request-entries (id-list db-source-connection-vilanoo db-sink-connection)
   (dolist (id id-list)
     (destructuring-bind (id time request-url request-body header method-type cookies status-code)
 	(car (clsql:select [ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE]
 			   :FROM [HTTP-REQUESTS]
 			   :WHERE [= [ID] id]
-			   :database db-source-connection))
+			   :database db-source-connection-vilanoo))
       (clsql:insert-records :INTO [HTTP-REQUESTS]
 			    :ATTRIBUTES '([ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE])
 			    :VALUES (list id time request-url request-body header method-type cookies status-code)
@@ -38,7 +44,7 @@
 
 
 (defun get-highest-http-request-id-entry (source-db-connection)
-  (let ((numbers (clsql:select [ID] :FROM  [HTTP-REQUESTS] :database source-db-connection :flatp T))) 
+  (let ((numbers (clsql:select [ID] :FROM  [HTTP-REQUESTS] :database source-db-connection :flatp T)))
     (apply #'max (car numbers) (cdr numbers))))
 
 

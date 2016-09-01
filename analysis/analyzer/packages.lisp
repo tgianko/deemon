@@ -16,7 +16,8 @@
            commit-sql-queries
 	   commit-latest-diff
 	   commit-full-sessions
-	   commit-latest-diff))
+	   commit-latest-diff
+	   merge-databases))
 
 
 (defpackage de.uni-saarland.syssec.analyzer.analysis

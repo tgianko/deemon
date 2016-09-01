@@ -2,10 +2,15 @@
 
 
 (opts:define-opts
-  (:name :source-database
-	 :description "the database path from which to retrieve the information to analyze"
-	 :short #\s
-	 :long "source-database"
+  (:name :source-database-mosgi
+	 :description "the database path of mosgis db from which to retrieve the information to analyze"
+	 :short #\m
+	 :long "source-database-mosgi"
+	 :arg-parser #'identity)
+  (:name :source-database-vilanoo
+	 :description "the database path of vilanoos db from which to retrieve the information to analyze"
+	 :short #\v
+	 :long "source-database-vilanoo"
 	 :arg-parser #'identity)
   (:name :sink-database
 	 :description "the database path into which to write the analyzed information"
@@ -68,16 +73,19 @@
       (multiple-value-bind (options free-args)
 	  (opts:get-opts)
 	(declare (ignore free-args))
-	(let ((source-database-path (aif (getf options :source-database) it (error "source database path has to be provided")))
+	(let ((source-database-path-vilanoo (aif (getf options :source-database-vilanoo) it (error "source database path vilanoo has to be provided")))
+	      (source-database-path-mosgi (aif (getf options :source-database-mosgi) it (error "source database path mosgi has to be provided")))
 	      (sink-database-path (aif (getf options :sink-database) it (error "sink database path has to be provided")))
 	      (sink-database-schema (aif (getf options :sink-database-schema) it (error "sink database schema has to be provided")))
 	      (start-id (aif (getf options :start-id) it 0)))
-	  (FORMAT T "~a~%~a~%~a~%" source-database-path sink-database-path sink-database-schema)
-	  (clsql:with-database (source-db (list source-database-path) :database-type :sqlite3)
+	  (FORMAT T "~a~%~a~%~a~%~a~%" source-database-path-mosgi source-database-path-vilanoo sink-database-path sink-database-schema)
+	  (clsql:with-database (source-db-mosgi (list source-database-path-mosgi) :database-type :sqlite3)
 	    (clsql:with-database (sink-db (list sink-database-path) :database-type :sqlite3)
 	      (database:create-database sink-db sink-database-schema)
-	      (let ((end-id (aif (getf options :end-id) it (+ (database:get-highest-http-request-id-entry source-db) 1))))	    
-		(make-diff (database:get-all-http-request-ids start-id end-id source-db) source-db sink-db))))))
+	      (clsql:with-database (source-db-vilanoo (list source-database-path-vilanoo) :database-type :sqlite3) ;;this is needed as vilanoo and mosgi use split db due to 
+		(database:merge-databases source-db-vilanoo source-db-mosgi)) ;;stupid datarace problems of sqlite3
+	      (let ((end-id (aif (getf options :end-id) it (+ (database:get-highest-http-request-id-entry source-db-mosgi) 1))))	    
+		(make-diff (database:get-all-http-request-ids start-id end-id source-db-mosgi) source-db-mosgi sink-db))))))
   (unix-opts:unknown-option (err)
     (declare (ignore err))
     (opts:describe
