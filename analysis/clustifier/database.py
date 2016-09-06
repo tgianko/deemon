@@ -1,5 +1,21 @@
-from py2neo import *
+
+from py2neo import Graph
+from py2neo.ogm import GraphObject, Property, RelatedTo
+#from py2neo import *
+#from py2neo.ogm import *
 import sql_query_normalization as sqlnorm
+
+
+class AbstractQuery(GraphObject):
+    
+    __primarykey__ = "hash"
+
+    hash = Property()
+    projname = Property()
+
+    def __init__(self,hash):
+        self.hash = hash
+        self.projname = "" #TODO:initialize this
 
 
 def get_debug_connection():
@@ -10,12 +26,14 @@ def get_debug_connection():
 
 
 def get_all_normalized_queries(graph):
-    cursor = graph.run("MATCH (norm:NormalizedQuery) RETURN norm")
+    return AbstractQuery.select(graph).where(projname="") #TODO
+    """
+    cursor = graph.run("MATCH (norm:AbstractQuery) RETURN norm")
     normNodes = dict()
     while cursor.forward():
         normNodes[cursor.current()['norm']['hash']] = cursor.current()['norm']
     return normNodes
-    
+    """
 
 def normalize_sql_queries(graph):
     cursor = graph.run("MATCH (query:SQLQuery) RETURN query LIMIT 25")
@@ -24,12 +42,12 @@ def normalize_sql_queries(graph):
         hash = sqlnorm.generate_normalized_query_hash(cursor.current()['query']['ts'])
         if not hash in normalized_hash_nodes:            
             print "create new hash node {}".format(hash)
-            normalizedQuery = Node("NormalizedQuery", hash=hash)
-            normalized_hash_nodes[hash] = normalizedQuery
-            graph.create(normalizedQuery)
+            abstractQuery = AbstractQuery(hash)
+            normalized_hash_nodes[hash] = abstractQuery
+            graph.push(normalizedQuery)
         print "adding relationship for query {} to {}".format(cursor.current()['query'],normalized_hash_nodes[hash])
         print(type(normalized_hash_nodes[hash]))
-        normalizesto = Relationship(cursor.current()['query'], 'NORMALIZESTO', normalized_hash_nodes[hash])
+        normalizesto = Relationship(cursor.current()['query'], 'ABSTRACTSTO', normalized_hash_nodes[hash])
         graph.create(normalizesto)
         
 
