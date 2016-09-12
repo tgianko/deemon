@@ -6,16 +6,6 @@ from py2neo.ogm import GraphObject, Property, RelatedTo
 import sql_query_normalization as sqlnorm
 
 
-class AbstractQuery(GraphObject):
-    
-    __primarykey__ = "hash"
-
-    hash = Property()
-    projname = Property()
-
-    def __init__(self,hash):
-        self.hash = hash
-        self.projname = "" #TODO:initialize this
 
 
 def get_debug_connection():
