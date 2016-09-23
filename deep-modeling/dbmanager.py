@@ -11,8 +11,6 @@ from py2neo.database import Graph
 from py2neo import watch
 
 
-a_list = ['this', 'is', 'awesome']
-
 NEO4J_HOST = "localhost"
 NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "seesurf"
@@ -41,7 +39,7 @@ UNIQUENESS = [ual.SeleneseCommand.__name__,
               bal.HTTPRequest.__name__,
               bal.HTTPResponse.__name__,
               adlsql.SQLQuery.__name__]
-    
+
 INDEX = [(ual.SeleneseCommand.__name__,
           ["projname", "seq", "session", "user"]),
          (bal.HTTPRequest.__name__,
@@ -140,7 +138,7 @@ def parse_args(args):
 
     init_p = subp.add_parser("init", help="Initialize the database")
     init_p.set_defaults(func=init_database)
-    
+
     reset_p = subp.add_parser("reset", help="Reset the database")
     reset_p.set_defaults(func=reset_database)
 

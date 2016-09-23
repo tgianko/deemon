@@ -1,4 +1,4 @@
-from py2neo.ogm import GraphObject, Property, RelatedTo
+from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 from uuid import uuid4
 from GenericElements import KeyValuePair,DataValue
 from ApplicationDataLevelSQL import SQLQuery
@@ -22,6 +22,7 @@ class HTTPRequest(GraphObject):
     
     URL = RelatedTo("URL")
     Header = RelatedTo("HeaderList")
+    ABSTRACTSTO = RelatedTo("AbstractHTTPRequest")
 # We can use any other type of node.
 # Apparently this library does not to type enforcement for nodes.
     Body = RelatedTo("Body")
@@ -42,6 +43,20 @@ class HTTPRequest(GraphObject):
         self.uuid = "{} [{} {}] {}.{}.{}".format(type(self).__name__,
                                                  seq, ts, projname,
                                                  session, user)
+
+
+class AbstractHTTPRequest (GraphObject):
+
+    __primarykey__ = "hash"
+
+    hash = Property()
+    projname = Property()
+    
+    ABSTRACTSTO = RelatedFrom("HTTPRequest", "ABSTRACTSTO")
+
+    def __init__(self, hash):
+        self.hash = hash
+        self.projname = ""
 
 
 class HTTPResponse(GraphObject):
@@ -131,3 +146,5 @@ class Body(GraphObject):
         super(Body, self).__init__()
         self.content_type = ctype
         self.uuid = str(uuid4())
+
+
