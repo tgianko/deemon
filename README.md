@@ -7,13 +7,22 @@ and detection of CSRF vulnerabilities.
 
 ### Dynamic Trace Acquisition Toolchain
 
- * [vilanoo2](vilanoo2/src/README.md) : HTTP/S proxy that intercepts browser requests.
+ * [vilanoo2](vilanoo2/src/README.md): HTTP/S proxy that intercepts browser requests.
  * [mosgi](mosgi/src/README.md): Server to collect Web Application execution traces, session data, and file I/O.
- * [zumka](zumka/README.md) : Tools to instrument VM (bitnami + vbox only)
+ * [zumka](zumka/README.md): Tools to instrument VM (bitnami + vbox only)
+ 
+### The Deep Modeling Framework  (UNDER DEVELOPMENT)
 
-### Modeling and Reasoning
+Deep Modeling is our awesome framework that allows to model and detect vulnerabilities. Its home is [here](deep-modeling/README.md). Our framework is based on Neo4j and it composed of three type of tools:
 
- * [deep-modeling](deep-modeling/README.md) : This is the home of the Deep Modeling Framework. 
+ * [dbmanager](deep-modeling/dbmanager.py): currently, dbmanager can initiate and reset the Neo4J database. Dbmanager is also responsible to import the data acquired with dynamic trace acquisition tools to Neo4J.
+ * *analysis* algorithms: these algorithms can be
+   * clustering algorithms
+   * model inference algorithms
+   * data flow analysis algorithms
+   * vulnerability detection algorithms (in cases where the presence of the vulnerability can be verified in the model)
+   * test case generation algorithms (in cases where the presence of the vulnerability need to be verified with a test against the real system)
+
 
 ## External components
  
