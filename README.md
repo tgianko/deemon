@@ -5,9 +5,9 @@ and detection of CSRF vulnerabilities.
 
 ## Components
 
- * [vilanoo2](vilanoo2/README.md) : HTTP/S proxy that intercepts browser requests.
- * [mosgi](mosgi/README.md): Server to collect Web Application execution traces, session data, and file I/O.
- * [zumka](vm-setup-scripts/README.md) : Tools to instrument VM (bitnami + vbox only)
+ * [vilanoo2](vilanoo2/src/README.md) : HTTP/S proxy that intercepts browser requests.
+ * [mosgi](mosgi/src/README.md): Server to collect Web Application execution traces, session data, and file I/O.
+ * [zumka](zumka/README.md) : Tools to instrument VM (bitnami + vbox only)
 
 ## External components
  
