@@ -5,9 +5,15 @@ and detection of CSRF vulnerabilities.
 
 ## Components
 
+### Dynamic Trace Acquisition Toolchain
+
  * [vilanoo2](vilanoo2/src/README.md) : HTTP/S proxy that intercepts browser requests.
  * [mosgi](mosgi/src/README.md): Server to collect Web Application execution traces, session data, and file I/O.
  * [zumka](zumka/README.md) : Tools to instrument VM (bitnami + vbox only)
+
+### Modeling and Reasoning
+
+ * [deep-modeling](deep-modeling/README.md) : This is the home of the Deep Modeling Framework. 
 
 ## External components
  
