@@ -1,21 +1,22 @@
-from py2neo.ogm import GraphObject, Property, RelatedTo
+from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 from uuid import uuid4
 from GenericElements import KeyValuePair
+
 
 class SQLToken(GraphObject):
 
     __primarykey__ = "uuid"
 
-    uuid  = Property()
+    uuid = Property()
 
     ttype = Property()
     value = Property()
 
     def __init__(self, projname=None, ttype=None, value=None, tags=[]):
         self.projname = projname
-        self.ttype    = ttype
-        self.value    = value
-        self.tags     = tags
+        self.ttype = ttype
+        self.value = value
+        self.tags = tags
         self.uuid = str(uuid4())
 
 
@@ -23,7 +24,7 @@ class SQLTokenList(GraphObject):
 
     __primarykey__ = "uuid"
 
-    uuid  = Property()
+    uuid = Property()
 
     Child = RelatedTo("SQLToken")
 
@@ -36,15 +37,15 @@ class SQLStatement(GraphObject):
 
     __primarykey__ = "uuid"
 
-    uuid  = Property()
+    uuid = Property()
 
-    ttype     = Property()
-    stmt      = Property()  
+    ttype = Property()
+    stmt = Property()
 
-    Child = RelatedTo("SQLToken") 
+    Child = RelatedTo("SQLToken")
 
     def __init__(self, projname=None, statement=None):
-        self.projname  = projname
+        self.projname = projname
         self.stmt = statement
         self.uuid = str(uuid4())
 
@@ -53,7 +54,7 @@ class QueryString(GraphObject):
 
     __primarykey__ = "uuid"
     
-    uuid  = Property()
+    uuid = Property()
 
     projname = Property()
 
@@ -62,33 +63,76 @@ class QueryString(GraphObject):
     Parameter = RelatedTo("KeyValuePair")
 
     def __init__(self, projname=None, qs=None):
-        self.projname=projname
+        self.projname = projname
         self.qs = qs
-        self.uuid  = str(uuid4())
+        self.uuid = str(uuid4())
 
 
 class SQLQuery(GraphObject):
     
     __primarykey__ = "uuid"
 
-    uuid      = Property()
+    uuid = Property()
 
-    projname  = Property()
+    projname = Property()
     
-    session   = Property()
-    user      = Property()
-    seq       = Property()
-    ts        = Property()
+    session = Property()
+    user = Property()
+    seq = Property()
+    ts = Property()
     
-    sql       = Property()
+    sql = Property()
 
     Statement = RelatedTo("SQLStatement")
+    ABSTRACTSTO = RelatedTo("AbstractQuery")
 
-    def __init__(self, projname=None, session=None, user=None, seq=None, ts=None, sql=None):
+    def __init__(self, projname=None, session=None, user=None,
+                 seq=None, ts=None, sql=None):
         self.projname = projname
-        self.session  = session
-        self.user     = user
-        self.seq      = seq
-        self.ts       = ts
-        self.sql      = sql
-        self.uuid     = "{} [{} {}] {}.{}.{}".format(type(self).__name__, seq, ts, projname, session, user)
+        self.session = session
+        self.user = user
+        self.seq = seq
+        self.ts = ts
+        self.sql = sql
+        self.uuid = "{} [{} {}] {}.{}.{}".format(type(self).__name__,
+                                                 seq, ts, projname,
+                                                 session, user)
+
+
+class AbstractQuery(GraphObject):
+    
+    __primarykey__ = "hash"
+
+    hash = Property()
+    projname = Property()
+
+    ABSTRACTSTO = RelatedFrom("SQLQuery", "ABSTRACTSTO")
+
+    def __init__(self, hash):
+        self.hash = hash
+        self.projname = ""  # TODO:initialize this
+
+
+class TestA(GraphObject):
+
+    __primarykey__ = "hash"
+
+    hash = Property()
+
+    CONNECTEDTO = RelatedTo('TestB')
+
+    def __init__(self, hash):
+        self.hash = hash
+
+
+class TestB(GraphObject):
+
+    __primarykey__ = "hash"
+
+    hash = Property()
+
+    CONNECTEDTO = RelatedFrom('TestA', "CONNECTEDTO")
+
+    def __init__(self, hash):
+        self.hash = hash
+
