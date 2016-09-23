@@ -8,6 +8,7 @@ import neo4jmodel.UserActionLevel as ual
 import neo4jmodel.BrowserActionLevel as bal
 import neo4jmodel.ApplicationDataLevelSQL as adlsql
 from py2neo.database import Graph
+from py2neo import watch
 
 
 a_list = ['this', 'is', 'awesome']
@@ -17,7 +18,7 @@ NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "seesurf"
 
 
-DEBUG = False
+DEBUG = True
 VERBOSITY = 1
 
 data1 = "test"
@@ -25,6 +26,7 @@ data1 = "test"
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
+    watch("neo4j.bolt")
 else:
     log.LEVEL = log.LEVELS[0]
 
@@ -105,29 +107,29 @@ def import_all(args, graph, logger=None):
 
 
 def import_selenese(args, graph, logger=None):
-    cmdlist = sqlDataAccess.load_selcmd_sqlite(args.filename)
+    cmdlist = sqlDataAccess.load_selcmd_sqlite(args.raw_filename)
     insertGraphData.insert_selenese_commands(graph, cmdlist, args.projname,
                                              args.session, args.user, logger)
 
 
 def import_http(args, graph, logger=None):
-    hreqs = sqlDataAccess.load_hreqs_sqlite(args.filename)
+    hreqs = sqlDataAccess.load_hreqs_sqlite(args.raw_filename)
     insertGraphData.insert_httpreqs(graph, hreqs, args.projname,
                                     args.session, args.user, logger)
 
-    hress = sqlDataAccess.load_hres_sqlite(args.filename)
+    hress = sqlDataAccess.load_hres_sqlite(args.raw_filename)
     insertGraphData.insert_httpresps(graph, hress, args.projname,
                                      args.session, args.user, logger)
 
 
 def import_rel_selhttp(args, graph, logger=None):
-    ids = sqlDataAccess.load_cmd2http_sqlite(args.filename)
+    ids = sqlDataAccess.load_cmd2http_sqlite(args.raw_filename)
     insertGraphData.insert_cmd2http(graph, ids, args.projname,
                                     args.session, args.user, logger)
 
 
 def import_sql(args, graph, logger=None):
-    ids = sqlDataAccess.load_queries_sqlite(args.filename)
+    ids = sqlDataAccess.load_queries_sqlite(args.parsed_filename)
     insertGraphData.insert_queries(graph, ids, args.projname,
                                    args.session, args.user, logger)
 
@@ -156,7 +158,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese Commands\
  from vilanoo2 SQLite3 database")
-    imp_sel_p.add_argument("filename", help="Vilanoo2 SQLite3\
+    imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
@@ -165,7 +167,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("http", help="Import HTTP from\
  vilanoo2 SQLite3 database")
-    imp_sel_p.add_argument("filename", help="Vilanoo2 SQLite3\
+    imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
@@ -175,7 +177,7 @@ def parse_args(args):
     imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import causality\
  relationships between Selenese command and HTTP from from vilanoo2/mosgi\
  SQLite3 database")
-    imp_sel_p.add_argument("filename", help="Vilanoo2/mosgi SQLite3\
+    imp_sel_p.add_argument("raw_filename", help="Vilanoo2/mosgi SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
@@ -184,7 +186,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("sql", help="Import SQL queries\
  from Analyzer SQLite3 database")
-    imp_sel_p.add_argument("filename", help="Analyzer SQLite3\
+    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
