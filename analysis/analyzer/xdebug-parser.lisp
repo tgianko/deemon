@@ -178,16 +178,24 @@ given trace and returns all parameters passed to those calls.
              query-list))
 
 
+(defun query-cleaner (query-string)
+  (cl-ppcre:regex-replace-all " [ ]+"
+                              (cl-ppcre:regex-replace-all "\\\\t|\\\\n|\\" 
+                                                          query-string
+                                                          " ") 
+                              " "))
+
+
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace))
   (remove-non-state-changing-queries
    (mapcar #'(lambda(mysqli-call)
-               (cl-ppcre:regex-replace-all " [ ]+"
-                                           (cl-ppcre:regex-replace-all "\\"
-                                                                       (cl-ppcre:regex-replace-all "\\t|\\n|'" (car (parameters mysqli-call)) " ")
-                                                                       " ")
-                                           " "))					  
+               (query-cleaner (car (parameters mysqli-call))))
            (remove-if-not #'(lambda (record)
                               (and (typep record 'entry-record)
                                    (or (string= (function-name record) "mysqli->query")
                                        (string= (function-name record) "mysql_query"))))
                           (trace-content xdebug-trace)))))
+
+
+
+
