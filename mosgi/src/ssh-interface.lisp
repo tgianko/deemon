@@ -16,15 +16,16 @@ handle all the nasty stuff we do not want/need to think about
 	   (function (lambda ()
 	              ,@body)))
        (dotimes (,(gensym) (+ ,counter 1))
-	 (handler-case 
-	     (funcall function)
-	   (error (e)
-	     (if (not (= ,counter 0))
-		 (progn 
-		   (warn (FORMAT nil "~a - ~a tries remain" e ,counter))
-		   (sleep ,delay)
-		   (decf ,counter))
-		 (error e))))))))
+         (return 
+           (handler-case 
+               (funcall function)
+             (error (e)
+               (if (not (= ,counter 0))
+                   (progn 
+                     (warn (FORMAT nil "~a - ~a tries remain" e ,counter))
+                     (sleep ,delay)
+                     (decf ,counter))
+                   (error e)))))))))
 	     
        
 
@@ -62,9 +63,11 @@ provided password and username with scp"
 
 
 
-(defun folder-content-guest (folder username host password)
+(defun folder-content-guest (folder username host password &optional (logger #'(lambda(string)
+                                                                                 (FORMAT (make-broadcast-stream) "~a~%" string))))
   "returns a string list with the folder content of the provided folder
 path on the given host using password and username to log in"
+  (declare (ignore logger))
   (when (not (char= #\/ (car (last (coerce folder 'list)))))
     (error 'simple-error
 	   :format-control "expected / terminated folder path"))
@@ -77,20 +80,25 @@ path on the given host using password and username to log in"
 				     ((not line) (cdr files))))))
 
 
-(defun get-all-contained-files-as-strings (folder-path username host password)
+(defun get-all-contained-files-as-strings (folder-path username host password &optional (logger #'(lambda(string)
+                                                                                                    (FORMAT (make-broadcast-stream) "~a~%" string))))
   "returns a list of strings that represent the content of the files contained
 in folder path using ssh connection with provided username host and password"
-  (mapcar #'(lambda(file-path)
-	      (cons file-path (get-file-as-string file-path username host password)))
-	  (folder-content-guest folder-path username host password)))
+  (let ((folder-files (folder-content-guest folder-path username host password)))
+    (funcall logger (FORMAT nil "scanned folder ~a and found ~a files" folder-path (length folder-files)))
+    (mapcar #'(lambda(file-path)
+                (cons file-path (get-file-as-string file-path username host password logger)))
+            folder-files)))
 
 
-(defun get-file-as-string (file-path username host password)
+(defun get-file-as-string (file-path username host password &optional (logger #'(lambda(string)
+                                                                                  (FORMAT (make-broadcast-stream) "~a~%" string))))
   "returns the string that represents the contetn of the file specified as file-path
 using ssh connection with provided username host and password"
   (cl-fad:with-open-temporary-file (tmp-stream :direction :io :element-type 'character)   
     (scp file-path (pathname tmp-stream) username host password)
     (finish-output tmp-stream)
+    (funcall logger (FORMAT nil "transfered ~a characters from ~a" (file-length tmp-stream) file-path))
     (ssh:convert-to-utf8-encoding (namestring (pathname tmp-stream))) ;this is just because encoding is stupid
     (when (not (file-position tmp-stream 0))
       (error "unable to move to start of tmp file"))
@@ -112,7 +120,12 @@ using ssh connection with provided username host and password"
 	   ((not line)))))
 
 
-(defun backup-all-files-from (folder target-folder user host pwd)
+
+(defun backup-all-files-from (folder target-folder user host pwd &optional (logger #'(lambda(string)
+                                                                                       (FORMAT (make-broadcast-stream) "~a~%" string))))
+  (funcall logger (FORMAT nil "about to back up ~a files from folder ~a"
+                          (length (folder-content-guest folder user host pwd))
+                          folder))
   (run-remote-shell-command (FORMAT nil "mkdir ~a" target-folder) user host pwd (discard-data-lambda))
   (run-remote-shell-command (FORMAT nil "cp ~a/* ~a" folder target-folder) user host pwd (discard-data-lambda)))
 

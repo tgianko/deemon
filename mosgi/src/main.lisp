@@ -81,11 +81,12 @@ waits/responds for commands and executes given commands
 
 (defun save-relevant-files (php-session-folder xdebug-trace-file user host pwd request-db-id)
   (handler-case
-      (progn
-	(print-threaded :mover (FORMAT nil "backed up ~a" php-session-folder))
-	(print-threaded :mover (FORMAT nil "backed up ~a" xdebug-trace-file))
-	(ssh:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd)
+      (progn	
+	(ssh:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd #'(lambda(string)
+                                                                                                                           (print-threaded :mover string)))
 	(ssh:backup-file xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd)
+        (print-threaded :mover (FORMAT nil "backed up ~a" php-session-folder))
+	(print-threaded :mover (FORMAT nil "backed up ~a" xdebug-trace-file))
 	(sb-thread:with-mutex (*task-mutex*)	  
 	  (sb-concurrency:enqueue request-db-id *request-queue*)
 	  (sb-thread:condition-broadcast *task-waitqueue*)
@@ -126,14 +127,16 @@ waits/responds for commands and executes given commands
     (handler-case 
 	(clsql:with-database (database-connection (list database-path) :database-type :sqlite3)
 	  (print-threaded :saver (FORMAT nil "copy php sessions for request ~a onto host" request-db-id))	  
-	  (database:enter-sessions-raw-into-db (ssh:get-all-contained-files-as-strings php-session-folder user host pwd)
+	  (database:enter-sessions-raw-into-db (ssh:get-all-contained-files-as-strings php-session-folder user host pwd #'(lambda(string)
+                                                                                                                            (print-threaded :saver string)))
 					       request-db-id
 					       database-connection 
 					       #'(lambda(string)
 						   (print-threaded :saver string)))
 	  (ssh:delete-folder php-session-folder user host pwd)
 	  (print-threaded :saver (FORMAT nil "copy xdebug dump for request ~a onto host" request-db-id))	  
-	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-string xdebug-trace-file user host pwd)
+	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-string xdebug-trace-file user host pwd #'(lambda(string)
+                                                                                                              (print-threaded :saver string)))
 						  request-db-id
 						  database-connection 
 						  #'(lambda(string)
