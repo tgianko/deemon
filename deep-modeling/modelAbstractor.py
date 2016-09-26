@@ -40,32 +40,21 @@ def addAbstractionLayerSqlQueries(graph, logger=None):
         counter = counter + 1
 
 
-def removeNonStateChangingQueries(graph, logger=None):
-    pass
-
-
 def getAbstractHTTPRequests(graph, logger=None):
-    pass
+    requestDict = dict()
+    for abstract in bal.AbstractHTTPRequest.select(graph):
+        requestDict[abstract.hash] = abstract
+
+    return requestDict
 
 
 def getFullAbstractionHash(HTTPRequest, logger=None):
     accumulator = list()
     for sqlquery in HTTPRequest.Caused:
-        accumulator.add(sqlquery.ABSTRACTSTO.first().hash)
-
-    if logger is not None:
-        logger.info("aquired list of query hashes {}".format(accumulator))
+        accumulator.append(list(sqlquery.ABSTRACTSTO)[0].hash)
 
     accumulator.sort()
     return hashlib.md5("".join(accumulator)).hexdigest()
-
-
-def removeSingleAbstractHTTPRequests(graph, logger=None):
-    abstractHttpRequests = bal.AbstractHTTPRequest.select(graph)
-
-    for abstractHttpRequest in abstractHttpRequests:
-        if len(abstractHttpRequests.ABSTRACTSTO) == 1:
-            graph.delete(abstractHttpRequest)
 
 
 def addAbstractionLayerHTTPRequests(graph, logger=None):
@@ -75,7 +64,13 @@ def addAbstractionLayerHTTPRequests(graph, logger=None):
     if logger is not None:
         logger.info("abstracting {} HTTPRequests".format(len(httpRequests)))
 
+    counter = 1
+
     for HTTPRequest in httpRequests:
+        if logger is not None:
+            logger.info("abstracting {}/{} HTTPRequest"
+                        .format(counter, len(httpRequests)))
+        
         hash = getFullAbstractionHash(HTTPRequest)
 
         if hash not in abstractHTTPRequestTable:
@@ -83,7 +78,7 @@ def addAbstractionLayerHTTPRequests(graph, logger=None):
                     abstractHTTPRequestTable[hash] = abstractHTTPRequest
                     graph.push(abstractHTTPRequest)
 
-        HTTPRequest.AbstractsTo.add(abstractHTTPRequestTable[hash])
+        HTTPRequest.ABSTRACTSTO.add(abstractHTTPRequestTable[hash])
         graph.push(HTTPRequest)
-
-        removeSingleAbstractHTTPRequests(graph)
+        
+        counter += 1
