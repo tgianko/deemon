@@ -19,7 +19,6 @@ given trace and returns all parameters passed to those calls.
     (car rel-files)))
 	  
 
-
 (defclass xdebug-trace ()
   ((trace-content
     :initarg :trace-content
@@ -143,6 +142,7 @@ given trace and returns all parameters passed to those calls.
 	(parse-xdebug-trace-helper stream))
       (FORMAT T "WARNING: NO XDEBUG DUMP FUND - CONTINUING ANYWAYS!~%")))
 
+
 (defun parse-xdebug-trace-helper (stream)
     (read-line stream nil nil) ;the first three
     (read-line stream nil nil) ;lines are really
@@ -172,15 +172,22 @@ given trace and returns all parameters passed to those calls.
 			 (trace-content xdebug-trace))))
 
 
+(defun remove-non-state-changing-queries(query-list)
+  (remove-if #'(lambda(query)
+                 (cl-ppcre:scan "SELECT" query))
+             query-list))
+
+
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace))
-  (mapcar #'(lambda(mysqli-call)
-	      (cl-ppcre:regex-replace-all " [ ]+"
-					  (cl-ppcre:regex-replace-all "\\"
-								      (cl-ppcre:regex-replace-all "\\t|\\n|'" (car (parameters mysqli-call)) " ")
-								      " ")
-					  " "))					  
-	  (remove-if-not #'(lambda (record)
-			     (and (typep record 'entry-record)
-				  (or (string= (function-name record) "mysqli->query")
-				      (string= (function-name record) "mysql_query"))))
-			 (trace-content xdebug-trace))))
+  (remove-non-state-changing-queries
+   (mapcar #'(lambda(mysqli-call)
+               (cl-ppcre:regex-replace-all " [ ]+"
+                                           (cl-ppcre:regex-replace-all "\\"
+                                                                       (cl-ppcre:regex-replace-all "\\t|\\n|'" (car (parameters mysqli-call)) " ")
+                                                                       " ")
+                                           " "))					  
+           (remove-if-not #'(lambda (record)
+                              (and (typep record 'entry-record)
+                                   (or (string= (function-name record) "mysqli->query")
+                                       (string= (function-name record) "mysql_query"))))
+                          (trace-content xdebug-trace)))))

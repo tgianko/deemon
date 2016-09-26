@@ -243,7 +243,7 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
 def start_proxy(address, port, HandlerClass=VilanooProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):
     HandlerClass.protocol_version = protocol
     httpd = ServerClass((address, port), HandlerClass)
-
+    
 
     sa = httpd.socket.getsockname()
     v_logger.info("Serving HTTP Proxy on {0} port {1}".format(sa[0], sa[1]))
@@ -282,13 +282,14 @@ def start_selenese_runner(fname):
             """
             Read stdout
             """            
+            s_logger.info("start running the show")
             for line in iter(proc.stdout.readline, b""):
                 f.write(line)
 
                 if proc.poll() is not None:
                     break
 
-                if ">>> Press any key to continue <<<" in line:
+                if ">>> Press ENTER to continue <<<" in line:
                     """
                     Next command
                     """
@@ -304,9 +305,7 @@ def start_selenese_runner(fname):
                     s_logger.info("Pressing ENTER")
                     proc.stdin.write("\n")
                     s_logger.info("Pressed  ENTER")
-
-
-
+                
         if proc.poll() is not None:
             s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
             # TODO: kill only if proc.poll() != 0
@@ -387,11 +386,15 @@ def main(args):
 
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
+
+    print "connected to mosgi"
     
     if args_obj.selenese:
         store_sel_commands(args_obj.selenese)
         start_selenese_runner(args_obj.selenese)
+        print "started selenese runner"
 
+    print "start proxy"
     start_proxy(args_obj.bind, args_obj.port)
     
     return 0
