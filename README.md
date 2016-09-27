@@ -7,10 +7,9 @@ and detection of CSRF vulnerabilities.
 
 ### Dynamic Trace Acquisition Toolchain
 
- * [zumka](zumka/README.md): Tools to instrument VM (bitnami + vbox only)
  * [vilanoo2](vilanoo2/src/README.md): HTTP/S proxy that intercepts browser requests.
- * [mosgi](mosgi/src/README.md): Server to collect Web Application *raw* execution traces, session data, and file I/O.
- * [rawtrace-analysis] (rawtrace-analysis/src/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo2.
+ * [mosgi](mosgi/src/README.md): Server to collect Web Application execution traces, session data, and file I/O.
+ * [zumka](zumka/README.md): Tools to instrument VM (bitnami + vbox only)
  
 ### The Deep Modeling Framework  (UNDER DEVELOPMENT)
 
@@ -88,9 +87,7 @@ vm-folder and using a fresh version. No relative restart is possible and
 just ends in even more weird and confusing error messages.
 
 
-## Step 2 - mosgi + vilanoo2 + dyntrace to extract dynamic traces
-
-### Extraction of **raw** dynamic traces
+## Step 2 - mosgi + vilanoo2 to extract dynamic traces
 
 Mosgi and Vilanoo2 work together. At the moment you will need to run first mosgi
 and then vilanoo2. The other way around won't work.
@@ -109,7 +106,7 @@ them right.
 It is likely that you will use the following command line:
 
 ```
-./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
+./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s /path/to/db/
 ```
 
 After that, Mosgi is up and running waiting for incoming connections at localhost
@@ -117,31 +114,19 @@ port 9292.
 
 Now, run vilanoo2 (to intercept also HTTPS request, please read [this](vilanoo2/src/README.md):
 
-```bash
+```
 cd vilanoo2/
-./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb
+./vilanoo2.py -s $path_to_your_sqlitedb
 ```
 
-### Analysis of raw traces.
-
-Vilanoo2 and Mosgi generate **raw** traces. The output of these two tools are two SQLite3 databases. Starting from these databases, 
-dyntrace extract traces with SQL operations, session data snapshots, and disk operations.
-
-```bash
-cd rawtrace-analysis/src/
-./run-analyzer.sh -m $path_to_your_mosgi_sqlitedb -v $path_to_your_vilanoo_sqlitedb -d $path_to_your_rawtraceanalysis_sqlitedb -S ../../data/DBSchema.sql
-```
-
-This will create a new SQLiteDB3 `$path_to_your_rawtraceanalysis_sqlitedb` from the analysis on `$path_to_your_mosgi_sqlitedb` and `$path_to_your_vilanoo_sqlitedb`.
-
-## Step 3 - Run VM, Selenium IDE + Selenese Runner, and tests
+# Step 3 - Run VM, Selenium IDE + Selenese Runner, and tests
 
 Run the virtual machine and configure you browser or the testing tool to use 
 127.0.0.1:8080 as a proxy. 
 
 A guide to capture user traces and selenese runner is [here](selenese-runner/README.md)
 
-## Step 4 - Database
+# Step 4 - Database
 
 HTTP requests, SQL query, xdebug traces, session data, and file I/O are stored
 in the SQL Lite DB.
@@ -153,22 +138,22 @@ made a (seperate) ticket for us to fix.**
 
 # Tested Bitnami Machines
 
-* abantecart         1.2.4-1    working
-* cmsmadesimple      2.1.4-0    working
-* conc1rete5         5.7.5.8-0  not working (vilanoo issue#63)
-* dolibarr       3.9.1-1    working
-* enanocms       1.1.8-8    working
-* horde          5.2.14-1   working
-* invoiceninja       2.5.2.2-0  working
-* joomla             3.5.1-1    working
-* magento            2.0.7-0    working 
-* mautic             1.4.1-0    not working (vilanoo issue#64)
-* modx           2.4.4pl-1  not working (vilanoo issue#65)
-* opencart       2.1.0.2-2  working
-* oxid           4.9.8-0    working
-* prestashop         1.6.1.2-1  working
-* roundcube      1.1.4-3    working
-* silverstripe       3.4.0-0    not working (setup issue#66)
-* simpleinvoices         2013.beta.8-4  working
-* typos3             8.1.2-0    working
-* xoops          2.5.7.2-2  working
+* abantecart		 1.2.4-1	working
+* cmsmadesimple		 2.1.4-0	working
+* conc1rete5		 5.7.5.8-0	not working (vilanoo issue#63)
+* dolibarr		 3.9.1-1	working
+* enanocms		 1.1.8-8	working
+* horde			 5.2.14-1	working
+* invoiceninja		 2.5.2.2-0	working
+* joomla			 3.5.1-1	working
+* magento			 2.0.7-0	working 
+* mautic			 1.4.1-0	not working (vilanoo issue#64)
+* modx			 2.4.4pl-1	not working (vilanoo issue#65)
+* opencart		 2.1.0.2-2	working
+* oxid			 4.9.8-0	working
+* prestashop		 1.6.1.2-1	working
+* roundcube		 1.1.4-3	working
+* silverstripe		 3.4.0-0	not working (setup issue#66)
+* simpleinvoices		 2013.beta.8-4	working
+* typos3			 8.1.2-0	working
+* xoops			 2.5.7.2-2	working
