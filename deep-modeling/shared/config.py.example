@@ -1,0 +1,14 @@
+"""
+This is an example of configuration file for our deep-modeling tool chain.
+
+Please copy it into config.py and configure variables with appropriate values.
+
+"""
+
+NEO4J_HOST = "localhost"   # put server location here
+NEO4J_USERNAME = "neo4j"   # put username here
+NEO4J_PASSWORD = "seesurf" # put password here
+
+
+DEBUG = False
+VERBOSITY = 1

@@ -9,15 +9,15 @@ import neo4jmodel.BrowserActionLevel as bal
 import neo4jmodel.ApplicationDataLevelSQL as adlsql
 from py2neo.database import Graph
 from py2neo import watch
+from shared.config import *
+
+#NEO4J_HOST = "localhost"
+#NEO4J_USERNAME = "neo4j"
+#NEO4J_PASSWORD = "seesurf"
 
 
-NEO4J_HOST = "localhost"
-NEO4J_USERNAME = "neo4j"
-NEO4J_PASSWORD = "seesurf"
-
-
-DEBUG = True
-VERBOSITY = 1
+#DEBUG = True
+#VERBOSITY = 1
 
 data1 = "test"
 
