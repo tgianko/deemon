@@ -12,3 +12,4 @@ NEO4J_PASSWORD = "seesurf" # put password here
 
 DEBUG = False
 VERBOSITY = 1
+
