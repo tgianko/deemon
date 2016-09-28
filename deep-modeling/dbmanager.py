@@ -11,14 +11,6 @@ from py2neo.database import Graph
 from py2neo import watch
 from shared.config import *
 
-#NEO4J_HOST = "localhost"
-#NEO4J_USERNAME = "neo4j"
-#NEO4J_PASSWORD = "seesurf"
-
-
-#DEBUG = True
-#VERBOSITY = 1
-
 data1 = "test"
 
 
@@ -146,8 +138,8 @@ def parse_args(args):
     imp_subp = imp_p.add_subparsers()
 
     imp_all_p = imp_subp.add_parser("all", help="Import all data into Neo4j")
-    imp_all_p.add_argument("raw_filename", help="vilanoo2/mosgi\
- SQLite3 database")
+    imp_all_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
+ database filename")
     imp_all_p.add_argument("parsed_filename", help="Analyzer SQLite3 database")
     imp_all_p.add_argument("projname", help="Project name")
     imp_all_p.add_argument("session",  help="Session identifier")
@@ -173,9 +165,9 @@ def parse_args(args):
     imp_sel_p.set_defaults(func=import_http)
 
     imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import causality\
- relationships between Selenese command and HTTP from from vilanoo2/mosgi\
+ relationships between Selenese command and HTTP from from vilanoo2\
  SQLite3 database")
-    imp_sel_p.add_argument("raw_filename", help="Vilanoo2/mosgi SQLite3\
+    imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
