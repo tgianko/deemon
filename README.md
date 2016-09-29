@@ -1,9 +1,10 @@
 # Vilanoo Project
 
-This is the code base for the Vilanoo project. The goal of this project is study
-and detection of CSRF vulnerabilities.
+This is the code base for the Vilanoo project. The goal of this project is study and detection of CSRF vulnerabilities.
 
 ## Components
+
+This project consists in a number of tools that are chained in a variety of ways. It also uses a number of existing tools.
 
 ### Dynamic Trace Acquisition Toolchain
 
@@ -37,6 +38,8 @@ Deep Modeling is our awesome framework that allows to model and detect vulnerabi
 ## Requirements
 
  * `tmux`
+ * Neo4j
+ * py2neo
 
 ## License
   TBD
@@ -49,107 +52,38 @@ For the external ones, please refer to the documentation of each project.
 *Note*: A standalone .jar file of the interactive selenese-runner is in our 
 repository.
 
+# Tutorials
+
+We prepared a number of tutorials to start using our toolchains. 
+
+ 1. Tutorial for the acquisition and analysis of dynamic traces is [here](docs/TRACE_ACQUISITION.md)
+ 2. Tutorial to use our deep modeling framework is [here](docs/DEEP_MODELING.md)
+
 # Quick start
 
 боже мой - after successfully installing everything.
 
 This is a quickstart guide to instrument a VM and use our toolset. 
 
-## Step 1 - zumka and VM instrumentation
+## Data acquisition
 
-zumka supports only bitnami images with PHP and MySQL. This step is executed 
-only once per VM. 
+### Step 1 - zumka and VM instrumentation
 
-If you have a `.vmdk` image files use:
+Zumka documentation is (here)[zumka/README.md].
 
-```bash
-cd zumka/
-./pamada.sh  </full/path/vm.vdmk> <vm-name>
-```
+### Step 2 - extraction and analysis of dynamic traces
 
-If you have a `.vdi` image file then use:
+The components used for this step are: vilanoo2, mosgi, and rawtrace-analysis. Tutorials are available [here](docs/TRACE_ACQUISITION.md).
 
-```bash
-cd zumka/
-./polesno.sh </full/path/vm.vdi> <vm-name>
-```
+## Deep Modeling
 
-If this yields any errors please open an issue consisting of:
-* exact command given
-* full output from start to crash of the execution
+### Step 1 - Importing traces and Deep Model transformations
 
-At this point, if everything worked correctly, the VM should be up and running.
-At the end of the execution of the instrumentation scripts, you will see IP,
-ports, and snapshot name. You can use the IP to connect to the VM for testing.
+Documentation is [here](deep-modeling/README.md).
 
-**IMPORTANT**: If at some step something did not work out and the problem
-is fixed it is important to do a **COMPLETE** reset. Basically deleting the
-vm-folder and using a fresh version. No relative restart is possible and
-just ends in even more weird and confusing error messages.
+### Step 2 - Running Security Analyses and Tests 
 
-
-## Step 2 - mosgi + vilanoo2 + dyntrace to extract dynamic traces
-
-### Extraction of **raw** dynamic traces
-
-Mosgi and Vilanoo2 work together. At the moment you will need to run first mosgi
-and then vilanoo2. The other way around won't work.
-
-The first step is to start mosgi: 
-
-```
-cd mosgi/src
-./run.sh -h
-```
-
-Current version of mosgi is tough like Siberian winter and does not have default
-parameter yet. All parameters are mandatory so, please, take your time and get
-them right. 
-
-It is likely that you will use the following command line:
-
-```
-./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
-```
-
-After that, Mosgi is up and running waiting for incoming connections at localhost
-port 9292. 
-
-Now, run vilanoo2 (to intercept also HTTPS request, please read [this](vilanoo2/src/README.md):
-
-```bash
-cd vilanoo2/
-./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb
-```
-
-### Analysis of raw traces.
-
-Vilanoo2 and Mosgi generate **raw** traces. The output of these two tools are two SQLite3 databases. Starting from these databases, 
-dyntrace extract traces with SQL operations, session data snapshots, and disk operations.
-
-```bash
-cd rawtrace-analysis/src/
-./run-analyzer.sh -m $path_to_your_mosgi_sqlitedb -v $path_to_your_vilanoo_sqlitedb -d $path_to_your_rawtraceanalysis_sqlitedb -S ../../data/DBSchema.sql
-```
-
-This will create a new SQLiteDB3 `$path_to_your_rawtraceanalysis_sqlitedb` from the analysis on `$path_to_your_mosgi_sqlitedb` and `$path_to_your_vilanoo_sqlitedb`.
-
-## Step 3 - Run VM, Selenium IDE + Selenese Runner, and tests
-
-Run the virtual machine and configure you browser or the testing tool to use 
-127.0.0.1:8080 as a proxy. 
-
-A guide to capture user traces and selenese runner is [here](selenese-runner/README.md)
-
-## Step 4 - Database
-
-HTTP requests, SQL query, xdebug traces, session data, and file I/O are stored
-in the SQL Lite DB.
-
-
-**Any steps that do not work or are not sufficiently discribed are a bug and should be
-made a (seperate) ticket for us to fix.**
-
+TBD
 
 # Tested Bitnami Machines
 
