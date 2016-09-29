@@ -111,4 +111,6 @@ SQLite database `$path_to_your_vilanoo_sqlitedb` the list of selenese commands
 and correlate them with the HTTP requests. 
 
 
-contain also 
+### Analysis of raw traces.
+
+The same as for **CASE 1**.
