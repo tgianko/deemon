@@ -69,7 +69,7 @@ This is a quickstart guide to instrument a VM and use our toolset.
 
 ### Step 1 - zumka and VM instrumentation
 
-Zumka documentation is (here)[zumka/README.md].
+Zumka documentation is [here](zumka/README.md).
 
 ### Step 2 - extraction and analysis of dynamic traces
 
