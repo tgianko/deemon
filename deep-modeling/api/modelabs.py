@@ -1,6 +1,8 @@
-import neo4jmodel.ApplicationDataLevelSQL as adlsql
-import neo4jmodel.BrowserActionLevel as bal
-import sqlQueryNormalization as sqlNormalizer
+from datamodel.core import *
+from datamodel.selenese import *
+from datamodel.http import *
+from datamodel.sql import *
+import sqlnorm
 import hashlib
 
 
@@ -8,7 +10,7 @@ def getAbstractQueries(graph, logger=None):
     returnTable = dict()
     # al.AbstractQuery.select(graph).where() py2neo is stupid
     # list(graph.data("MATCH (n:AbstractQuery) return n"))
-    sqlQueries = list(adlsql.AbstractQuery.select(graph))
+    sqlQueries = list(AbstractQuery.select(graph))
     for abstractQuery in sqlQueries:
         returnTable[abstractQuery.hash] = abstractQuery
     return returnTable
@@ -16,7 +18,7 @@ def getAbstractQueries(graph, logger=None):
 
 def addAbstractionLayerSqlQueries(graph, logger=None):
     abstractQueryTable = getAbstractQueries(graph, logger)
-    sqlqueries = list(adlsql.SQLQuery.select(graph))
+    sqlqueries = list(SQLQuery.select(graph))
 
     if logger is not None:
         logger.info("abstracting {} queries".format(len(sqlqueries)))
@@ -28,10 +30,10 @@ def addAbstractionLayerSqlQueries(graph, logger=None):
             logger.info("abstracting query {}/{}".format(counter,
                                                          len(sqlqueries)))
 
-        hash = sqlNormalizer.generate_normalized_query_hash(query.ts)
+        hash = sqlnorm.generate_normalized_query_hash(query.ts)
 
         if hash not in abstractQueryTable:
-            abstractQueryNode = adlsql.AbstractQuery(hash)
+            abstractQueryNode = AbstractQuery(hash)
             abstractQueryTable[hash] = abstractQueryNode
             graph.push(abstractQueryNode)
 
@@ -42,7 +44,7 @@ def addAbstractionLayerSqlQueries(graph, logger=None):
 
 def getAbstractHTTPRequests(graph, logger=None):
     requestDict = dict()
-    for abstract in bal.AbstractHTTPRequest.select(graph):
+    for abstract in AbstractHTTPRequest.select(graph):
         requestDict[abstract.hash] = abstract
 
     return requestDict
@@ -59,7 +61,7 @@ def getFullAbstractionHash(HTTPRequest, logger=None):
 
 def addAbstractionLayerHTTPRequests(graph, logger=None):
     abstractHTTPRequestTable = getAbstractHTTPRequests(graph, logger)
-    httpRequests = list(bal.HTTPRequest.select(graph))
+    httpRequests = list(HTTPRequest.select(graph))
 
     if logger is not None:
         logger.info("abstracting {} HTTPRequests".format(len(httpRequests)))
@@ -74,7 +76,7 @@ def addAbstractionLayerHTTPRequests(graph, logger=None):
         hash = getFullAbstractionHash(HTTPRequest)
 
         if hash not in abstractHTTPRequestTable:
-                    abstractHTTPRequest = bal.AbstractHTTPRequest(hash)
+                    abstractHTTPRequest = AbstractHTTPRequest(hash)
                     abstractHTTPRequestTable[hash] = abstractHTTPRequest
                     graph.push(abstractHTTPRequest)
 

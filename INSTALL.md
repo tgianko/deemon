@@ -42,7 +42,7 @@ tools are needed:
 Additionally, our scripts require:
 * `netcat` for OpenBSD (traditional netcat will not work, see Issue #43)
 
-#Python
+# Python
 
 We use python 2.7. No additional requirements so far. We use proxy2 as our 
 current proxy (https://github.com/inaz2/proxy2) but we keep a version in this
@@ -74,3 +74,43 @@ If something breaks and the string "libssh2" appears, please update the
 repository before making a bug report. We are in contact with the main author 
 that handles the repository used by quicklisp but it takes time to push changes, 
 thus relying on our own repo to fit our needs is more convienient.
+
+# Neo4j
+
+We are using neo4j v.3.0.6
+
+# py2neo
+
+The data model of our deep-modeling framework is based on a mapping between neo4j property graphs and python objects. We use the Object Graph Mapping extension of py2neo for that. However, for a limitation of py2neo.ogm on heterogeneous relationships (see [Github Issue 573](https://github.com/nigelsmall/py2neo/issues/573)), we forked the GitHub project here [tgianko/py2neo](https://github.com/tgianko/py2neo) and fixed it. 
+
+To use our version DO NOT USE `pip install py2neo`, but instead, create and use a python virtual environments. 
+
+To create a virtual environment follows these steps:
+
+```bash
+$ cd deep-modeling/
+
+$ virtualenv py2neodev_env
+Running virtualenv with interpreter /usr/bin/python2
+New python executable in /home/gianko/Desktop/Projects/vilanoo/deep-modeling/py2neodev_env/bin/python2
+Also creating executable in /home/gianko/Desktop/Projects/vilanoo/deep-modeling/py2neodev_env/bin/python
+Installing setuptools, pkg_resources, pip, wheel...done.
+```
+
+This will create a virtual environment with basic packages. 
+
+To install our modified version of py2neo, activate the virtual environment and then install the package as follows:
+
+```bash
+$ source py2neodev_env/bin/activate
+
+(py2neodev_env) $ pip install git+https://github.com/tgianko/py2neo.git#egg=py2neo
+
+Collecting py2neo from git+https://github.com/tgianko/py2neo.git#egg=py2neo
+  Cloning https://github.com/tgianko/py2neo.git to /tmp/pip-build-61HXMR/py2neo
+Installing collected packages: py2neo
+  Running setup.py install for py2neo ... done
+Successfully installed py2neo-3.1.2
+```
+
+This will install py2neo within the virtual environment. From this point on, when using any of the deep-modeling tools, please activate the virtual environment before running the script. If you do not do that, python will not use our version, but instead the system one.

@@ -50,24 +50,6 @@ class SQLStatement(GraphObject):
         self.uuid = str(uuid4())
 
 
-class QueryString(GraphObject):
-
-    __primarykey__ = "uuid"
-    
-    uuid = Property()
-
-    projname = Property()
-
-    qs = Property()
-
-    Parameter = RelatedTo("KeyValuePair")
-
-    def __init__(self, projname=None, qs=None):
-        self.projname = projname
-        self.qs = qs
-        self.uuid = str(uuid4())
-
-
 class SQLQuery(GraphObject):
     
     __primarykey__ = "uuid"

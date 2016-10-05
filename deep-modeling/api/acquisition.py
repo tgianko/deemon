@@ -1,6 +1,8 @@
-import parsers as parser
-import neo4jmodel.BrowserActionLevel as bal
-import neo4jmodel.UserActionLevel as ual
+from parsers import *
+from datamodel.core import *
+from datamodel.selenese import *
+from datamodel.http import *
+from datamodel.sql import *
 
 
 def insert_selenese_commands(graph, cmdlist, projname,
@@ -15,7 +17,7 @@ def insert_selenese_commands(graph, cmdlist, projname,
         if logger is not None:
             logger.info("Processing Command ID {} / {}".format(cmd[0],
                                                                len(cmdlist)))
-        cmd_n = parser.parse_selcmd(cmd[2], cmd[3], cmd[4], cmd[0],
+        cmd_n = parse_selcmd(cmd[2], cmd[3], cmd[4], cmd[0],
                                     None, projname, session, user)
 
         if prev_cmd_n:
@@ -38,7 +40,7 @@ def insert_httpreqs(graph, reqlist, projname, session, user, logger=None):
     for hreq in reqlist:
         logger.info("Processing HTTP Request ID {} ({}/{})".format(hreq[0], i,
                                                                 len(reqlist)))
-        hreq_n = parser.parse_httpreq(hreq[6], hreq[3], hreq[5],
+        hreq_n = parse_httpreq(hreq[6], hreq[3], hreq[5],
                                       hreq[4], hreq[0], hreq[2],
                                       projname, session, user)
         if prev_hreq_n:
@@ -61,11 +63,11 @@ def insert_httpresps(graph, resplist, projname, session, user, logger=None):
         if logger is not None:
             logger.info("Processing HTTP Response\
  ID {} ({}/{})".format(hres[0], i, len(resplist)))
-        hres_n = parser.parse_httpres(hres[3], hres[4], hres[5],
+        hres_n = parse_httpres(hres[3], hres[4], hres[5],
                                       hres[0], hres[2], projname,
                                       session, user)
         
-        hreq_n = bal.HTTPRequest.select(graph).where(seq=hres[1],
+        hreq_n = HTTPRequest.select(graph).where(seq=hres[1],
                                                      projname=projname,
                                                      session=session,
                                                      user=user).first()
@@ -84,15 +86,15 @@ def insert_cmd2http(graph, idlist, projname, session, user, logger=None):
         if logger is not None:
             logger.info("Processing Selense command ID {} ->\
  HTTP request ID {} ({}/{})".format(cmdid, rid, i, len(idlist)))
-        cmd_n = ual.SeleneseCommand.select(graph).where(seq=cmdid,
+        cmd_n = SeleneseCommand.select(graph).where(seq=cmdid,
                                                         projname=projname,
                                                         session=session,
                                                         user=user).first()
-        hreq_n = bal.HTTPRequest.select(graph).where(seq=rid,
+        hreq_n = HTTPRequest.select(graph).where(seq=rid,
                                                      projname=projname,
                                                      session=session,
                                                      user=user).first()
-        cmd_n.Caused.add(hreq_n)
+        cmd_n.Causes.add(hreq_n)
         graph.push(cmd_n)
         i+=1
 
@@ -106,12 +108,12 @@ def insert_queries(graph, queries, projname, session, user, logger=None):
         if logger is not None:
             logger.info("Processing SQL query ID {}-{} ({}/{})".format(q_id, hreq_id, i, len(queries)))
         n_id = "{}.{}".format(hreq_id, q_id)
-        sql_n = parser.parse_sql(sql, n_id, None, projname, session, user)
-        hreq_n = bal.HTTPRequest.select(graph).where(seq=hreq_id,
+        sql_n = parse_sql(sql, n_id, None, projname, session, user)
+        hreq_n = HTTPRequest.select(graph).where(seq=hreq_id,
                                                      projname=projname,
                                                      session=session,
                                                      user=user).first()
-        hreq_n.Caused.add(sql_n)
+        hreq_n.Causes.add(sql_n)
         graph.push(hreq_n)
         graph.push(sql_n)
         i+=1
