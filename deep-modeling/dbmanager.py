@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 import sys
 import argparse
-import sqlmodel.dataAccess as sqlDataAccess
 import utils.log as log
-import insertGraphData
-import neo4jmodel.UserActionLevel as ual
-import neo4jmodel.BrowserActionLevel as bal
-import neo4jmodel.ApplicationDataLevelSQL as adlsql
+from api.datamodel.selenese import *
+from api.datamodel.http import *
+from api.datamodel.sql import *
+from api.acquisition import *
 from py2neo.database import Graph
 from py2neo import watch
+import sqlite3 as lite
 from shared.config import *
 from dataflow import insert_data_flows
 from modelAbstractor import add_full_abstraction_layer
-
-data1 = "test"
-
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
@@ -29,20 +26,98 @@ else:
 # args_obj = None #global variables are the devils tool
 
 # really dislike havin the setup code here!
-UNIQUENESS = [ual.SeleneseCommand.__name__,
-              bal.HTTPRequest.__name__,
-              bal.HTTPResponse.__name__,
-              adlsql.SQLQuery.__name__]
+UNIQUENESS = [SeleneseCommand.__name__,
+              HTTPRequest.__name__,
+              HTTPResponse.__name__,
+              SQLQuery.__name__]
 
-INDEX = [(ual.SeleneseCommand.__name__,
+INDEX = [(SeleneseCommand.__name__,
           ["projname", "seq", "session", "user"]),
-         (bal.HTTPRequest.__name__,
+         (HTTPRequest.__name__,
           ["projname", "seq", "session", "user"]),
-         (bal.HTTPResponse.__name__,
+         (HTTPResponse.__name__,
           ["projname", "seq", "session", "user"]),
-         (adlsql.SQLQuery.__name__,
+         (SQLQuery.__name__,
           ["projname", "seq", "session", "user"])]
 
+
+def load_selcmd_sqlite(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading Selense commands from vilanoo2/mosgi SQLite db")
+
+    con = lite.connect(fname)
+    cmdlist = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM selenese_commands ORDER BY id")
+        cmdlist = list(rs)
+    return cmdlist
+
+    
+def load_hreqs_sqlite(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading HTTP requests from vilanoo2/mosgi SQLite db")
+
+    con = lite.connect(fname)
+    reqlist = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM http_requests ORDER BY id")
+        reqlist = list(rs)
+    return reqlist
+
+
+def load_hres_sqlite(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading HTTP responses from vilanoo2/mosgi SQLite db")
+
+    con = lite.connect(fname)
+    resplist = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM http_responses ORDER BY id")
+        resplist = list(rs)
+    return resplist
+
+
+def load_cmd2http_sqlite(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading Selenese command to HTTP requests\
+ relationships from vilanoo2/mosgi SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT id, command_id FROM http_requests")
+        ids = list(rs)
+    return ids
+
+
+def load_queries_sqlite(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading SQL queries from  Analyzer SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM sql_queries")
+        ids = list(rs)
+    return ids
+
+
+def load_php_sessions(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading SQL queries from Analyzer SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT http_request_id,session_string FROM sessions")
+        ids = list(rs)
+    return ids
 
 def init_database(args, graph, logger=None):
     if logger is not None:
@@ -101,36 +176,36 @@ def import_all(args, graph, logger=None):
 
 
 def import_selenese(args, graph, logger=None):
-    cmdlist = sqlDataAccess.load_selcmd_sqlite(args.raw_filename)
-    insertGraphData.insert_selenese_commands(graph, cmdlist, args.projname,
+    cmdlist = load_selcmd_sqlite(args.raw_filename)
+    insert_selenese_commands(graph, cmdlist, args.projname,
                                              args.session, args.user, logger)
 
 
 def import_http(args, graph, logger=None):
-    hreqs = sqlDataAccess.load_hreqs_sqlite(args.raw_filename)
-    insertGraphData.insert_httpreqs(graph, hreqs, args.projname,
+    hreqs = load_hreqs_sqlite(args.raw_filename)
+    insert_httpreqs(graph, hreqs, args.projname,
                                     args.session, args.user, logger)
 
-    hress = sqlDataAccess.load_hres_sqlite(args.raw_filename)
-    insertGraphData.insert_httpresps(graph, hress, args.projname,
+    hress = load_hres_sqlite(args.raw_filename)
+    insert_httpresps(graph, hress, args.projname,
                                      args.session, args.user, logger)
 
 
 def import_rel_selhttp(args, graph, logger=None):
-    ids = sqlDataAccess.load_cmd2http_sqlite(args.raw_filename)
-    insertGraphData.insert_cmd2http(graph, ids, args.projname,
+    ids = load_cmd2http_sqlite(args.raw_filename)
+    insert_cmd2http(graph, ids, args.projname,
                                     args.session, args.user, logger)
 
 
 def import_sql(args, graph, logger=None):
-    ids = sqlDataAccess.load_queries_sqlite(args.parsed_filename)
-    insertGraphData.insert_queries(graph, ids, args.projname,
+    ids = load_queries_sqlite(args.parsed_filename)
+    insert_queries(graph, ids, args.projname,
                                    args.session, args.user, logger)
 
 
 def import_session(args, graph, logger=None):
-    sessions = sqlDataAccess.load_php_sessions(args.parsed_filename)
-    insertGraphData.insert_sessions(graph, sessions, args.projname,
+    sessions = load_php_sessions(args.parsed_filename)
+    insert_sessions(graph, sessions, args.projname,
                                     args.session, args.user, logger)
 
 

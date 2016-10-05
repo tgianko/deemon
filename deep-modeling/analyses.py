@@ -6,7 +6,6 @@ from py2neo.database import Graph
 from py2neo import watch
 from shared.config import *
 
-
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
     watch("neo4j.bolt")
