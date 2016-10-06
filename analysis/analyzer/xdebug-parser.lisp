@@ -196,6 +196,3 @@ given trace and returns all parameters passed to those calls.
                                        (string= (function-name record) "mysql_query"))))
                           (trace-content xdebug-trace)))))
 
-
-
-
