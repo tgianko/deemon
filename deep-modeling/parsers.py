@@ -167,7 +167,9 @@ def visit_sqlast(ast, i, n):
             
 
 def parse_sql(sql, seq, ts, projname, session, user):
-    sql_n = adlsql.SQLQuery(projname, session, user, seq, sql)
+    if sql[0] == "'":
+        sql = sql[1:-1]
+    sql_n = adlsql.SQLQuery(projname, session, user, seq, ts, sql)
     parsed = sqlparse.parse(sql)
     
     for q in parsed:
