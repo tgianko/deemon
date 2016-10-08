@@ -65,3 +65,16 @@ def load_queries_sqlite(fname, logger=None):
         rs = cur.execute("SELECT * FROM sql_queries")
         ids = list(rs)
     return ids
+
+
+def load_php_sessions(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading SQL queries from Analyzer SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT http_request_id,session_string FROM sessions")
+        ids = list(rs)
+    return ids

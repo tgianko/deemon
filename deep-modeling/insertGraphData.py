@@ -1,4 +1,5 @@
 import parsers as parser
+import lispsessionparser as sessionparser
 import neo4jmodel.BrowserActionLevel as bal
 import neo4jmodel.UserActionLevel as ual
 
@@ -111,3 +112,27 @@ HTTP request ID {} / {}".format(q_id, hreq_id, len(queries)))
         hreq_n.Caused.add(sql_n)
         graph.push(hreq_n)
         graph.push(sql_n)
+
+
+def insert_sessions(graph, sessions, projname, session, user, logger=None):
+    if logger is not None:
+        logger.info("Importing {} sessions and relationships\
+ with HTTP requests...".format(len(sessions)))
+    
+    counter = 1
+
+    for hreq_id, ses_string in sessions:
+        if logger is not None:
+            logger.info("Processing session {}/{}"
+                        .format(counter, len(sessions)))
+        
+        sess = sessionparser.parseSession(ses_string)
+        hreq_n = bal.HTTPRequest.select(graph).where(seq=hreq_id,
+                                                     projname=projname,
+                                                     session=session,
+                                                     user=user).first()
+        graph.push(sess)
+        hreq_n.Caused.add(sess)
+        graph.push(hreq_n)
+        counter = counter + 1
+

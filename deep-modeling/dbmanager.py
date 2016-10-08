@@ -16,7 +16,7 @@ NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "seesurf"
 
 
-DEBUG = True
+DEBUG = False
 VERBOSITY = 1
 
 data1 = "test"
@@ -103,6 +103,8 @@ def import_all(args, graph, logger=None):
 
     import_sql(args, graph, logger)
 
+    import_session(args, graph, logger)
+
 
 def import_selenese(args, graph, logger=None):
     cmdlist = sqlDataAccess.load_selcmd_sqlite(args.raw_filename)
@@ -130,6 +132,12 @@ def import_sql(args, graph, logger=None):
     ids = sqlDataAccess.load_queries_sqlite(args.parsed_filename)
     insertGraphData.insert_queries(graph, ids, args.projname,
                                    args.session, args.user, logger)
+
+
+def import_session(args, graph, logger=None):
+    sessions = sqlDataAccess.load_php_sessions(args.parsed_filename)
+    insertGraphData.insert_sessions(graph, sessions, args.projname,
+                                    args.session, args.user, logger)
 
 
 def parse_args(args):

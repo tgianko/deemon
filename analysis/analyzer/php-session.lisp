@@ -120,7 +120,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 (defmethod print-object ((content-element php-session-array-element) stream)
   (with-slots (elements)
       content-element
-    (FORMAT stream "(:ARRAY (~{~a ~}))" 
+    (FORMAT stream "(:ARRAY . (~{~a~}))" 
 	    (mapcar #'(lambda(key)
 			(FORMAT nil "(:STRING . ~a) => ~a" key (gethash key elements)))
 		    (sort (get-hashtable-keys elements) #'string<=)))))

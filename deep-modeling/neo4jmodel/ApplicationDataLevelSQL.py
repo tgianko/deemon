@@ -111,28 +111,3 @@ class AbstractQuery(GraphObject):
     def __init__(self, hash):
         self.hash = hash
         self.projname = ""  # TODO:initialize this
-
-
-class TestA(GraphObject):
-
-    __primarykey__ = "hash"
-
-    hash = Property()
-
-    CONNECTEDTO = RelatedTo('TestB')
-
-    def __init__(self, hash):
-        self.hash = hash
-
-
-class TestB(GraphObject):
-
-    __primarykey__ = "hash"
-
-    hash = Property()
-
-    CONNECTEDTO = RelatedFrom('TestA', "CONNECTEDTO")
-
-    def __init__(self, hash):
-        self.hash = hash
-
