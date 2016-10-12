@@ -161,7 +161,10 @@ def visit_sqlast(ast, i, n):
             if el.ttype == sqlptokens.Token.Punctuation or\
                el.ttype == sqlptokens.Token.Text.Whitespace:
                 continue
-            child = adlsql.SQLToken(n.projname, str(el.ttype), str(el.value))
+            value = str(el.value)
+            if value[0] == "'" and value[-1] == "'":
+                value = value[1:-1]
+            child = adlsql.SQLToken(n.projname, str(el.ttype), value)
             n.Child.add(child)
             # print "SQLTToken", el.ttype, el.value
             
