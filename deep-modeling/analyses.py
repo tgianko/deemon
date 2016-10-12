@@ -5,6 +5,7 @@ import utils.log as log
 from py2neo.database import Graph
 from py2neo import watch
 from shared.config import *
+from api.datamodel.selenese import *
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
@@ -22,7 +23,11 @@ def selenese(args, graph):
     - find all selenese commands with (projname, session, user) with a given path property X
     - for each selenese commands above, return the longest path of selenese commands ending with them
     """
-    pass
+
+    #res = graph.data("""MATCH (init:SeleneseCommand {seq:1}), (end:SeleneseCommand)-[:CAUSES]->(h:HTTPRequest {method:"POST"}), p=(init)-[:NEXT*]->(end) RETURN p, h""")
+    init = SeleneseCommand.select(graph).where(seq=0)
+    
+
 
 def clustify(args, graph):
     """

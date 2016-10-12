@@ -53,10 +53,9 @@ def getAbstractHTTPRequests(graph, logger=None):
 def getFullAbstractionHash(HTTPRequest, logger=None):
     accumulator = list()
 
-    for relation in HTTPRequest.Caused:
-        if isinstance(relation, adlsql.SQLQuery):
-            abstraction = list(relation.ABSTRACTSTO)[0]
-            accumulator.append(abstraction.hash)
+    for sqlquery in HTTPRequest.Caused:
+        accumulator.append(list(sqlquery.ABSTRACTSTO)[0].hash)
+
 
     accumulator.sort()
     return hashlib.md5("".join(accumulator)).hexdigest()

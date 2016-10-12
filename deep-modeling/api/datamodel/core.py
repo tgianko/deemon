@@ -18,6 +18,10 @@ class BasicNode(GraphObject):
         self.projname = projname
         self.uuid = str(uuid4())
 
+"""
+Observation
+"""
+
 class Observation(BasicNode):
     """ Describe an observation of a dynamic trace
     """
@@ -49,29 +53,61 @@ class AbstractObservation(BasicNode):
         self.user    = user
 
 
+"""
+Finite-State Machines
+"""
+
+class FSMStateTransition(BasicNode):
+    """ Describe a transition between states
+    """
+
+    To = RelatedTo("FSMState")
+    
+    def __init__(self, projname):
+        super(FSMStateTransition, self).__init__(projname)
+
 class FSMState(BasicNode):
     """ Describe a state of a finite-state machine
     """
 
     state_id   = Property()
 
-    Transition = RelatedTo("FSMState")
+    Has = RelatedTo("FSMStateTransition")
 
     def __init__(self, state_id):
         super(FSMState, self).__init__(projname)
         self.state_id = state_id
 
+"""
+Deterministic Finite Automaton
+"""
 
-class AbstractFSMState(BasicNode):
-    """ Describe a state of a finite-state machine
+class DFAState(FSMState):
+    """ Describe a state of a DFA
     """
 
-    Abstracts = RelatedTo(FSMState)
-    Transition = RelatedTo("AbstractFSMState")
+    state_id   = Property()
+
+    Has = RelatedTo("DFAStateTransition")
 
     def __init__(self, state_id):
-        super(AbstractFSMState, self).__init__(projname, state_id)
+        super(DFAState, self).__init__(projname, state_id)
 
+class DFAStateTransition(FSMStateTransition):
+    """ Describe a transition between states
+    """
+
+    accepted = Property()
+
+    To = RelatedTo("FSMState")
+    Accepts = RelatedTo(["Observation", "AbstractObservation"])
+    
+    def __init__(self, projname, symbol):
+        super(DFAStateTransition, self).__init__(projname)
+
+"""
+Causality
+"""
 
 class CausalNode(GraphObject):
     """ Establishe causality relationship of the type "A Causes B" 
