@@ -13,6 +13,11 @@ def get_all_relationship_labels_but(graph, but, logger=None):
 
 def label_list_to_match_string(label_list):
     return "|".join(map(lambda x: ":{}".format(x), label_list))
+
+
+def datapropagation_relation_count(graph):
+    return list(graph.run("MATCH ()-[f:DATAPROPAGATION]->()\
+ RETURN count(f)"))[0][0]
                
 
 def get_data_flows(graph, rhs_data, rhs_start, lhs_start,
@@ -61,13 +66,17 @@ def get_extended_data_flows_selenese_http(graph, rhs_data,
 
 
 def insert_data_flow_between_pairs(graph, pairList, logger=None):
-    if logger is not None:
-        logger.info("inserting {} data flow pairs".format(len(pairList)))
+    old_count = datapropagation_relation_count(graph)
 
     for lhs, rhs in pairList:
         rel = Relationship(lhs, "DATAPROPAGATION", rhs)
         graph.create(rel)
     
+    new_count = datapropagation_relation_count(graph)
+
+    if logger is not None:
+        logger.info("inserted {} dataprops".format(new_count - old_count))
+
 
 def insert_data_flow_selenese_HTTPRequest(graph, logger):
     insert_data_flow_between_pairs(
