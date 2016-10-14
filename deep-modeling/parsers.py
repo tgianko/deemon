@@ -164,6 +164,7 @@ def visit_sqlast(ast, i, n):
             value = str(el.value)
             if value[0] == "'" and value[-1] == "'":
                 value = value[1:-1]
+            value = value.strip()
             child = adlsql.SQLToken(n.projname, str(el.ttype), value)
             n.Child.add(child)
             # print "SQLTToken", el.ttype, el.value

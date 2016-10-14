@@ -207,3 +207,17 @@ def main(args):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
+
+
+"""
+Additional indexes:
+:DataValue(value)
+:KeyValuePair(value)
+:SQLToken(value)
+"""
+
+def test_query(graph, query):
+    t0 = datetime.datetime.now()
+    ret = graph.run(query)
+    t1 = datetime.datetime.now()
+    return t1 - t0, ret
