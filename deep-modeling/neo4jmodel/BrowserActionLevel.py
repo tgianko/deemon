@@ -2,6 +2,7 @@ from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 from uuid import uuid4
 from GenericElements import KeyValuePair,DataValue
 from ApplicationDataLevelSQL import SQLQuery
+from ApplicationDataLevelSession import PHPSession
 
 
 class HTTPRequest(GraphObject):
@@ -29,7 +30,7 @@ class HTTPRequest(GraphObject):
 
     Next = RelatedTo("HTTPRequest")
     Transaction = RelatedTo("HTTPResponse")
-    Caused = RelatedTo("SQLQuery")
+    Caused = RelatedTo(["SQLQuery", "PHPSession"])
 
     def __init__(self, projname=None, session=None, user=None,
                  seq=None, ts=None, method=None, url=None):

@@ -28,7 +28,7 @@ def addAbstractionLayerSqlQueries(graph, logger=None):
             logger.info("abstracting query {}/{}".format(counter,
                                                          len(sqlqueries)))
 
-        hash = sqlNormalizer.generate_normalized_query_hash(query.ts)
+        hash = sqlNormalizer.generate_normalized_query_hash(query.sql)
 
         if hash not in abstractQueryTable:
             abstractQueryNode = adlsql.AbstractQuery(hash)
@@ -50,8 +50,11 @@ def getAbstractHTTPRequests(graph, logger=None):
 
 def getFullAbstractionHash(HTTPRequest, logger=None):
     accumulator = list()
-    for sqlquery in HTTPRequest.Caused:
-        accumulator.append(list(sqlquery.ABSTRACTSTO)[0].hash)
+
+    for relation in HTTPRequest.Caused:
+        if isinstance(relation, adlsql.SQLQuery):
+            abstraction = list(relation.ABSTRACTSTO)[0]
+            accumulator.append(abstraction.hash)
 
     accumulator.sort()
     return hashlib.md5("".join(accumulator)).hexdigest()
@@ -82,3 +85,13 @@ def addAbstractionLayerHTTPRequests(graph, logger=None):
         graph.push(HTTPRequest)
         
         counter += 1
+
+
+def add_full_abstraction_layer(graph, logger=None):
+    addAbstractionLayerSqlQueries(graph, logger)
+    addAbstractionLayerHTTPRequests(graph, logger)
+
+
+def get_HTTPRequests(graph, logger=None):
+    return map(lambda x: x[0],
+               graph.run("MATCH (h:HTTPRequest) RETURN h"))

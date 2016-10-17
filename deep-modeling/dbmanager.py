@@ -10,7 +10,8 @@ import neo4jmodel.ApplicationDataLevelSQL as adlsql
 from py2neo.database import Graph
 from py2neo import watch
 from shared.config import *
-
+from dataflow import insert_data_flows
+from modelAbstractor import add_full_abstraction_layer
 
 data1 = "test"
 
@@ -133,6 +134,19 @@ def import_session(args, graph, logger=None):
                                     args.session, args.user, logger)
 
 
+def do_analysis_dataprop(args, graph, logger=None):
+    insert_data_flows(graph, logger)
+
+
+def do_analysis_abstraction(args, graph, logger=None):
+    add_full_abstraction_layer(graph, logger)
+
+
+def do_analysis_all(args, graph, logger=None):
+    do_analysis_dataprop(args, graph, logger=logger)
+    do_analysis_abstraction(args, graph, logger=logger)
+
+
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
     subp = p.add_subparsers()
@@ -145,6 +159,22 @@ def parse_args(args):
 
     imp_p = subp.add_parser("import", help="Import data")
     imp_subp = imp_p.add_subparsers()
+
+    analysis_p = subp.add_parser("analysis", help="analysing existing graph")
+    analysis_subp = analysis_p.add_subparsers()
+
+    analysis_dataprop = analysis_subp.add_parser("datapropagation",
+                                                 help="add datapropagation\
+ relationships")
+    analysis_dataprop.set_defaults(func=do_analysis_dataprop)
+
+    analysis_abstract = analysis_subp.add_parser("databstraction",
+                                                 help="add abstraction layer")
+    analysis_abstract.set_defaults(func=do_analysis_abstraction)
+
+    analysis_all = analysis_subp.add_parser("all",
+                                            help="do all avail. analysis")
+    analysis_all.set_defaults(func=do_analysis_all)
 
     imp_all_p = imp_subp.add_parser("all", help="Import all data into Neo4j")
     imp_all_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
@@ -215,9 +245,3 @@ Additional indexes:
 :KeyValuePair(value)
 :SQLToken(value)
 """
-
-def test_query(graph, query):
-    t0 = datetime.datetime.now()
-    ret = graph.run(query)
-    t1 = datetime.datetime.now()
-    return t1 - t0, ret
