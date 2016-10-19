@@ -152,7 +152,8 @@ waits/responds for commands and executes given commands
 				  (tagbody
 				   check
 				     (sb-thread:with-mutex (*task-mutex*)
-				       (when *stop-p*
+				       (when (and *stop-p*
+                                                  (sb-concurrency:queue-empty-p *request-queue*))
 					 (go end))
 				       (if (not (sb-concurrency:queue-empty-p *request-queue*))
 					   (go work)
