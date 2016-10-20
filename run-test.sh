@@ -36,8 +36,6 @@ mosgi_root_user="root"
 mosgi_root_pwd="bitnami"
 
 
-
-
 #check if vm is already running
 #yes -> error
 #no  -> restore virgin snapshot
