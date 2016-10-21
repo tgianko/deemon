@@ -9,6 +9,7 @@ class SessionElementType(Enum):
     integer = 2
     array = 3
     empty = 4
+    boolean = 5
 
 
 class SessionElement():
@@ -59,6 +60,28 @@ class SessionElementString(GraphObject, SessionElement):
 
 class SessionElementInteger(GraphObject, SessionElement):
     type = SessionElementType.integer
+
+    __primarykey__ = "uuid"
+
+    projname = Property()
+    uuid = Property()
+
+    value = RelatedTo("DataValue")
+
+    def __init__(self, content, projname=None):
+        self.uuid = "{}".format(datetime.datetime.now())
+        self.projname = projname
+        self.value.add(DataValue(value=content))
+
+    def getValue(self):
+        return list(self.value)[0].value
+ 
+    def inject(self, graph):
+        pass
+
+
+class SessionElementBoolean(GraphObject, SessionElement):
+    type = SessionElementType.boolean
 
     __primarykey__ = "uuid"
 

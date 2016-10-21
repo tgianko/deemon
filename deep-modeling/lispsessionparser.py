@@ -5,7 +5,7 @@ implemented in this file
 from string import lstrip
 from neo4jmodel.ApplicationDataLevelSession import SessionElementArray,\
     SessionElementEmpty, SessionElementInteger, SessionElementString,\
-    SessionElementType, PHPSession, SessionContent
+    SessionElementType, PHPSession, SessionContent, SessionElementBoolean
 
 
 def skipLeadingBlank(string):
@@ -42,6 +42,8 @@ def stringToType(string):
         return SessionElementType.array
     elif string == ":NIL":
         return SessionElementType.empty
+    elif string == ":BOOL":
+        return SessionElementType.boolean
     else:
         print "Unknown Session Element Type {}".format(string)
         raise Exception
@@ -71,6 +73,11 @@ def parseSessionContentElement(string):
         integerContent = rem[2:rem.index(')')]
         rem = rem[rem.index(')')+1:]
         return [SessionElementInteger(integerContent),
+                rem]
+    elif type == SessionElementType.boolean:
+        booleanContent = rem[2:rem.index(')')]
+        rem = rem[rem.index(')')+1:]
+        return [SessionElementBoolean(booleanContent),
                 rem]
     elif type == SessionElementType.array:
         arrayElements, rem = parseSessionContentElementArrayContent(rem[2:])
