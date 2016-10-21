@@ -18,6 +18,8 @@
 
 (defun enter-xdebug-file-raw-into-db (xdebug-file-string request-db-id database-connection com-func)
   (declare (ignore com-func))
+  (sb-ext:gc :full t)
+  (FORMAT T "about to insert~%")
   (clsql:insert-records :INTO [XDEBUG-DUMPS]
 			:ATTRIBUTES '([HTTP-REQUEST-ID] [DUMP-CONTENT])
 			:VALUES (list request-db-id xdebug-file-string)
