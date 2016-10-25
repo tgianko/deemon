@@ -27,14 +27,14 @@ In general, the steps that you will need to follow are:
 The first step is to start mosgi: 
 
 ```
-cd mosgi/src
-./run.sh -h
+$ cd mosgi/src
+$ ./run.sh -h
 ```
 
 It is likely that you will use the following command line:
 
 ```
-./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
+$ ./run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 8844 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
 ```
 
 After that, Mosgi is up and running waiting for incoming connections at 
@@ -44,8 +44,8 @@ Now, run vilanoo2 (to intercept also HTTPS request, please read
 [this](vilanoo2/src/README.md):
 
 ```bash
-cd vilanoo2/
-./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb
+$ cd vilanoo2/
+$ ./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb
 ```
 
 ### Change proxy configuration of your browser and play around
