@@ -40,7 +40,7 @@ CREATE TABLE http_responses (
 
 CREATE TABLE xdebug_dumps (
        http_request_id  integer,
-       dump_content     character varying,
+       dump_content     blob,
        PRIMARY KEY (http_request_id)
 );
 

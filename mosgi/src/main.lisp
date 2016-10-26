@@ -135,8 +135,8 @@ waits/responds for commands and executes given commands
 						   (print-threaded :saver string)))
 	  (ssh:delete-folder php-session-folder user host pwd)
 	  (print-threaded :saver (FORMAT nil "copy xdebug dump for request ~a onto host" request-db-id))	  
-	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-string xdebug-trace-file user host pwd #'(lambda(string)
-                                                                                                              (print-threaded :saver string)))
+	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-blob xdebug-trace-file user host pwd #'(lambda(string)
+                                                                                                            (print-threaded :saver string)))
 						  request-db-id
 						  database-connection 
 						  #'(lambda(string)
