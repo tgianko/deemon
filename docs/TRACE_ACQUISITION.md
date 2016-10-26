@@ -27,14 +27,14 @@ In general, the steps that you will need to follow are:
 The first step is to start mosgi: 
 
 ```
-cd mosgi/src
-./run.sh -h
+$ cd mosgi/src
+$ ./run.sh -h
 ```
 
 It is likely that you will use the following command line:
 
 ```
-./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
+$ ./run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 8844 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
 ```
 
 After that, Mosgi is up and running waiting for incoming connections at 
@@ -44,8 +44,8 @@ Now, run vilanoo2 (to intercept also HTTPS request, please read
 [this](vilanoo2/src/README.md):
 
 ```bash
-cd vilanoo2/
-./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb
+$ cd vilanoo2/
+$ ./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb
 ```
 
 ### Change proxy configuration of your browser and play around
@@ -60,8 +60,8 @@ two SQLite3 databases. Starting from these databases, dyntrace extract traces
 with SQL operations, session data snapshots, and disk operations.
 
 ```bash
-cd rawtrace-analysis/src/
-./run-analyzer.sh -m $path_to_your_mosgi_sqlitedb -v $path_to_your_vilanoo_sqlitedb -d $path_to_your_rawtraceanalysis_sqlitedb -S ../../data/DBSchema.sql
+$ cd rawtrace-analysis/src/
+$ ./run-analyzer.sh -m $path_to_your_mosgi_sqlitedb -v $path_to_your_vilanoo_sqlitedb -d $path_to_your_rawtraceanalysis_sqlitedb -S ../../data/DBSchema.sql
 ```
 
 This will create a new SQLiteDB3 `$path_to_your_rawtraceanalysis_sqlitedb` from 
@@ -89,8 +89,8 @@ In general, the steps of this use case are:
 To run mosgi, it is likely that you will use the following command line:
 
 ```
-cd mosgi/src
-./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
+$ cd mosgi/src
+$ ./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
 ```
 
 After that, Mosgi is up and running waiting for incoming connections at 
@@ -99,8 +99,8 @@ localhost port 9292.
 Now, run vilanoo2 and pass as parameter the filename of the Selenese HTML file:
 
 ```bash
-cd vilanoo2/
-./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb -S $path_to_your_selenese_file
+$ cd vilanoo2/
+$ ./vilanoo2.py -s $path_to_your_vilanoo_sqlitedb -S $path_to_your_selenese_file
 ```
 
 The `-S` or `--selenese` parameter will instruct vilanoo2 to run selenese-runner
