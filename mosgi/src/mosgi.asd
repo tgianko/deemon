@@ -7,7 +7,8 @@
 		 :unix-opts
 		 :clsql
 		 :sb-concurrency
-                 :gzip-stream)
+                 :gzip-stream
+                 :cl-base64)
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
 		 (:file "ssh-interface" :depends-on ("packages"))
@@ -16,28 +17,3 @@
 					    "communication"
 					    "database"
 					    "ssh-interface"))))
-
-
-
-
-#|
-		 (:file "php-session" :depends-on ("packages"))
-		 (:file "php-session-diff" :depends-on ("packages"
-							"php-session"))
-		 (:file "xdebug-parser" :depends-on ("packages"))
-		 (:file "diff" :depends-on ("packages"))
-		 (:file "diff-file" :depends-on ("packages"
-						 "diff"))
-		 (:file "diff-php" :depends-on ("packages"
-						"diff"
-						"php-session"
-						"php-session-diff"))
-		 (:file "ssh-interface" :depends-on ("packages"))
-		 (:file "database" :depends-on ("packages"
-						"diff-file"
-						"diff-php"))
-		 (:file "main" :depends-on ("packages"
-					    "ssh-interface"
-					    "php-session"
-					    "communication"))))
-|#		    

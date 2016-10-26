@@ -33,7 +33,7 @@ handle all the nasty stuff we do not want/need to think about
 (defun run-remote-shell-command (command username host password result-handler)
   "executes a shell command on the given host and gives the resulting stream
 to the result handler. The result of the result-handler will be returned"  
-  (limited-restart 3 4
+  (limited-restart 3 8
     (sb-thread:with-mutex (*ssh-mutex*)
       (libssh2:with-ssh-connection session (host
 					    (libssh2:make-password-auth username password)

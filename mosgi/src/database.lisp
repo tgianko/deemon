@@ -11,7 +11,7 @@
       ((not string-list) nil)
     (clsql:insert-records :INTO [SESSIONS]
 			  :ATTRIBUTES '([HTTP-REQUEST-ID] [SESSION-NAME] [SESSION-STRING])
-			  :VALUES (list request-db-id (caar string-list) (cdar string-list))
+			  :VALUES (list request-db-id (caar string-list) (cl-base64:string-to-base64-string (cdar string-list)))
 			  :database database-connection)))
     
 
