@@ -62,8 +62,8 @@ After installing quicklisp (follow the tutorial given on the homepage), please
 create inside `~/quicklisp/local-projects/` the symlink
 
 ```bash
-    $ ln -s /path/to/vilanoo/mosgi/src/ mosgi 
-    $ ln -s /path/to/vilanoo/rawtrace-analysis/src/ analyzer
+ln -s /path/to/vilanoo/mosgi/src/ mosgi 
+ln -s /path/to/vilanoo/rawtrace-analysis/src/ analyzer
 ```
 
 *VERY IMPORTANT*: We also rely on a library that needs patches for our purposes. 
