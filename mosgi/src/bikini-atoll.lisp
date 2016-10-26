@@ -27,12 +27,19 @@
     (let ((sequence (make-array (file-length stream) :element-type '(unsigned-byte 8))))
       (read-sequence sequence stream)
       sequence)))
-    
+
+
+(defun get-string (file)
+  (with-open-file (stream file)
+    (let ((sequence (make-array (file-length stream) :element-type 'character)))
+      (read-sequence sequence stream)
+      sequence)))
+
 
 (defparameter *test* nil)
 
 (progn
-  (setf *test* (gzip-stream:gzip-sequence (get-blob "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")))
+  (setf *test* (gzip-stream:gzip-sequence (get-string "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")))
   nil)
 
 

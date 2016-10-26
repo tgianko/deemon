@@ -6,4 +6,10 @@
 
 (analyzer:main)
 	
+#|
+(defparameter *test* nil)
       
+(clsql:with-database (db (list "/home/simkoc/.vilanoo/blobTestDb.db") :database-type :sqlite3)
+  (setf *test* (xdebug:make-xdebug-trace (database:get-xdebug-entry 2 db)))
+  nil)
+|#

@@ -107,9 +107,39 @@
 		:database db-connection))
 		
 
+(clsql:def-view-class xdebug-dumps ()
+  ((http-request-id
+    :type (integer)
+    :accessor http-request-id
+    :initarg :http-request-id)
+   (dump-content
+    :type (array)
+    :initarg :dump-content)))
+
+
+(defmethod get-xdebug-blob ((xdebug-dumps xdebug-dumps))
+  (gzip-stream:gunzip-sequence (read (make-string-input-stream (slot-value xdebug-dumps 'dump-content)))))
+
+
+(defun get-xdebug-object-entry (id db-connection)
+  (caar 
+   (clsql:select 'xdebug-dumps
+                 :WHERE [= [HTTP-REQUEST-ID] id]
+                 :database db-connection)))
+  
+
+(defun get-xdebug-entry (id db-connection)
+  (flexi-streams:octets-to-string 
+   (get-xdebug-blob
+    (get-xdebug-object-entry id db-connection))
+   :external-format :utf-8))
+
+
+#|
 (defun get-xdebug-entry (id db-connection)
   (caar 
    (clsql:select [DUMP-CONTENT]
 		 :FROM [XDEBUG-DUMPS]
 		 :WHERE [= [HTTP-REQUEST-ID] id] 
 		 :database db-connection)))
+|#
