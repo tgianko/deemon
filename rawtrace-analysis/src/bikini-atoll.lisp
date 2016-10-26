@@ -1,8 +1,10 @@
 (setf *posix-argv* 
       '("/useless/exec/path"
-	"--sink-database" "/home/simkoc/.vilanoo/vilanoo-analysis.db"
-	"--source-database" "/home/simkoc/.vilanoo/vilanoo.db"
-	"--sink-schema" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
+        "-v" "/home/simkoc/.vilanoo/oxidTS01-change-password-201610261737-vilanoo.db"
+        "-m" "/home/simkoc/.vilanoo/oxidTS01-change-password-201610261737-mosgi.db" 
+        "-d" "/home/simkoc/.vilanoo/oxidTS01-change-password-201610261737-analyzed.db"
+        "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
+
 
 (analyzer:main)
 	

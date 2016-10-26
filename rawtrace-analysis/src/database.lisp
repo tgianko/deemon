@@ -132,10 +132,11 @@
   
 
 (defun get-xdebug-entry (id db-connection)
-  (flexi-streams:octets-to-string 
-   (get-xdebug-blob
-    (get-xdebug-object-entry id db-connection))
-   :external-format :utf-8))
+  (let ((entry (get-xdebug-object-entry id db-connection)))
+    (if entry 
+        (flexi-streams:octets-to-string 
+         (get-xdebug-blob entry))
+        nil)))
 
 
 #|
