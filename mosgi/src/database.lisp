@@ -27,40 +27,10 @@
     :initarg :dump-content)))
 
 
-(defparameter *subsequence-size* 1000000)
-
 
 (defun enter-xdebug-file-raw-into-db (xdebug-blob request-db-id database-connection com-func)
   (declare (ignore com-func))
   (let ((instance (make-instance 'xdebug-dumps
-                                 :dump-content xdebug-blob
+                                 :dump-content (gzip-stream:gzip-sequence xdebug-blob) ;I hate this scheme but compression is needed else heap exhaustion
                                  :http-request-id request-db-id)))
     (clsql:update-records-from-instance instance :database database-connection)))
-
-
-#|
-  (clsql:insert-records :INTO [XDEBUG-DUMPS]
-			:ATTRIBUTES '([HTTP-REQUEST-ID] [DUMP-CONTENT])
-			:VALUES (list request-db-id xdebug-blob)
-			:database database-connection))
-|#
-
-
-(defun replace-all (string part replacement &key (test #'char=))
-  "Returns a new string in which all the occurences of the part 
-is replaced with replacement."
-  (with-output-to-string (out)
-    (loop with part-length = (length part)
-          for old-pos = 0 then (+ pos part-length)
-          for pos = (search part string
-                            :start2 old-pos
-                            :test test)
-          do (write-string string out
-                           :start old-pos
-                           :end (or pos (length string)))
-          when pos do (write-string replacement out)
-          while pos)))
-
-
-#|
-|#

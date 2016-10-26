@@ -6,7 +6,8 @@
 		 :cl-ppcre
 		 :unix-opts
 		 :clsql
-		 :sb-concurrency)
+		 :sb-concurrency
+                 :gzip-stream)
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
 		 (:file "ssh-interface" :depends-on ("packages"))

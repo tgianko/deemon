@@ -21,16 +21,33 @@
 (mosgi:main)
 
 
+#|
+(defun get-blob (file)
+  (with-open-file (stream file :element-type '(unsigned-byte 8))
+    (let ((sequence (make-array (file-length stream) :element-type '(unsigned-byte 8))))
+      (read-sequence sequence stream)
+      sequence)))
+    
 
+(defparameter *test* nil)
+
+(progn
+  (setf *test* (gzip-stream:gzip-sequence (get-blob "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")))
+  nil)
+
+
+(defparameter *test-2* nil)
+
+(progn 
+  (setf *test-2* (get-blob "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt"))
+  nil)
+        
 (clsql:with-database (db (list "/home/simkoc/.vilanoo/blobTestDb.db") :database-type :sqlite3)
-  (database:enter-xdebug-file-raw-into-db 
-   (ssh:get-file-as-blob "/tmp/test.t"
-                         "root"
-                         "192.168.56.101"
-                         "bitnami")
-   1
-   db
-   #'(lambda (string)
-       (FORMAT T "~a~%" string))))
- 
+  (database:enter-xdebug-file-raw-into-db *test*
+                                          2
+                                          db
+                                          #'(lambda (string)
+                                              (FORMAT T "~a~%" string))))
 
+(sb-thread:destroy-thread (cadr (sb-thread:list-all-threads)))
+|#
