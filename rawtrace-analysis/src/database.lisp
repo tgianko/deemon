@@ -101,10 +101,13 @@
 
 
 (defun get-all-session-entries (id db-connection)
-  (clsql:select [SESSION-NAME] [SESSION-STRING]
-		:FROM [SESSIONS]
-		:WHERE [= [HTTP-REQUEST-ID] id]
-		:database db-connection))
+  (mapcar #'(lambda (entries)
+              (list (car entries)
+                    (cl-base64:base64-string-to-string  (cadr entries))))
+          (clsql:select [SESSION-NAME] [SESSION-STRING]
+                        :FROM [SESSIONS]
+                        :WHERE [= [HTTP-REQUEST-ID] id]
+                        :database db-connection)))
 		
 
 (clsql:def-view-class xdebug-dumps ()
