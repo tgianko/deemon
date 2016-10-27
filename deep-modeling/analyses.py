@@ -5,7 +5,10 @@ import utils.log as log
 from py2neo.database import Graph
 from py2neo import watch
 from shared.config import *
+<<<<<<< HEAD
 from api.datamodel.selenese import *
+=======
+>>>>>>> 7fa9b299547337c71252e0a0976718ce9dd305b2
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]

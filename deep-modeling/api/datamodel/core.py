@@ -53,6 +53,7 @@ class AbstractObservation(BasicNode):
         self.user    = user
 
 
+
 """
 Finite-State Machines
 """
@@ -66,6 +67,7 @@ class FSMStateTransition(BasicNode):
     def __init__(self, projname):
         super(FSMStateTransition, self).__init__(projname)
 
+
 class FSMState(BasicNode):
     """ Describe a state of a finite-state machine
     """
@@ -73,6 +75,8 @@ class FSMState(BasicNode):
     state_id   = Property()
 
     Has = RelatedTo("FSMStateTransition")
+
+    Transition = RelatedTo("FSMState")
 
     def __init__(self, state_id):
         super(FSMState, self).__init__(projname)
@@ -108,6 +112,17 @@ class DFAStateTransition(FSMStateTransition):
 """
 Causality
 """
+
+class AbstractFSMState(BasicNode):
+    """ Describe a state of a finite-state machine
+    """
+
+    Abstracts = RelatedTo(FSMState)
+    Transition = RelatedTo("AbstractFSMState")
+
+    def __init__(self, state_id):
+        super(AbstractFSMState, self).__init__(projname, state_id)
+
 
 class CausalNode(GraphObject):
     """ Establishe causality relationship of the type "A Causes B" 
