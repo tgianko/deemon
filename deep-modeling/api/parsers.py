@@ -1,37 +1,50 @@
 from urlparse import urlparse, parse_qs
 from datamodel.core import *
-from datamodel.selenese import *
-from datamodel.http import *
-from datamodel.sql import *
-# from core import *
 from cStringIO import StringIO
 import multipart
 import re
 import sqlparse
 import sqlparse.tokens as sqlptokens
+from dm_types import *
+import Cookie
 
 
 def parse_url(url, projname):
     scheme, netloc, path, params, query, fragment = urlparse(url)
-    url_n = URL(projname, url)
-    url_n.Scheme.add(DataValue(projname, scheme))
-    url_n.Netloc.add(DataValue(projname, netloc))
+
+    url_n = ParseTree(projname, URL)
+
+    pos = 0
+
+    url_n.HasChild.add(PTTerminalNode(projname, URL, scheme, pos))
+    pos += 1
+    url_n.HasChild.add(PTTerminalNode(projname, URL, netloc, pos))
+    pos += 1
 
     if len(path) > 0:
-        url_n.Path.add(DataValue(projname, scheme))
+        url_n.HasChild.add(PTTerminalNode(projname, URL, path, pos))
+        pos += 1
 
     if len(params) > 0:
-        url_n.Params.add(DataValue(projname, params))
+        url_n.HasChild.add(PTTerminalNode(projname, URL, params, pos))
+        pos += 1
     
     if len(query) > 0:
         # Create KeyValuePair
+        query_n = PTNonTerminalNode(projname, URL, pos)
+        pos += 1
+        q_pos = 0  
         for k, vs in parse_qs(query).iteritems():
             for v in vs:
-                p = KeyValuePair(projname, k, v)
-                url_n.QueryString.add(p)
+                query_n.HasChild.add(PTTerminalNode(projname, URL, k, q_pos))
+                query_n.HasChild.add(PTTerminalNode(projname, URL, v, q_pos+1))
+                q_pos += 2
+        url_n.HasChild.add(query_n)
+
+
         
     if len(fragment) > 0:
-        url_n.Fragment.add(DataValue(projname, fragment))
+        url_n.HasChild.add(PTTerminalNode(projname, URL, fragment, pos))
 
     return url_n
 
@@ -53,8 +66,31 @@ def headers_to_list(hdrs):
             for hdr in hdrs]  # from list of strings to  list of (k,v)
     return hdrs
 
+def parse_cookie(hdrname, hdrval, projname):
+    dm_type = None
+    if hdrname.lower() == "cookie":
+        dm_type = COOKIE
+    elif hdrname.lower() == "set-cookie":
+        dm_type = SETCOOKIE
+    
+    n = ParseTree(projname, dm_type)   
 
-def parse_headers(hdrs, projname):
+    cookiep = Cookie.SimpleCookie()
+    cookiep.load(str(hdrval))
+
+    pos = 0
+
+    for k in cookiep:
+        kv_n = PTNonTerminalNode(projname, dm_type, pos)
+        k_n  = PTTerminalNode(projname, dm_type, k, 0) 
+        v_n  = PTTerminalNode(projname, dm_type, cookiep[k].value, 1)
+        kv_n.HasChild.add(k_n)
+        kv_n.HasChild.add(v_n)
+        n.HasChild.add(kv_n)
+        pos+=1
+    return n
+
+def parse_headers(hdrs, projname, dm_type):
     hdrs = headers_to_list(hdrs)
 
     def keep(h):
@@ -64,11 +100,25 @@ def parse_headers(hdrs, projname):
         return True
     hdrs = filter(keep, hdrs)  # Remove blacklisted headers
 
-    hdrs_n = HeaderList(projname)
+    hdrs_n = PTNonTerminalNode(projname, dm_type, -1)
+    pos = 0
     for k, v in hdrs:
         v = v.strip()
-        kv_n = KeyValuePair(projname, k, v)
-        hdrs_n.Header.add(kv_n)
+        kv_n = PTNonTerminalNode(projname, dm_type, pos)
+        k_n  = PTTerminalNode(projname, dm_type, k, 0)
+        if k.lower() in ["cookie", "set-cookie"]:
+            v_n = parse_cookie(k, v, projname)
+            v_n.pos = pos
+        elif k.lower() in ["referer", "origin"]:
+            v_n = parse_url(v, projname)
+            v_n.pos = pos
+        else:
+            v_n  = PTTerminalNode(projname, dm_type, v, 1)
+        
+        kv_n.HasChild.add(k_n)
+        kv_n.HasChild.add(v_n)
+        pos+=1
+        hdrs_n.HasChild.add(kv_n)
     
     return hdrs_n
 
@@ -81,21 +131,29 @@ def content_type(hdrs):
     return None
 
 
-def parse_body(body, ctype, projname):
-    body_n = Body(projname, ctype)
+def parse_body(body, ctype, projname, dm_type):
+
     if "multipart/form-data" in ctype:
         # parse multipart/form-data body
+        body_n = ParseTree(projname, MULTIPART)
         s_obj = StringIO(body)
         boundary = ctype.split("; boundary=")[1]
         mp = multipart.MultipartParser(s_obj, boundary)
+        pos = 0
         for part in mp:
             k = part.options.get("name")
             v = part.value
-            kv_n = KeyValuePair(projname, k, v)
-            body_n.Contains.add(kv_n)
+            kv_n = ParseTree(projname, MULTIPART, pos)
+            k_n  = PTTerminalNode(projname, dm_type, k, 0)
+            v_n  = PTTerminalNode(projname, dm_type, v, 1)
+            kv_n.HasChild.add(k_n)
+            kv_n.HasChild.add(v_n)
+            body_n.HasChild.add(kv_n)
+            pos+=1
 
+        return body_n
     elif "application/x-www-form-urlencoded" in ctype:
-        pass
+        raise Exception("application/x-www-form-urlencoded")
         # parse application/x-www-form-urlencoded body
         # for k, vs in parse_qs(query).iteritems():  # TODO:query is undefined
         #    for v in vs:
@@ -103,51 +161,68 @@ def parse_body(body, ctype, projname):
         #        body_n.Contains.add(p)
     else:
         # No JSON yet...
-        s_n = DataValue(projname, body)
-        body_n.Contains.add(s_n)
+        body_n = ParseTree(projname, ctype)
+        s_n = PTTerminalNode(projname, dm_type, body, 0)
+        body_n.HasChild.add(s_n)
+        return body_n
     
-    return body_n
+    
 
 
 def parse_httpreq(method, url, hdrs, body, seq, ts, projname, session, user):
-    hreq_n = HTTPRequest(projname, session, user, seq, ts, method, url)
+    hreq_n = ParseTree(projname, HTTPREQ)
+
+    hreq_n.HasChild.add(PTTerminalNode(projname, HTTPREQ, method, 0))
 
     url_n = parse_url(url, projname)
-    hreq_n.URL.add(url_n)
+    url_n.pos = 1
+    hreq_n.HasChild.add(url_n)
 
-    hdrs_n = parse_headers(hdrs, projname)
-    hreq_n.Header.add(hdrs_n)
+    hdrs_n = parse_headers(hdrs, projname, HTTPREQ)
+    hdrs_n.pos = 2
+    hreq_n.HasChild.add(hdrs_n)
 
     ctype = content_type(hdrs)
     if ctype:
-        body_n = parse_body(body, ctype, projname)
-        hreq_n.Body.add(body_n)
+        body_n = parse_body(body, ctype, projname, HTTPREQ)
+        body_n.pos = 3
+        hreq_n.HasChild.add(body_n)
 
     return hreq_n
 
 
 def parse_httpres(status, hdrs, body, seq, ts, projname, session, user):
-    hres_n = HTTPResponse(projname, session, user, seq, ts, status)
+    hres_n = ParseTree(projname, HTTPRESP)
 
-    hdrs_n = parse_headers(hdrs, projname)
-    hres_n.Header.add(hdrs_n)
+    hres_n.HasChild.add(PTTerminalNode(projname, HTTPRESP, status, 0))
+
+    hdrs_n = parse_headers(hdrs, projname, HTTPRESP)
+    hdrs_n.pos = 1
+    hres_n.HasChild.add(hdrs_n)
 
     ctype = content_type(hdrs)
     if ctype:
-        body_n = parse_body(body, ctype, projname)
-        hres_n.Body.add(body_n)
+        body_n = parse_body(body, ctype, projname, HTTPRESP)
+        body_n.pos = 2
+        hres_n.HasChild.add(body_n)
 
     return hres_n
 
 
-def parse_selcmd(command, target, value, seq, ts, projname, session, user):
-    cmd_n = SeleneseCommand(projname, session, user, seq,
-                                ts, command, target, value)
-    cmd_n.Command.add(DataValue(projname, command))
-    cmd_n.Target.add(DataValue(projname, target))
-    cmd_n.Value.add(DataValue(projname, value))
 
-    return cmd_n
+def parse_selcmd(command, target, value, seq, ts, projname, session, user):
+    sel_n = ParseTree(projname, SELENESE)
+    
+    pairs = [("command", command, 0), ("target", target, 1), ("value", value, 2)]
+    for n, v, i in pairs:
+        nt = PTNonTerminalNode(projname, SELENESE, i)
+        t_n  = PTTerminalNode(projname, SELENESE, n, 0)
+        t_v  = PTTerminalNode(projname, SELENESE, v, 1)
+        nt.HasChild.add(t_n)
+        nt.HasChild.add(t_v)
+        sel_n.HasChild.add(nt)
+
+    return sel_n
 
 
 def visit_sqlast(ast, i, n):

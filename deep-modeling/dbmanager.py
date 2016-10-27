@@ -2,17 +2,15 @@
 import sys
 import argparse
 import utils.log as log
-from api.datamodel.selenese import *
-from api.datamodel.http import *
-from api.datamodel.sql import *
+from api.datamodel.core import *
 from api.acquisition import *
 from py2neo.database import Graph
 from py2neo import watch
 import sqlite3 as lite
 from shared.config import *
 
-from dataflow import insert_data_flows
-from modelAbstractor import add_full_abstraction_layer
+# from dataflow import insert_data_flows
+# from modelAbstractor import add_full_abstraction_layer
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
@@ -27,19 +25,31 @@ else:
 # args_obj = None #global variables are the devils tool
 
 # really dislike havin the setup code here!
-UNIQUENESS = [SeleneseCommand.__name__,
-              HTTPRequest.__name__,
-              HTTPResponse.__name__,
-              SQLQuery.__name__]
+UNIQUENESS = [DFAState.__name__,
+              DFAStateTransition.__name__,
+              Event.__name__,
+              ParseTree.__name__,
+              PTTerminalNode.__name__,
+              PTNonTerminalNode.__name__,
+              Variable.__name__
+              ]
 
-INDEX = [(SeleneseCommand.__name__,
-          ["projname", "seq", "session", "user"]),
-         (HTTPRequest.__name__,
-          ["projname", "seq", "session", "user"]),
-         (HTTPResponse.__name__,
-          ["projname", "seq", "session", "user"]),
-         (SQLQuery.__name__,
-          ["projname", "seq", "session", "user"])]
+INDEX = [
+         (DFAState.__name__,
+            ["projname", "dm_type"]),
+         (DFAStateTransition.__name__,
+            ["projname", "dm_type"]),
+         (Event.__name__,
+            ["projname", "seq", "session", "user", "dm_type"]),
+         (ParseTree.__name__,
+            ["projname", "dm_type"]),
+         (PTTerminalNode.__name__,
+            ["projname", "dm_type"]),
+         (PTNonTerminalNode.__name__,
+            ["projname", "dm_type"]),
+         (Variable.__name__,
+            ["projname", "seq", "session", "user", "dm_type"]),
+         ]
 
 
 def load_selcmd_sqlite(fname, logger=None):
@@ -171,56 +181,53 @@ def import_all(args, graph, logger=None):
 
     import_rel_selhttp(args, graph, logger)
 
-    import_sql(args, graph, logger)
+    #import_sql(args, graph, logger)
 
-    import_session(args, graph, logger)
+    #import_session(args, graph, logger)
 
 
 def import_selenese(args, graph, logger=None):
     cmdlist = load_selcmd_sqlite(args.raw_filename)
-    insert_selenese_commands(graph, cmdlist, args.projname,
-                                             args.session, args.user, logger)
-
+    insert_selenese(graph, cmdlist, args.projname,
+                                     args.session, args.user, logger)
+    
 
 def import_http(args, graph, logger=None):
     hreqs = load_hreqs_sqlite(args.raw_filename)
-    insert_httpreqs(graph, hreqs, args.projname,
+    hress = load_hres_sqlite(args.raw_filename)
+    insert_http(graph, hreqs, hress, args.projname,
                                     args.session, args.user, logger)
 
-    hress = load_hres_sqlite(args.raw_filename)
-    insert_httpresps(graph, hress, args.projname,
-                                     args.session, args.user, logger)
-
-
+    
 def import_rel_selhttp(args, graph, logger=None):
     ids = load_cmd2http_sqlite(args.raw_filename)
-    insert_cmd2http(graph, ids, args.projname,
+    insert_causality_selhttp(graph, ids, args.projname,
                                     args.session, args.user, logger)
 
 
-def import_sql(args, graph, logger=None):
-    ids = load_queries_sqlite(args.parsed_filename)
-    insert_queries(graph, ids, args.projname,
-                                   args.session, args.user, logger)
+# def import_sql(args, graph, logger=None):
+#     ids = load_queries_sqlite(args.parsed_filename)
+#     insert_queries(graph, ids, args.projname,
+#                                    args.session, args.user, logger)
 
 
-def import_session(args, graph, logger=None):
-    sessions = load_php_sessions(args.parsed_filename)
-    insert_sessions(graph, sessions, args.projname,
-                                    args.session, args.user, logger)
+# def import_session(args, graph, logger=None):
+#     sessions = load_php_sessions(args.parsed_filename)
+#     insert_sessions(graph, sessions, args.projname,
+#                                     args.session, args.user, logger)
 
 
-def do_analysis_dataprop(args, graph, logger=None):
-    insert_data_flows(graph, logger)
+# def do_analysis_dataprop(args, graph, logger=None):
+#     insert_data_flows(graph, logger)
 
 
-def do_analysis_abstraction(args, graph, logger=None):
-    add_full_abstraction_layer(graph, logger)
+# def do_analysis_abstraction(args, graph, logger=None):
+#     add_full_abstraction_layer(graph, logger)
 
 
-def do_analysis_all(args, graph, logger=None):
-    do_analysis_dataprop(args, graph, logger=logger)
-    do_analysis_abstraction(args, graph, logger=logger)
+# def do_analysis_all(args, graph, logger=None):
+#     do_analysis_dataprop(args, graph, logger=logger)
+#     do_analysis_abstraction(args, graph, logger=logger)
 
 
 def parse_args(args):
@@ -236,21 +243,26 @@ def parse_args(args):
     imp_p = subp.add_parser("import", help="Import data")
     imp_subp = imp_p.add_subparsers()
 
-    analysis_p = subp.add_parser("analysis", help="analysing existing graph")
-    analysis_subp = analysis_p.add_subparsers()
+    """
+    Analysis
+    """
 
-    analysis_dataprop = analysis_subp.add_parser("datapropagation",
-                                                 help="add datapropagation\
- relationships")
-    analysis_dataprop.set_defaults(func=do_analysis_dataprop)
+ #    analysis_p = subp.add_parser("analysis", help="analysing existing graph")
+ #    analysis_subp = analysis_p.add_subparsers()
+ #    analysis_dataprop = analysis_subp.add_parser("datapropagation",
+ #                                                 help="add datapropagation\
+ # relationships")
+ #    analysis_dataprop.set_defaults(func=do_analysis_dataprop)
+ #    analysis_abstract = analysis_subp.add_parser("databstraction",
+ #                                                 help="add abstraction layer")
+ #    analysis_abstract.set_defaults(func=do_analysis_abstraction)
+ #    analysis_all = analysis_subp.add_parser("all",
+ #                                            help="do all avail. analysis")
+ #    analysis_all.set_defaults(func=do_analysis_all)
 
-    analysis_abstract = analysis_subp.add_parser("databstraction",
-                                                 help="add abstraction layer")
-    analysis_abstract.set_defaults(func=do_analysis_abstraction)
-
-    analysis_all = analysis_subp.add_parser("all",
-                                            help="do all avail. analysis")
-    analysis_all.set_defaults(func=do_analysis_all)
+    """
+    Import all
+    """
 
     imp_all_p = imp_subp.add_parser("all", help="Import all data into Neo4j")
     imp_all_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
@@ -260,6 +272,10 @@ def parse_args(args):
     imp_all_p.add_argument("session",  help="Session identifier")
     imp_all_p.add_argument("user",     help="User identifier")
     imp_all_p.set_defaults(func=import_all)
+
+    """
+    Import Selenese
+    """
 
     imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese Commands\
  from vilanoo2 SQLite3 database")
@@ -289,14 +305,14 @@ def parse_args(args):
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_rel_selhttp)
 
-    imp_sel_p = imp_subp.add_parser("sql", help="Import SQL queries\
- from Analyzer SQLite3 database")
-    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
- database filename")
-    imp_sel_p.add_argument("projname", help="Project name")
-    imp_sel_p.add_argument("session",  help="Session identifier")
-    imp_sel_p.add_argument("user",     help="User identifier")
-    imp_sel_p.set_defaults(func=import_sql)
+ #    imp_sel_p = imp_subp.add_parser("sql", help="Import SQL queries\
+ # from Analyzer SQLite3 database")
+ #    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
+ # database filename")
+ #    imp_sel_p.add_argument("projname", help="Project name")
+ #    imp_sel_p.add_argument("session",  help="Session identifier")
+ #    imp_sel_p.add_argument("user",     help="User identifier")
+ #    imp_sel_p.set_defaults(func=import_sql)
 
     return p.parse_args(args)
 

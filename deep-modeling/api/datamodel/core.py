@@ -14,153 +14,143 @@ class BasicNode(GraphObject):
 
     projname = Property()
 
-    def __init__(self, projname):
+    dm_type  = Property()
+
+    def __init__(self, projname, dm_type=None):
         self.projname = projname
+        self.dm_type  = dm_type
         self.uuid = str(uuid4())
 
-"""
-Observation
-"""
-
-class Observation(BasicNode):
-    """ Describe an observation of a dynamic trace
-    """
-
-    session  = Property()
-    user     = Property()
-    seq      = Property()
-    ts       = Property()
-
-    Next     = RelatedTo("Observation")
-
-    def __init__(self, projname, session, user, seq, ts):
-        super(Observation, self).__init__(projname)
-        self.session = session
-        self.user    = user
-        self.seq     = seq
-        self.ts      = ts
-
-class AbstractObservation(BasicNode):
-    """ Describe an abstract observation
-    """
-
-    Next     = RelatedTo("AbstractObservation")
-    Abstracts = RelatedTo(Observation)
-
-    def __init__(self, projname, session, user):
-        super(AbstractObservation, self).__init__(projname)
-        self.session = session
-        self.user    = user
-
-
 
 """
-Finite-State Machines
+**************************
+        DFA
+**************************
 """
 
-class FSMStateTransition(BasicNode):
-    """ Describe a transition between states
-    """
-
-    To = RelatedTo("FSMState")
-    
-    def __init__(self, projname):
-        super(FSMStateTransition, self).__init__(projname)
-
-
-class FSMState(BasicNode):
-    """ Describe a state of a finite-state machine
-    """
-
-    state_id   = Property()
-
-    Has = RelatedTo("FSMStateTransition")
-
-    Transition = RelatedTo("FSMState")
-
-    def __init__(self, state_id):
-        super(FSMState, self).__init__(projname)
-        self.state_id = state_id
-
-"""
-Deterministic Finite Automaton
-"""
-
-class DFAState(FSMState):
+class DFAState(BasicNode):
     """ Describe a state of a DFA
     """
 
     state_id   = Property()
 
-    Has = RelatedTo("DFAStateTransition")
+    HasTransition = RelatedTo("DFAStateTransition")
 
-    def __init__(self, state_id):
-        super(DFAState, self).__init__(projname, state_id)
+    def __init__(self, projname, dm_type, state_id):
+        super(DFAState, self).__init__(projname, dm_type, state_id)
 
-class DFAStateTransition(FSMStateTransition):
+class DFAStateTransition(BasicNode):
     """ Describe a transition between states
     """
 
     accepted = Property()
 
     To = RelatedTo("FSMState")
-    Accepts = RelatedTo(["Observation", "AbstractObservation"])
+    Accepts = RelatedTo(["Event", "ParseTree"])
     
-    def __init__(self, projname, symbol):
-        super(DFAStateTransition, self).__init__(projname)
+    def __init__(self, projname, dm_type, symbol):
+        super(DFAStateTransition, self).__init__(projname, dm_type)
+
 
 """
-Causality
+**************************
+        TRACE
+**************************
 """
 
-class AbstractFSMState(BasicNode):
-    """ Describe a state of a finite-state machine
+class Event(BasicNode):
+    """ Describe an observation of a dynamic trace
     """
 
-    Abstracts = RelatedTo(FSMState)
-    Transition = RelatedTo("AbstractFSMState")
+    session = Property()
+    user    = Property()
+    seq     = Property()
+    ts      = Property()
+    message = Property()
 
-    def __init__(self, state_id):
-        super(AbstractFSMState, self).__init__(projname, state_id)
+    IsFollowedBy = RelatedTo("Event")
+    Caused       = RelatedTo("Event")
+
+    def __init__(self, projname, dm_type, session, user, seq, ts, message):
+        super(Event, self).__init__(projname ,dm_type)
+        self.session = session
+        self.user    = user
+        self.seq     = seq
+        self.ts      = ts
+        self.message = message
 
 
-class CausalNode(GraphObject):
-    """ Establishe causality relationship of the type "A Causes B" 
-    where A is a class extending CausalNode and B a BasicNode.
+"""
+**************************
+        PARSE TREE
+**************************
+"""
+
+class ParseTree(BasicNode):
+    """ Root of a parse tree
     """
 
-    Causes = RelatedTo(BasicNode)
+    dm_type   = Property()
+    pos       = Property()
+
+    HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode"])
+    Parses    = RelatedTo("Event")
+
+    def __init__(self, projname, dm_type, pos=-1):
+        super(ParseTree, self).__init__(projname, dm_type)
+        self.pos = pos
 
 
-class BasicValue(BasicNode):
+class PTTerminalNode(BasicNode):
+    """ Terminal node of a parse tree
+    """
+
+    dm_type   = Property()
+    symbol    = Property()
+    pos       = Property()
+
+    def __init__(self, projname, dm_type, symbol, pos):
+        super(PTTerminalNode, self).__init__(projname, dm_type)
+        self.symbol = symbol
+        self.pos = pos
+
+
+class PTNonTerminalNode(BasicNode):
+    """ Non terminal node of a parse tree
+    """
+
+    dm_type   = Property()
+
+    HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode", "ParseTree"]) # Here is a ParseTree for Hierarchical parse trees
+
+    def __init__(self, projname, dm_type, pos):
+        super(PTNonTerminalNode, self).__init__(projname, dm_type)
+        self.pos = pos
+
+
+"""
+**************************
+        DATA FLOW
+**************************
+"""
+
+class Variable(BasicNode):
     """ This represent a basic value
     """
 
-    value = Property()
+    session      = Property()
+    user         = Property()
+    seq          = Property()
+    name         = Property()
+    value        = Property()
+    vtype        = Property()
 
-    Propagates = RelatedTo(["BasicValue", "DataValue", "KeyValuePair"]) # here we list all nodes that can be connected in chains
+    PropagatesTo = RelatedTo("Variable") # here we list all nodes that can be connected in chains
+    HasName      = RelatedTo(["PTTerminalNode"])
+    HasValue     = RelatedTo(["PTTerminalNode"])
+    BelongsTo    = RelatedTo(["DFAState"])
 
-    def __init__(self, projname, value):
-        super(BasicValue, self).__init__(projname)
+    def __init__(self, projname, dm_type, name, value):
+        super(Variable, self).__init__(projname, dm_type)
         self.value = value
-
-
-
-class DataValue(BasicValue):
-
-    tags  = Property()
-
-    def __init__(self, projname, value, tags=[]):
-        super(DataValue, self).__init__(projname, value)
-        self.tags=tags
-
-
-class KeyValuePair(BasicValue):
-
-    key   = Property()
-    tags  = Property()
-
-    def __init__(self, projname, key, value, tags=[]):
-        super(KeyValuePair, self).__init__(projname, value)
-        self.key   = key
-        self.tags  = tags
+        self.name = name

@@ -1,101 +1,108 @@
 from parsers import *
 from datamodel.core import *
-from datamodel.selenese import *
-from datamodel.http import *
-from datamodel.sql import *
+from dm_types import *
 
 
-def insert_selenese_commands(graph, cmdlist, projname,
+def insert_selenese(graph, cmdlist, projname,
                              session, user, logger=None):
     if logger is not None:
-        logger.info("Importing {} commands...".format(len(cmdlist)))
+        logger.info("Importing {} Selenese Commands...".format(len(cmdlist)))
     # just in case, we order by ID.
     cmdlist = sorted(cmdlist, key=lambda cmd: cmd[0])
 
-    prev_cmd_n = None
+    prev_evt = None
     for cmd in cmdlist:
         if logger is not None:
-            logger.info("Processing Command ID {} / {}".format(cmd[0],
+            logger.info("Adding Selenese Command (PT and Trace) {} / {}".format(cmd[0],
                                                                len(cmdlist)))
-        cmd_n = parse_selcmd(cmd[2], cmd[3], cmd[4], cmd[0],
-                                    None, projname, session, user)
-
-        if prev_cmd_n:
-            prev_cmd_n.Next.add(cmd_n)
-            graph.push(prev_cmd_n)
+        seq     = cmd[0]
+        command = cmd[2]
+        target  = cmd[3]
+        value   = cmd[4]
         
-        graph.push(cmd_n)
+        message = "command={}, target={}, value={}".format(command, target, value)
+        evt = Event(projname, SELENESE, session, user, seq, None, message)
+        pt  = parse_selcmd(command, target, value, seq,
+                                    None, projname, session, user)
+        pt.Parses.add(evt)
 
-        prev_cmd_n = cmd_n
+        graph.push(pt)
 
+        if prev_evt:
+            prev_evt.IsFollowedBy.add(evt)
+            graph.push(prev_evt)
+        
+        prev_evt = evt  
 
-def insert_httpreqs(graph, reqlist, projname, session, user, logger=None):
+ 
+def insert_http(graph, reqlist, resplist, projname, session, user, logger=None):
     if logger is not None:
-        logger.info("Importing {} HTTP requests...".format(len(reqlist)))
+        logger.info("Importing {} HTTP messages...".format(len(reqlist)))
     # just in case, we order by ID.
-    reqlist = sorted(reqlist, key=lambda r: r[0])
+    reqlist = sorted(reqlist,  key=lambda r: r[0])
+    resplist = sorted(resplist, key=lambda r: r[0])
     
-    prev_hreq_n = None
+    prev_evt_res = None
     i = 1
-    for hreq in reqlist:
-        logger.info("Processing HTTP Request ID {} ({}/{})".format(hreq[0], i,
+    for hreq, hres in zip(reqlist, resplist):
+        seq     = hreq[0]
+        logger.info("Adding HTTP Messages (PT and Trace) {} ({}/{})".format(hreq[0], i,
                                                                 len(reqlist)))
-        hreq_n = parse_httpreq(hreq[6], hreq[3], hreq[5],
+        message = "{} {}".format(hreq[6], hreq[3])
+        evt_req = Event(projname, HTTPREQ, session, user, hreq[0], hreq[2], message)
+        pt_req = parse_httpreq(hreq[6], hreq[3], hreq[5],
                                      hreq[4], hreq[0], hreq[2],
                                       projname, session, user)
-        if prev_hreq_n:
-            prev_hreq_n.Next.add(hreq_n)
-            graph.push(prev_hreq_n)
-        
-        graph.push(hreq_n)
-        prev_hreq_n = hreq_n
-        i += 1
+        pt_req.Parses.add(evt_req)
 
+        graph.push(evt_req)
+        graph.push(pt_req)
 
-def insert_httpresps(graph, resplist, projname, session, user, logger=None):
-    if logger is not None:
-        logger.info("Importing {} HTTP responses and relationships\
- with HTTP requests...".format(len(resplist)))
-    # just in case, we order by ID.
-    resplist = sorted(resplist, key=lambda r: r[0])
-    i = 1
-    for hres in resplist:
-        if logger is not None:
-            logger.info("Processing HTTP Response\
- ID {} ({}/{})".format(hres[0], i, len(resplist)))
-        hres_n = parse_httpres(hres[3], hres[4], hres[5],
+        message = "{}".format(hres[3])
+        evt_res = Event(projname, HTTPRESP, session, user, hres[0], hres[2], message)
+        pt_res = parse_httpres(hres[3], hres[4], hres[5],
                                       hres[0], hres[2], projname,
                                       session, user)
+        pt_res.Parses.add(evt_res)
+        evt_req.IsFollowedBy.add(evt_res)
+
+        graph.push(evt_res)
+        graph.push(pt_res)
+
+        if prev_evt_res:
+            prev_evt_res.IsFollowedBy.add(evt_req)
+            graph.push(prev_evt_res)
         
-        hreq_n = HTTPRequest.select(graph).where(seq=hres[1],
-                                                     projname=projname,
-                                                     session=session,
-                                                     user=user).first()
-        hreq_n.Transaction.add(hres_n)
-        graph.push(hreq_n)
-        graph.push(hres_n)
-        i += 1
+        graph.push(evt_req)
+
+        prev_evt_res = evt_res
+        i += 2
 
 
-def insert_cmd2http(graph, idlist, projname, session, user, logger=None):
+
+
+def insert_causality_selhttp(graph, idlist, projname, session, user, logger=None):
     if logger is not None:
-        logger.info("Importing {} relationships between Selenese\
+        logger.info("Importing {} causality between Selenese\
  commands and HTTP requests...".format(len(idlist)))
     i = 1
     for rid, cmdid in idlist:
         if logger is not None:
             logger.info("Processing Selense command ID {} ->\
  HTTP request ID {} ({}/{})".format(cmdid, rid, i, len(idlist)))
-        cmd_n = SeleneseCommand.select(graph).where(seq=cmdid,
-                                                        projname=projname,
-                                                        session=session,
-                                                        user=user).first()
-        hreq_n = HTTPRequest.select(graph).where(seq=rid,
-                                                     projname=projname,
-                                                     session=session,
-                                                     user=user).first()
-        cmd_n.Causes.add(hreq_n)
-        graph.push(cmd_n)
+        evt_cmd = Event.select(graph).where(seq=cmdid,
+                                          projname=projname,
+                                          session=session,
+                                          user=user,
+                                          dm_type=SELENESE).first()
+
+        evt_hreq = Event.select(graph).where(seq=rid,
+                                                 projname=projname,
+                                                 session=session,
+                                                 user=user,
+                                                 dm_type=HTTPREQ).first()
+        evt_cmd.Caused.add(evt_hreq)
+        graph.push(evt_cmd)
         i += 1
 
 
