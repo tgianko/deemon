@@ -261,9 +261,11 @@ def start_selenese_runner(fname):
     
     def _run():
         cmdline = ["java", 
-                    "-cp", "../../selenese-runner/selenese-runner-java-2.9.1-SNAPSHOT.jar",
-                    "jp.vmi.selenium.selenese.Main", 
-                    "--driver", "firefox", 
+                    #"-cp", "../../selenese-runner/selenese-runner-java-2.9.1-SNAPSHOT.jar",
+                    #"jp.vmi.selenium.selenese.Main", 
+                    "-jar",
+                    "../../selenese-runner/selenese-runner.jar",
+		            "--driver", "firefox", 
                     "--proxy", "{}:{}".format(args_obj.bind, args_obj.port),
                     "--no-proxy","*.com,*.net,*.org", 
                     "-t", "640000",
