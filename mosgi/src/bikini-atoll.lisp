@@ -21,29 +21,40 @@
 (mosgi:main)
 
 
-(defun stream->string (tmp-stream)
-  (do ((line (read-line tmp-stream nil nil)
-             (read-line tmp-stream nil nil))
-       (lines nil))
-      ((not line) (progn 
-                    (FORMAT T "COLLECTED~%")
-                    (FORMAT nil "~{~a~^~%~}" (reverse lines))))
-    (push line lines)))
+#|
+(defun get-blob (file)
+  (with-open-file (stream file :element-type '(unsigned-byte 8))
+    (let ((sequence (make-array (file-length stream) :element-type '(unsigned-byte 8))))
+      (read-sequence sequence stream)
+      sequence)))
 
 
-(ssh:convert-to-utf8-encoding "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")
+(defun get-string (file)
+  (with-open-file (stream file)
+    (let ((sequence (make-array (file-length stream) :element-type 'character)))
+      (read-sequence sequence stream)
+      sequence)))
 
 
 (defparameter *test* nil)
 
-(with-open-file (stream "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")
-  (room)
-  (setf *test* (stream->string stream))
-  (sb-ext:gc :full t)
-  (room))
-        
+(progn
+  (setf *test* (gzip-stream:gzip-sequence (get-string "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")))
+  nil)
 
-(with-open-file (stream "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt")
-  (clsql:with-database (db (list "/home/simkoc/.vilanoo/oxidTS01-change-email-201610201656-mosgi.db") :database-type :sqlite3)
-    (database:enter-xdebug-file-raw-into-db *test* 42 db #'(lambda(string)
-                                                             (FORMAT T "~a~%" string)))))
+
+(defparameter *test-2* nil)
+
+(progn 
+  (setf *test-2* (get-blob "/home/simkoc/hiwi/csrf/debugFiles/xdebug_1.xt"))
+  nil)
+        
+(clsql:with-database (db (list "/home/simkoc/.vilanoo/blobTestDb.db") :database-type :sqlite3)
+  (database:enter-xdebug-file-raw-into-db *test*
+                                          2
+                                          db
+                                          #'(lambda (string)
+                                              (FORMAT T "~a~%" string))))
+
+(sb-thread:destroy-thread (cadr (sb-thread:list-all-threads)))
+|#

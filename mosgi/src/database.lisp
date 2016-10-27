@@ -11,16 +11,26 @@
       ((not string-list) nil)
     (clsql:insert-records :INTO [SESSIONS]
 			  :ATTRIBUTES '([HTTP-REQUEST-ID] [SESSION-NAME] [SESSION-STRING])
-			  :VALUES (list request-db-id (caar string-list) (cdar string-list))
+			  :VALUES (list request-db-id (caar string-list) (cl-base64:string-to-base64-string (cdar string-list)))
 			  :database database-connection)))
     
 
 
-(defun enter-xdebug-file-raw-into-db (xdebug-file-string request-db-id database-connection com-func)
+(clsql:def-view-class xdebug-dumps ()
+  ((http-request-id
+    :type (integer)
+    :accessor http-request-id
+    :initarg :http-request-id)
+   (dump-content
+    :type (array)
+    :accessor dump-content
+    :initarg :dump-content)))
+
+
+
+(defun enter-xdebug-file-raw-into-db (xdebug-blob request-db-id database-connection com-func)
   (declare (ignore com-func))
-  (sb-ext:gc :full t)
-  (FORMAT T "about to insert~%")
-  (clsql:insert-records :INTO [XDEBUG-DUMPS]
-			:ATTRIBUTES '([HTTP-REQUEST-ID] [DUMP-CONTENT])
-			:VALUES (list request-db-id xdebug-file-string)
-			:database database-connection))
+  (let ((instance (make-instance 'xdebug-dumps
+                                 :dump-content (gzip-stream:gzip-sequence xdebug-blob) ;I hate this scheme but compression is needed else heap exhaustion
+                                 :http-request-id request-db-id)))
+    (clsql:update-records-from-instance instance :database database-connection)))

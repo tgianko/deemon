@@ -5,7 +5,10 @@
     :depends-on (:cl-ppcre
 		 :unix-opts
 		 :clsql
-		 :cl-fad)
+		 :cl-fad
+                 :gzip-stream
+                 :flexi-streams
+                 :cl-base64)
     :components ((:file "packages")
 		 (:file "php-session" :depends-on ("packages"))
 		 (:file "php-session-diff" :depends-on ("packages"

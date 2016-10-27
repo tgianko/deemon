@@ -18,7 +18,8 @@
 	   register-machine
 	   probe-machine
 	   get-all-contained-files-as-strings
-	   get-file-as-string))
+	   get-file-as-string
+           get-file-as-blob))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.communication

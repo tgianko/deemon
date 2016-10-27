@@ -16,16 +16,16 @@ handle all the nasty stuff we do not want/need to think about
 	   (function (lambda ()
 	              ,@body)))
        (dotimes (,(gensym) (+ ,counter 1))
-         (return 
-           (handler-case 
-               (funcall function)
-             (error (e)
-               (if (not (= ,counter 0))
-                   (progn 
-                     (warn (FORMAT nil "~a - ~a tries remain" e ,counter))
-                     (sleep ,delay)
-                     (decf ,counter))
-                   (error e)))))))))
+         (handler-case 
+             (return 
+               (funcall function))
+           (error (e)
+             (if (not (= ,counter 0))
+                 (progn 
+                   (warn (FORMAT nil "~a - ~a tries remain" e ,counter))
+                   (sleep ,delay)
+                   (decf ,counter))
+                 (error e))))))))
 	     
        
 
@@ -33,7 +33,7 @@ handle all the nasty stuff we do not want/need to think about
 (defun run-remote-shell-command (command username host password result-handler)
   "executes a shell command on the given host and gives the resulting stream
 to the result handler. The result of the result-handler will be returned"  
-  (limited-restart 3 4
+  (limited-restart 3 8
     (sb-thread:with-mutex (*ssh-mutex*)
       (libssh2:with-ssh-connection session (host
 					    (libssh2:make-password-auth username password)
@@ -109,8 +109,27 @@ using ssh connection with provided username host and password"
 	(FORMAT stream "~&~a" line))))) ;;TODO:conditional new line of FORMAT usen
 
 
+(defun get-file-as-blob (file-path username host password &optional (logger #'(lambda(string)
+                                                                                (FORMAT (make-broadcast-stream) "~a~%" string))))
+  "returns the binary data that represents the content of the file specified as file-path
+using ssh connection with provided username host and password"
+  (cl-fad:with-open-temporary-file (tmp-stream :direction :io :element-type '(unsigned-byte 8))
+    (scp file-path (pathname tmp-stream) username host password)
+    (finish-output tmp-stream)
+    (funcall logger (FORMAT nil "transfered ~a bytes from ~a" (file-length tmp-stream) file-path))
+    (when (not (file-position tmp-stream 0))
+      (error "unable to move to start of tmp file"))
+    (let ((sequence (make-array (file-length tmp-stream) :element-type '(unsigned-byte 8) :adjustable nil)))
+      (read-sequence sequence tmp-stream)
+      sequence)))
+
+
 (defun convert-to-utf8-encoding (file-path)
   (sb-ext:run-program "/usr/bin/vim" (list "+set nobomb | set fenc=utf8 | x" file-path)))
+
+
+(defun convert-to-ascii-encoding (file-path)
+  (sb-ext:run-program "/usr/bin/vim" (list "+set nobomb | set fenc=ascii | x" file-path)))
 
 
 (defun discard-data-lambda ()
