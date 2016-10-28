@@ -78,6 +78,8 @@ class Event(BasicNode):
         self.seq     = seq
         self.ts      = ts
         self.message = message
+        self.uuid = "{} - {}.{}.{}.{}.{}".format(dm_type, projname, session, 
+                                                 user, seq, ts)
 
 
 """
@@ -92,13 +94,16 @@ class ParseTree(BasicNode):
 
     dm_type   = Property()
     pos       = Property()
+    message   = Property()
 
     HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode"])
     Parses    = RelatedTo("Event")
 
-    def __init__(self, projname, dm_type, pos=-1):
+    def __init__(self, projname, dm_type, message, pos=-1):
         super(ParseTree, self).__init__(projname, dm_type)
-        self.pos = pos
+        self.pos     = pos
+        self.message = message
+
 
 
 class PTTerminalNode(BasicNode):
@@ -107,11 +112,13 @@ class PTTerminalNode(BasicNode):
 
     dm_type   = Property()
     symbol    = Property()
+    s_type    = Property()
     pos       = Property()
 
-    def __init__(self, projname, dm_type, symbol, pos):
+    def __init__(self, projname, dm_type, symbol, s_type, pos):
         super(PTTerminalNode, self).__init__(projname, dm_type)
         self.symbol = symbol
+        self.s_type = s_type
         self.pos = pos
 
 
@@ -120,11 +127,14 @@ class PTNonTerminalNode(BasicNode):
     """
 
     dm_type   = Property()
-
+    s_type    = Property()
+    pos       = Property()
     HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode", "ParseTree"]) # Here is a ParseTree for Hierarchical parse trees
 
-    def __init__(self, projname, dm_type, pos):
+    def __init__(self, projname, dm_type, s_type, pos):
         super(PTNonTerminalNode, self).__init__(projname, dm_type)
+
+        self.s_type = s_type
         self.pos = pos
 
 
@@ -150,7 +160,12 @@ class Variable(BasicNode):
     HasValue     = RelatedTo(["PTTerminalNode"])
     BelongsTo    = RelatedTo(["DFAState"])
 
-    def __init__(self, projname, dm_type, name, value):
+    def __init__(self, projname, dm_type, session, user, seq, name, value):
         super(Variable, self).__init__(projname, dm_type)
-        self.value = value
-        self.name = name
+        self.session = session
+        self.user    = user
+        self.seq     = seq
+        self.value   = value
+        self.name    = name
+        self.uuid    = "{} - {}.{}.{}.{}.{}.{}}".format(dm_type, projname, session, 
+                                                 user, seq, name, value)

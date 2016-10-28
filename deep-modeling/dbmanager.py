@@ -25,13 +25,20 @@ else:
 # args_obj = None #global variables are the devils tool
 
 # really dislike havin the setup code here!
-UNIQUENESS = [DFAState.__name__,
-              DFAStateTransition.__name__,
-              Event.__name__,
-              ParseTree.__name__,
-              PTTerminalNode.__name__,
-              PTNonTerminalNode.__name__,
-              Variable.__name__
+UNIQUENESS = [(DFAState.__name__,
+                ["uuid"]),
+              (DFAStateTransition.__name__,
+                ["uuid"]),
+              (Event.__name__,
+                ["uuid"]),
+              (ParseTree.__name__,
+                ["uuid"]),
+              (PTTerminalNode.__name__,
+                ["uuid"]),
+              (PTNonTerminalNode.__name__,
+                ["uuid"]),
+              (Variable.__name__,
+                ["uuid"])
               ]
 
 INDEX = [
@@ -104,6 +111,18 @@ def load_cmd2http_sqlite(fname, logger=None):
         ids = list(rs)
     return ids
 
+def load_xdebug_sqlite(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading XDEBUG traces from Analyzer SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT DISTINCT  http_request_id FROM sql_queries ORDER BY 1 ASC")
+        ids = list(rs)
+    return ids
+
 
 def load_queries_sqlite(fname, logger=None):
     if logger is not None:
@@ -117,10 +136,21 @@ def load_queries_sqlite(fname, logger=None):
         ids = list(rs)
     return ids
 
+def load_php_sessions_dumps(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading PHP Session dumps from Analyzer SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT http_request_id, count(*) FROM sessions GROUP BY 1 ORDER BY 1 ASC")
+        ids = list(rs)
+    return ids
 
 def load_php_sessions(fname, logger=None):
     if logger is not None:
-        logger.info("Loading SQL queries from Analyzer SQLite db")
+        logger.info("Loading PHP Sessions from Analyzer SQLite db")
 
     con = lite.connect(fname)
     ids = []
@@ -134,11 +164,12 @@ def init_database(args, graph, logger=None):
     if logger is not None:
         logger.info("Initialize database")
 
-    for name in UNIQUENESS:
-        try:
-            graph.schema.create_uniqueness_constraint(name, "uuid")
-        except Exception, e:
-            logger.error(e)
+    for name, props in UNIQUENESS:
+        for p in props:
+            try:
+                graph.schema.create_uniqueness_constraint(name, p)
+            except Exception, e:
+                logger.error(e)
 
     for name, props in INDEX:
         for p in props:
@@ -154,11 +185,12 @@ def reset_database(args, graph, logger=None):
  the database please use: rm -Rf data/graph.db.\
  WARNING: this will permanently remove data of *ALL* projects")
 
-    for name in UNIQUENESS:
-        try:
-            graph.schema.drop_uniqueness_constraint(name, "uuid")
-        except Exception, e:
-            logger.error(e)
+    for name, props in UNIQUENESS:
+        for p in props:
+            try:
+                graph.schema.drop_uniqueness_constraint(name, p)
+            except Exception, e:
+                logger.error(e)
 
     for name, props in INDEX:
         for p in props:
@@ -181,9 +213,11 @@ def import_all(args, graph, logger=None):
 
     import_rel_selhttp(args, graph, logger)
 
-    #import_sql(args, graph, logger)
+    import_xdebug(args, graph, logger)
 
-    #import_session(args, graph, logger)
+    import_sql(args, graph, logger)
+
+    import_session(args, graph, logger)
 
 
 def import_selenese(args, graph, logger=None):
@@ -205,16 +239,24 @@ def import_rel_selhttp(args, graph, logger=None):
                                     args.session, args.user, logger)
 
 
-# def import_sql(args, graph, logger=None):
-#     ids = load_queries_sqlite(args.parsed_filename)
-#     insert_queries(graph, ids, args.projname,
-#                                    args.session, args.user, logger)
+def import_xdebug(args, graph, logger=None):
+    ids = load_xdebug_sqlite(args.parsed_filename)
+    insert_xdebug(graph, ids, args.projname,
+                                   args.session, args.user, logger)
+
+def import_sql(args, graph, logger=None):
+    ids = load_queries_sqlite(args.parsed_filename)
+    insert_queries(graph, ids, args.projname,
+                                   args.session, args.user, logger)
 
 
-# def import_session(args, graph, logger=None):
-#     sessions = load_php_sessions(args.parsed_filename)
-#     insert_sessions(graph, sessions, args.projname,
-#                                     args.session, args.user, logger)
+def import_session(args, graph, logger=None):
+    sessions = load_php_sessions_dumps(args.parsed_filename)
+    insert_session_dumps(graph, sessions, args.projname,
+                                    args.session, args.user, logger)
+    sessions = load_php_sessions(args.parsed_filename)
+    insert_sessions(graph, sessions, args.projname,
+                                     args.session, args.user, logger)
 
 
 # def do_analysis_dataprop(args, graph, logger=None):
@@ -277,7 +319,7 @@ def parse_args(args):
     Import Selenese
     """
 
-    imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese Commands\
+    imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese PTs/trace\
  from vilanoo2 SQLite3 database")
     imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
  database filename")
@@ -286,7 +328,7 @@ def parse_args(args):
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_selenese)
 
-    imp_sel_p = imp_subp.add_parser("http", help="Import HTTP from\
+    imp_sel_p = imp_subp.add_parser("http", help="Import HTTP PTs/trace from\
  vilanoo2 SQLite3 database")
     imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
  database filename")
@@ -296,7 +338,7 @@ def parse_args(args):
     imp_sel_p.set_defaults(func=import_http)
 
     imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import causality\
- relationships between Selenese command and HTTP from from vilanoo2\
+ between Selenese and HTTP events from from vilanoo2\
  SQLite3 database")
     imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
  database filename")
@@ -305,14 +347,35 @@ def parse_args(args):
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_rel_selhttp)
 
- #    imp_sel_p = imp_subp.add_parser("sql", help="Import SQL queries\
- # from Analyzer SQLite3 database")
- #    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
- # database filename")
- #    imp_sel_p.add_argument("projname", help="Project name")
- #    imp_sel_p.add_argument("session",  help="Session identifier")
- #    imp_sel_p.add_argument("user",     help="User identifier")
- #    imp_sel_p.set_defaults(func=import_sql)
+    imp_sel_p = imp_subp.add_parser("xdebug", help="Import XDEBUG traces\
+ from Analyzer SQLite3 database")
+    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
+ database filename")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_xdebug)
+
+    imp_sel_p = imp_subp.add_parser("sql", help="Import SQL PTs\
+ from Analyzer SQLite3 database")
+    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
+ database filename")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_sql)
+
+    imp_sel_p = imp_subp.add_parser("phpsession", help="Import PHPSessions Trace and PTs\
+ from Analyzer SQLite3 database")
+    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
+ database filename")
+    imp_sel_p.add_argument("projname", help="Project name")
+    imp_sel_p.add_argument("session",  help="Session identifier")
+    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p.set_defaults(func=import_session)
+
+
+
 
     return p.parse_args(args)
 

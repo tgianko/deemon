@@ -105,46 +105,108 @@ def insert_causality_selhttp(graph, idlist, projname, session, user, logger=None
         graph.push(evt_cmd)
         i += 1
 
+def insert_xdebug(graph, xdebugs, projname, session, user, logger=None):
+    if logger is not None:
+        logger.info("Importing {} XDEBUG traces".format(len(xdebugs)))
+    xdebugs = sorted(xdebugs,  key=lambda r: r[0])
+
+    prev_evt_xdebug = None
+    i = 1
+    for rs in xdebugs:
+        x_id = rs[0]
+        if logger is not None:
+            logger.info("Processing XDEBUG trace ID {} ({}/{})"
+                        .format(x_id, i, len(xdebugs)))
+
+        evt_xdebug = Event(projname, XDEBUG, session, user, x_id, None, "XDEBUG {} TOO HUGE TO STAY HERE.".format(x_id))
+        graph.push(evt_xdebug)
+
+        evt_req = Event.select(graph).where(seq=x_id,
+                                            projname=projname,
+                                            session=session,
+                                            user=user,
+                                            dm_type=HTTPREQ).first()
+        evt_req.Caused.add(evt_xdebug)
+        graph.push(evt_req)
+
+        if prev_evt_xdebug:
+            prev_evt_xdebug.IsFollowedBy.add(evt_xdebug)
+            graph.push(prev_evt_xdebug)
+        
+        graph.push(evt_req)
+
+        prev_evt_xdebug = evt_xdebug
+        i += 1
 
 def insert_queries(graph, queries, projname, session, user, logger=None):
     if logger is not None:
-        logger.info("Importing {} SQL queries and relationships\
- with HTTP requests...".format(len(queries)))
+        logger.info("Importing {} XDEBUG traces and SQL query PTs".format(len(queries)))
     i = 1
-    for hreq_id, q_id, sql in queries:
+    for x_id, q_id, sql in queries:
         if logger is not None:
             logger.info("Processing SQL query ID {}-{} ({}/{})"
-                        .format(q_id, hreq_id, i, len(queries)))
-        n_id = "{}.{}".format(hreq_id, q_id)
-        sql_n = parse_sql(sql, n_id, None, projname, session, user)
-        hreq_n = HTTPRequest.select(graph).where(seq=hreq_id,
-                                                     projname=projname,
-                                                     session=session,
-                                                     user=user).first()
-        hreq_n.Causes.add(sql_n)
-        graph.push(hreq_n)
-        graph.push(sql_n)
+                        .format(q_id, x_id, i, len(queries)))
+        
+        evt_xdebug = Event.select(graph).where(seq=x_id,
+                                            projname=projname,
+                                            session=session,
+                                            user=user,
+                                            dm_type=XDEBUG).first()
+        pt_sql = parse_sql(sql, q_id, None, projname, session, user)
+        pt_sql.Parses.add(evt_xdebug)
+        graph.push(pt_sql)
+        i += 1
+
+def insert_session_dumps(graph, sessions, projname, session, user, logger=None):
+    if logger is not None:
+        logger.info("Importing {} sessions and relationships\
+ with HTTP requests...".format(len(sessions)))
+    
+    prev_evt_ses = None
+    i = 1
+    for evt_id, sessnum in sessions:
+        if logger is not None:
+            logger.info("Processing session {}/{}"
+                        .format(i, len(sessions)))
+        
+        evt_ses = Event(projname, PHPSESSION, session, user, evt_id, None, "{} PHP sessions".format(sessnum))
+        graph.push(evt_ses)
+
+        evt_xdebug = Event.select(graph).where(seq=evt_id,
+                                            projname=projname,
+                                            session=session,
+                                            user=user,
+                                            dm_type=XDEBUG).first()
+        evt_xdebug.Caused.add(evt_ses)
+        graph.push(evt_xdebug)
+
+        if prev_evt_ses:
+            prev_evt_ses.IsFollowedBy.add(evt_ses)
+            graph.push(prev_evt_ses)
+
+        prev_evt_ses = evt_ses
         i += 1
 
 
 def insert_sessions(graph, sessions, projname, session, user, logger=None):
     if logger is not None:
-        logger.info("Importing {} sessions and relationships\
- with HTTP requests...".format(len(sessions)))
-    
-    counter = 1
+        logger.info("Importing {} PHP sessions and relationships\
+ with Sesssion Traces requests...".format(len(sessions)))
 
-    for hreq_id, ses_string in sessions:
+    i = 1
+    for evt_id, ses_string in sessions:
         if logger is not None:
             logger.info("Processing session {}/{}"
-                        .format(counter, len(sessions)))
-        
-        sess = sessionparser.parseSession(ses_string)
-        hreq_n = bal.HTTPRequest.select(graph).where(seq=hreq_id,
-                                                     projname=projname,
-                                                     session=session,
-                                                     user=user).first()
-        graph.push(sess)
-        hreq_n.Caused.add(sess)
-        graph.push(hreq_n)
-        counter = counter + 1
+                        .format(i, len(sessions)))
+              
+        pt_ses = parseSession(projname, ses_string)
+
+        evt_ses = Event.select(graph).where(seq=evt_id,
+                                            projname=projname,
+                                            session=session,
+                                            user=user,
+                                            dm_type=PHPSESSION).first()
+        pt_ses.Parses.add(evt_ses)
+
+        graph.push(pt_ses)
+        i = i + 1
