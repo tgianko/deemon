@@ -10,12 +10,29 @@ def insert_selenese(graph, cmdlist, projname,
     # just in case, we order by ID.
     cmdlist = sorted(cmdlist, key=lambda cmd: cmd[0])
 
+    # CORRECTION OF SEQUENCE NUMBER
+    m = min(cmdlist, key=lambda cmd: cmd[0])
+
+    if m[0] == 0:
+        if logger is not None:
+            logger.warning("Correcting sequence number of selenese: seq starts from 0 while it should start from 1. To align commands to other events, adding a +1");
+
+        def correct(cmd):
+            new_cmd = [cmd[0]+1] + list(cmd[1:])
+            
+            return tuple(new_cmd)
+
+        cmdlist = map(correct, cmdlist)
+    # END OF CORRECTION
+
     prev_evt = None
     for cmd in cmdlist:
         if logger is not None:
             logger.info("Adding Selenese Command (PT and Trace) {} / {}".format(cmd[0],
                                                                len(cmdlist)))
         seq     = cmd[0]
+
+
         command = cmd[2]
         target  = cmd[3]
         value   = cmd[4]
@@ -85,6 +102,23 @@ def insert_causality_selhttp(graph, idlist, projname, session, user, logger=None
     if logger is not None:
         logger.info("Importing {} causality between Selenese\
  commands and HTTP requests...".format(len(idlist)))
+
+    # CORRECTION OF SEQUENCE NUMBER
+    m = min(idlist, key=lambda cmd: cmd[1])
+
+    if m[1] == 0:
+        if logger is not None:
+            logger.warning("Correcting sequence number of selenese: seq starts from 0 while it should start from 1. To align commands to other events, adding a +1");
+
+        def correct(cmd):
+            new_cmd = [cmd[0]] + [cmd[1]+1] + list(cmd[2:])
+            
+            return tuple(new_cmd)
+
+        idlist = map(correct, idlist)
+    # END OF CORRECTION
+
+
     i = 1
     for rid, cmdid in idlist:
         if logger is not None:

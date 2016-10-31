@@ -175,7 +175,7 @@ def parse_httpreq(method, url, hdrs, body, seq, ts, projname, session, user):
     hreq_n = ParseTree(projname, HTTPREQ, "{} {}".format(method, url))
 
     hreq_n.HasChild.add(PTTerminalNode(projname, HTTPREQ, method, "method",  0))
-
+    
     url_n = parse_url(url, projname)
     url_n.pos = 1
     hreq_n.HasChild.add(url_n)
@@ -217,9 +217,9 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
     
     pairs = [("command", command, 0), ("target", target, 1), ("value", value, 2)]
     for n, v, i in pairs:
-        nt = PTNonTerminalNode(projname, SELENESE, "selenese-pair".format(n), i)
-        t_n  = PTTerminalNode(projname, SELENESE, n, "name", 0)
-        t_v  = PTTerminalNode(projname, SELENESE, v, "value", 1)
+        nt = PTNonTerminalNode(projname, SELENESE, "{}-pair".format(n), i)
+        t_n  = PTTerminalNode(projname, SELENESE, n, "{}-name".format(n), 0)
+        t_v  = PTTerminalNode(projname, SELENESE, v, "{}-value".format(n), 1)
         nt.HasChild.add(t_n)
         nt.HasChild.add(t_v)
         sel_n.HasChild.add(nt)

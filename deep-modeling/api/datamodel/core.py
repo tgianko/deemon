@@ -155,10 +155,10 @@ class Variable(BasicNode):
     value        = Property()
     vtype        = Property()
 
-    PropagatesTo = RelatedTo("Variable") # here we list all nodes that can be connected in chains
+    PropagatesTo = RelatedTo(["Variable"]) # here we list all nodes that can be connected in chains
     HasName      = RelatedTo(["PTTerminalNode"])
     HasValue     = RelatedTo(["PTTerminalNode"])
-    BelongsTo    = RelatedTo(["DFAState"])
+    BelongsTo    = RelatedTo(["DFAState", "Event"])
 
     def __init__(self, projname, dm_type, session, user, seq, name, value):
         super(Variable, self).__init__(projname, dm_type)
@@ -167,5 +167,5 @@ class Variable(BasicNode):
         self.seq     = seq
         self.value   = value
         self.name    = name
-        self.uuid    = "{} - {}.{}.{}.{}.{}.{}}".format(dm_type, projname, session, 
-                                                 user, seq, name, value)
+        self.uuid    = "{} - {}.{}.{}.{}.{}.{}".format(dm_type, projname, session, 
+                                                 user, seq, name, value.encode("utf-8"))

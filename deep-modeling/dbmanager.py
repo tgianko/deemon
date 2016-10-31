@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 import sys
 import argparse
-import utils.log as log
-from api.datamodel.core import *
-from api.acquisition import *
+
+import sqlite3 as lite
+
 from py2neo.database import Graph
 from py2neo import watch
-import sqlite3 as lite
+
+import utils.log as log
+
+from api.datamodel.core import *
+from api.acquisition import *
+from api.dataflow import *
+
 from shared.config import *
 
 # from dataflow import insert_data_flows
@@ -203,6 +209,36 @@ def reset_database(args, graph, logger=None):
     logger.info("Done. Too late for regrets.")
 
 
+def show_stats_database(args, graph, logger=None):
+    if logger is not None:
+        logger.info("Database statistics")
+
+    stats = graph.run("MATCH (n:Event) RETURN DISTINCT n.projname AS projname, n.session AS session, n.user AS user")
+    stats = list(stats)
+    print ""
+    print "PROJECTS, SESSIONS, and USERS:"
+    print "------------------------------"
+    for s in stats:
+        print "projname = {}".format(s["projname"])
+        print "session  = {}".format(s["session"])
+        print "user     = {}".format(s["user"])
+
+
+
+    stats = graph.run("START n=node(*) RETURN distinct labels(n) AS l, count(n) AS c ORDER BY c DESC")
+    print ""
+    print "NODE LABELS:"
+    print "----------------------------------------"
+    for s in stats:
+        print "{:<15} \t {:>15}".format(", ".join(s["l"]), s["c"])
+
+    stats = graph.run("START n=relationship(*) RETURN distinct type(n) AS t, count(n) AS c ORDER BY c DESC")
+    print ""
+    print "RELATIONSHIPS:"
+    print "----------------------------------------"
+    for s in stats:
+        print "{:<15} \t {:>15}".format(s["t"], s["c"])
+
 def import_all(args, graph, logger=None):
     if logger is not None:
         logger.info("Importing all from vilanoo2/mosgi SQLite Database...")
@@ -259,17 +295,24 @@ def import_session(args, graph, logger=None):
                                      args.session, args.user, logger)
 
 
-# def do_analysis_dataprop(args, graph, logger=None):
-#     insert_data_flows(graph, logger)
+
+def do_analysis_dataprop(args, graph, logger=None):
+    insert_variables(graph, args.projname,
+                                    args.session, args.user, logger)
+    insert_vertical_chains(graph, args.projname,
+                                    args.session, args.user, logger)
+    insert_backward_selenese_chains(graph, args.projname,
+                                    args.session, args.user, logger)
+    #insert_data_flows(graph, logger)
 
 
 # def do_analysis_abstraction(args, graph, logger=None):
 #     add_full_abstraction_layer(graph, logger)
 
 
-# def do_analysis_all(args, graph, logger=None):
-#     do_analysis_dataprop(args, graph, logger=logger)
-#     do_analysis_abstraction(args, graph, logger=logger)
+def do_analysis_all(args, graph, logger=None):
+    do_analysis_dataprop(args, graph, logger=logger)
+    #do_analysis_abstraction(args, graph, logger=logger)
 
 
 def parse_args(args):
@@ -282,25 +325,58 @@ def parse_args(args):
     reset_p = subp.add_parser("reset", help="Reset the database")
     reset_p.set_defaults(func=reset_database)
 
+    """
+    ==========
+    STATISTICS
+    ==========
+    """
+
+    stats_p = subp.add_parser("stats", help="Show statistics: project names, sessions, and users")
+    stats_p.set_defaults(func=show_stats_database)    
+
+
+    """
+    ========
+    ANALYSIS
+    ========
+    """
+
+    analysis_p = subp.add_parser("analysis", help="analysing existing graph")
+    analysis_subp = analysis_p.add_subparsers()
+
+    analysis_all = analysis_subp.add_parser("all",
+                                            help="do all avail. analysis")
+    analysis_all.set_defaults(func=do_analysis_all)
+
+
+    """
+    Data propagation
+    """
+
+    analysis_dataprop = analysis_subp.add_parser("datapropagation",
+                                                 help="add datapropagation\
+ relationships")
+    analysis_dataprop.add_argument("projname", help="Project name")
+    analysis_dataprop.add_argument("session",  help="Session identifier")
+    analysis_dataprop.add_argument("user",     help="User identifier")
+    analysis_dataprop.set_defaults(func=do_analysis_dataprop)
+
+    """
+    Abstraction
+    """
+    # analysis_abstract = analysis_subp.add_parser("databstraction",
+    #                                              help="add abstraction layer")
+    # analysis_abstract.set_defaults(func=do_analysis_abstraction)
+
+    
+
+    """
+    ===========
+    IMPORT DATA
+    ===========
+    """
     imp_p = subp.add_parser("import", help="Import data")
     imp_subp = imp_p.add_subparsers()
-
-    """
-    Analysis
-    """
-
- #    analysis_p = subp.add_parser("analysis", help="analysing existing graph")
- #    analysis_subp = analysis_p.add_subparsers()
- #    analysis_dataprop = analysis_subp.add_parser("datapropagation",
- #                                                 help="add datapropagation\
- # relationships")
- #    analysis_dataprop.set_defaults(func=do_analysis_dataprop)
- #    analysis_abstract = analysis_subp.add_parser("databstraction",
- #                                                 help="add abstraction layer")
- #    analysis_abstract.set_defaults(func=do_analysis_abstraction)
- #    analysis_all = analysis_subp.add_parser("all",
- #                                            help="do all avail. analysis")
- #    analysis_all.set_defaults(func=do_analysis_all)
 
     """
     Import all
@@ -328,6 +404,10 @@ def parse_args(args):
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_selenese)
 
+    """
+    HTTP
+    """
+
     imp_sel_p = imp_subp.add_parser("http", help="Import HTTP PTs/trace from\
  vilanoo2 SQLite3 database")
     imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
@@ -336,6 +416,10 @@ def parse_args(args):
     imp_sel_p.add_argument("session",  help="Session identifier")
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_http)
+
+    """
+    Causality HTTP and Selenese
+    """
 
     imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import causality\
  between Selenese and HTTP events from from vilanoo2\
@@ -347,6 +431,10 @@ def parse_args(args):
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_rel_selhttp)
 
+    """
+    XDebug and Causality HTTP->XDEBUG
+    """
+
     imp_sel_p = imp_subp.add_parser("xdebug", help="Import XDEBUG traces\
  from Analyzer SQLite3 database")
     imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
@@ -356,6 +444,10 @@ def parse_args(args):
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_xdebug)
 
+    """
+    SQL
+    """
+
     imp_sel_p = imp_subp.add_parser("sql", help="Import SQL PTs\
  from Analyzer SQLite3 database")
     imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
@@ -364,6 +456,10 @@ def parse_args(args):
     imp_sel_p.add_argument("session",  help="Session identifier")
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_sql)
+
+    """
+    PHP Session
+    """
 
     imp_sel_p = imp_subp.add_parser("phpsession", help="Import PHPSessions Trace and PTs\
  from Analyzer SQLite3 database")

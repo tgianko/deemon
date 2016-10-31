@@ -35,6 +35,4 @@ Disk I/O related
 """
 SQL        = "SQLQuery"
 ABSQUERY   = "AbsQuery"
-
-
-
+                    
