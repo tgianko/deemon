@@ -1,7 +1,4 @@
 from datamodel.core import *
-from datamodel.selenese import *
-from datamodel.http import *
-from datamodel.sql import *
 import sqlnorm
 import hashlib
 
