@@ -73,6 +73,7 @@ def create_state_cluster_list(event_hash_list, projname):
         else:
             buffer[cons[1]] = DFAState(projname, httpRequestIdent, counter)
             clusterList.append(buffer[cons[1]])
+        counter += 1
 
     clusterList.append(DFAState(projname,
                                 httpRequestIdent,
@@ -85,7 +86,7 @@ def get_hash_to_transition(event_hash_list, projname):
     transition_node = dict()
     for cons in event_hash_list:
         if cons[1] in transition_node:
-            pass
+            transition_node[cons[1]].Accepts.add(cons[0])
         else:
             transition_node[cons[1]] = DFAStateTransition(projname,
                                                           httpRequestIdent,
