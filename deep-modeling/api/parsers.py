@@ -9,6 +9,7 @@ from dm_types import *
 import Cookie
 from string import lstrip
 from enum import Enum
+import json
 
 
 def parse_url(url, projname):
@@ -134,10 +135,11 @@ def content_type(hdrs):
 
 
 def parse_body(body, ctype, projname, dm_type):
+    body_n = None
 
     if "multipart/form-data" in ctype:
         # parse multipart/form-data body
-        body_n = ParseTree(projname, MULTIPART, "multipart body")
+        body_n = ParseTree(projname, MULTIPART, body)
         s_obj = StringIO(body)
         boundary = ctype.split("; boundary=")[1]
         mp = multipart.MultipartParser(s_obj, boundary)
@@ -153,22 +155,73 @@ def parse_body(body, ctype, projname, dm_type):
             body_n.HasChild.add(kv_n)
             pos+=1
 
-        return body_n
     elif "application/x-www-form-urlencoded" in ctype:
-        raise Exception("application/x-www-form-urlencoded")
-        # parse application/x-www-form-urlencoded body
-        # for k, vs in parse_qs(query).iteritems():  # TODO:query is undefined
-        #    for v in vs:
-        #        p = KeyValuePair(projname, k, v)
-        #        body_n.Contains.add(p)
+        body_n = ParseTree(projname, FORMURLENC, body)
+        pos = 0 
+        for k, vs in parse_qs(body).iteritems():
+            for v in vs:
+                pair_n = PTNonTerminalNode(projname, URL, "form-urlenc-pair", pos)
+                pair_n.HasChild.add(PTTerminalNode(projname, FORMURLENC, k, "form-urlenc-param-name", 0))
+                pair_n.HasChild.add(PTTerminalNode(projname, FORMURLENC, v, "form-urlenc-param-value", 1))
+                body_n.HasChild.add(pair_n)
+                pos+=1
+
+    elif "json" in ctype:
+        body_n = ParseTree(projname, JSON, body)
+        cnt = visit_json(projname, json.loads(body))
+        body_n.HasChild.add(cnt)
+
     else:
-        # No JSON yet...
         body_n = ParseTree(projname, ctype, body[0:128])
         s_n = PTTerminalNode(projname, dm_type, body, "plaintext-body", 0)
         body_n.HasChild.add(s_n)
-        return body_n
     
-    
+    return body_n
+
+
+def visit_json(projname, json_node):
+    if isinstance(json_node, dict):
+        d = PTNonTerminalNode(projname, JSON, "json-object", 0)
+        pos = 0
+        for k, item in json_node.items():
+            kv_n = PTNonTerminalNode(projname, JSON, "json-key-values", pos)
+
+            k_n = visit_json(projname, k)
+            k_n.pos = 0
+            kv_n.HasChild.add(k_n)
+            
+            child = visit_json(projname, item)
+            child.pos = 1
+            kv_n.HasChild.add(child)
+            
+            d.HasChild.add(kv_n)
+
+            pos+=1
+        return d
+    elif isinstance(json_node, list):
+        l = PTNonTerminalNode(projname, JSON, "json-array", 0)
+
+        pos = 0
+        for item in json_node:
+            child =  visit_json(projname, item)
+            l.HasChild.add(child)
+        return l
+    elif isinstance(json_node, basestring):
+        s = PTTerminalNode(projname, JSON, json_node, "json-string", 0)
+        return s
+    elif isinstance(json_node, int) or isinstance(json_node, long):
+        i = PTTerminalNode(projname, JSON, json_node, "json-number-int", 0)
+        return i
+    elif isinstance(json_node, float):
+        f = PTTerminalNode(projname, JSON, json_node, "json-number-real", 0)
+        return f
+    elif isinstance(json_node, bool):
+        b = PTTerminalNode(projname, JSON, json_node, "json-number-bool", 0)
+        return b
+    else:
+        n = PTTerminalNode(projname, JSON, json_node, "json-number-null", 0)
+        return n
+
 
 
 def parse_httpreq(method, url, hdrs, body, seq, ts, projname, session, user):

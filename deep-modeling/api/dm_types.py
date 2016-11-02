@@ -23,7 +23,8 @@ Message encoding related
 """
 
 MULTIPART  = "Multipart"
-
+FORMURLENC = "FormURLEncoded"
+JSON       = "JSON"
 """
 Server-side Program related
 """
