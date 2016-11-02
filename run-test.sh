@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -ne 6 ]; then
-    echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance>"
+if [ $# -ne 7 ]; then
+    echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <timeout>"
     exit 1
 fi
 
@@ -18,7 +18,7 @@ firefox_instance=$6
 mosgi_start_relative="./mosgi/src/run-mosgi.lisp"
 vilanoo_start_relative="./vilanoo2/src/"
 vilanoo_folder="${HOME}/.vilanoo/"
-timestamp=`date '+%Y%m%d%k%M'`
+timestamp=`date '+%Y%m%d%H%M'`
 db_postfix=".db"
 log_postfix=".log"
 vilanoo_listen_port=8080
@@ -27,7 +27,7 @@ mosgi_db_path="${vilanoo_folder}${test_name}-${timestamp}-mosgi${db_postfix}"
 vilanoo_log_path="${vilanoo_folder}${test_name}-${timestamp}-vilanoo${log_postfix}"
 mosgi_log_path="${vilanoo_folder}${test_name}-${timestamp}-mosgi${log_postfix}"
 db_dump_schema="./data/DBSchemaDump.sql"
-
+tout=$7
 
 #default values for bitnami but else these need to become variables
 inter_com_port=8844
@@ -66,10 +66,11 @@ cat ${db_dump_schema} | sqlite3 ${mosgi_db_path}
 echo "waiting for guest to finish starting up..."
 sleep 2
 
-
+echo "command:"
+echo tmux new -s ${start_state_name} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -p ${inter_com_port} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
+                                 split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w $tout -p ${vilanoo_listen_port} -P ${inter_com_port} -s ${vilanoo_db_path} -S ${selenese_test_file} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 1024\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
+echo "..."
 tmux new -s ${start_state_name} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -p ${inter_com_port} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
-                                 split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w 5 -p ${vilanoo_listen_port} -P ${inter_com_port} -s ${vilanoo_db_path} -S ${selenese_test_file} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 1024\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
-
-
+                                 split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w $tout -p ${vilanoo_listen_port} -P ${inter_com_port} -s ${vilanoo_db_path} -S ${selenese_test_file} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 1024\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
 
 
