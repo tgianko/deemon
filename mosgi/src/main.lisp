@@ -81,18 +81,25 @@ waits/responds for commands and executes given commands
 
 (defun save-relevant-files (php-session-folder xdebug-trace-file user host pwd request-db-id)
   (handler-case
-      (progn	
-	(ssh:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd #'(lambda(string)
-                                                                                                                           (print-threaded :mover string)))
-	(ssh:backup-file xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd)
-        (print-threaded :mover (FORMAT nil "backed up ~a" php-session-folder))
-	(print-threaded :mover (FORMAT nil "backed up ~a" xdebug-trace-file))
-	(sb-thread:with-mutex (*task-mutex*)	  
-	  (sb-concurrency:enqueue request-db-id *request-queue*)
-	  (sb-thread:condition-broadcast *task-waitqueue*)
-	  (print-threaded :mover (FORMAT nil "save and added request ~a to the work queue" request-db-id))))
+      (handler-bind ((error #'(lambda (err)
+                                (print-threaded :mover (FORMAT nil "unhandled error ~a~%~a" 
+                                                               err
+                                                               (with-output-to-string (stream)
+                                                                 (sb-debug:print-backtrace :stream stream))))
+                                (error err))))
+        (progn	
+          (ssh-interface:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd #'(lambda(string)
+                                                                                                                                       (print-threaded :mover string)))
+          (ssh-interface:backup-file xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd #'(lambda(string)
+                                                                                                                            (print-threaded :mover string)))
+          (print-threaded :mover (FORMAT nil "backed up ~a" php-session-folder))
+          (print-threaded :mover (FORMAT nil "backed up ~a" xdebug-trace-file))
+          (sb-thread:with-mutex (*task-mutex*)	  
+            (sb-concurrency:enqueue request-db-id *request-queue*)
+            (sb-thread:condition-broadcast *task-waitqueue*)
+            (print-threaded :mover (FORMAT nil "save and added request ~a to the work queue" request-db-id)))))
     (error (e)
-      (print-threaded :MOVER (FORMAT nil "ERROR:~a" e)))))
+      (declare (ignore e)))))
 	    
 
 (defun create-mover-thread (php-session-folder xdebug-trace-folder user host pwd interface port)
@@ -127,21 +134,21 @@ waits/responds for commands and executes given commands
     (handler-case 
 	(clsql:with-database (database-connection (list database-path) :database-type :sqlite3)
 	  (print-threaded :saver (FORMAT nil "copy php sessions for request ~a onto host" request-db-id))	  
-	  (database:enter-sessions-raw-into-db (ssh:get-all-contained-files-as-strings php-session-folder user host pwd #'(lambda(string)
-                                                                                                                            (print-threaded :saver string)))
+	  (database:enter-sessions-raw-into-db (ssh-interface:get-all-contained-files-as-strings php-session-folder user host pwd #'(lambda(string)
+                                                                                                                                      (print-threaded :saver string)))
 					       request-db-id
 					       database-connection 
 					       #'(lambda(string)
 						   (print-threaded :saver string)))
-	  (ssh:delete-folder php-session-folder user host pwd)
+	  (ssh-interface:delete-folder php-session-folder user host pwd)
 	  (print-threaded :saver (FORMAT nil "copy xdebug dump for request ~a onto host" request-db-id))	  
-	  (database:enter-xdebug-file-raw-into-db (ssh:get-file-as-blob xdebug-trace-file user host pwd #'(lambda(string)
-                                                                                                            (print-threaded :saver string)))
+	  (database:enter-xdebug-file-raw-into-db (ssh-interface:get-file-as-blob xdebug-trace-file user host pwd #'(lambda(string)
+                                                                                                                      (print-threaded :saver string)))
 						  request-db-id
 						  database-connection 
 						  #'(lambda(string)
 						      (print-threaded :saver string)))
-	  (ssh:delete-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd))
+	  (ssh-interface:delete-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd))
       (error (e)
 	(print-threaded :saver (FORMAT nil "ERROR ~a" e))))))
 
@@ -152,13 +159,15 @@ waits/responds for commands and executes given commands
 				  (tagbody
 				   check
 				     (sb-thread:with-mutex (*task-mutex*)
-				       (when (and *stop-p*
-                                                  (sb-concurrency:queue-empty-p *request-queue*))
-					 (go end))
-				       (if (not (sb-concurrency:queue-empty-p *request-queue*))
-					   (go work)
-					   (sb-thread:condition-wait *task-waitqueue* *task-mutex*))
-				       (go check))
+				       (cond 
+                                         ((and *stop-p*
+                                               (sb-concurrency:queue-empty-p *request-queue*))
+                                          (go end))
+                                         ((not *stop-p*)
+                                          (sb-thread:condition-wait *task-waitqueue* *task-mutex*)
+                                          (go check))
+                                         (t
+                                          (go work))))
 				   work
 				     (transfer-relevant-files sqlite-db-path (sb-concurrency:dequeue *request-queue*) user host pwd)
 				     (print-threaded :saver (FORMAT nil "~a requests for processing remaining" (sb-concurrency:queue-count *request-queue*)))
@@ -191,33 +200,36 @@ waits/responds for commands and executes given commands
 		(aif (getf options :target-system-pwd) it "bitnami"))
 	(FORMAT T "xdebug-trace-folder: ~a~%" (aif (getf options :xdebug-trace-file) it "/tmp/xdebug.xt"))
 	(FORMAT T "php-session-folder: ~a~%" (aif (getf options :php-session-folder) it "/opt/bitnami/php/tmp/"))
-	(let ((differ-thread (create-saver-thread  (aif (getf options :target-system-root) it "root")
-						   (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
-						   (aif (getf options :target-system-pwd) it "bitnami")
-						   (aif (getf options :sql-db-path) it (error "you need to provide the sqlite db path"))))
-	      (mover-thread (create-mover-thread (aif (getf options :php-session-folder) it "/opt/bitnami/php/tmp")
-						 (aif (getf options :xdebug-trace-file) it "/tmp/xdebug.xt")
-						 (aif (getf options :target-system-root) it "root")
-						 (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
-						 (aif (getf options :target-system-pwd) it "bitnami")
-						 (aif (getf options :interface) it "127.0.0.1")
-						 (aif (getf options :port) it "8844"))))
-	  (unwind-protect
-	       (progn 
-		 (ssh:register-machine (aif (getf options :target-system-root) it "root")
-				       (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
-				       (aif (getf options :target-system-pwd) it "bitnami"))
-		 (handler-case
-		     (progn 
-		       (print-threaded :main (FORMAT nil "Started threads Differ [~a] / Mover [~a]" (sb-thread:thread-alive-p differ-thread) (sb-thread:thread-alive-p mover-thread)))
-		       (sb-thread:join-thread mover-thread)
-		       (print-threaded :main "Mover thread done"))
-		   (sb-thread:thread-error (e)
-		     (print-threaded :main (FORMAT nil "Error in thread mover ~a" e)))))
-	    (sb-thread:with-mutex (*task-mutex*)
-	      (setf *stop-p* T)
-	      (sb-thread:condition-broadcast *task-waitqueue*))
-	    (sb-thread:join-thread differ-thread))))
+        (ssh-interface:with-active-ssh-connection ((getf options :target-system-root)
+                                                   (getf options :target-system-ip)
+                                                   (getf options :target-system-pwd))
+          (let ((differ-thread (create-saver-thread  (aif (getf options :target-system-root) it "root")
+                                                     (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
+                                                     (aif (getf options :target-system-pwd) it "bitnami")
+                                                     (aif (getf options :sql-db-path) it (error "you need to provide the sqlite db path"))))
+                (mover-thread (create-mover-thread (aif (getf options :php-session-folder) it "/opt/bitnami/php/tmp")
+                                                   (aif (getf options :xdebug-trace-file) it "/tmp/xdebug.xt")
+                                                   (aif (getf options :target-system-root) it "root")
+                                                   (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
+                                                   (aif (getf options :target-system-pwd) it "bitnami")
+                                                   (aif (getf options :interface) it "127.0.0.1")
+                                                   (aif (getf options :port) it "8844"))))
+            (unwind-protect
+                 (progn 
+                   #|(ssh-interface:register-machine (aif (getf options :target-system-root) it "root")
+                   (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
+                   (aif (getf options :target-system-pwd) it "bitnami"))|#
+                   (handler-case
+                       (progn 
+                         (print-threaded :main (FORMAT nil "Started threads Differ [~a] / Mover [~a]" (sb-thread:thread-alive-p differ-thread) (sb-thread:thread-alive-p mover-thread)))
+                         (sb-thread:join-thread mover-thread)
+                         (print-threaded :main "Mover thread done"))
+                     (sb-thread:thread-error (e)
+                       (print-threaded :main (FORMAT nil "Error in thread mover ~a" e)))))
+              (sb-thread:with-mutex (*task-mutex*)
+                (setf *stop-p* T)
+                (sb-thread:condition-broadcast *task-waitqueue*))
+              (sb-thread:join-thread differ-thread)))))
     (unix-opts:unknown-option (err)
       (declare (ignore err))
       (opts:describe

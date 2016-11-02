@@ -7,8 +7,10 @@
 
 (defpackage :de.uni-saarland.syssec.mosgi.ssh-interface
   (:use :cl)
-  (:nicknames ssh)
+  (:nicknames ssh-interface)
   (:export scp
+           with-active-ssh-connection
+           *global-ssh-connection*
 	   folder-content-guest
 	   run-remote-shell-command
 	   convert-to-utf8-encoding
