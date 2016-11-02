@@ -1,8 +1,9 @@
 """
 Data model of the deep modeling framework
 """
-from py2neo.ogm import *
+from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 from uuid import uuid4
+
 
 class BasicNode(GraphObject):
     """ Any node in a deep model DB must extend this class
@@ -24,20 +25,23 @@ class BasicNode(GraphObject):
 
 """
 **************************
-        DFA
+        DFA [Deterministic Finite Automaton]
 **************************
 """
+
 
 class DFAState(BasicNode):
     """ Describe a state of a DFA
     """
 
-    state_id   = Property()
+    state_id = Property()
 
     HasTransition = RelatedTo("DFAStateTransition")
 
     def __init__(self, projname, dm_type, state_id):
-        super(DFAState, self).__init__(projname, dm_type, state_id)
+        super(DFAState, self).__init__(projname, dm_type)
+        self.state_id = state_id
+
 
 class DFAStateTransition(BasicNode):
     """ Describe a transition between states
@@ -45,7 +49,7 @@ class DFAStateTransition(BasicNode):
 
     accepted = Property()
 
-    To = RelatedTo("FSMState")
+    To = RelatedTo("DFAState")
     Accepts = RelatedTo(["Event", "ParseTree"])
     
     def __init__(self, projname, dm_type, symbol):
@@ -57,6 +61,7 @@ class DFAStateTransition(BasicNode):
         TRACE
 **************************
 """
+
 
 class Event(BasicNode):
     """ Describe an observation of a dynamic trace
@@ -78,7 +83,7 @@ class Event(BasicNode):
         self.seq     = seq
         self.ts      = ts
         self.message = message
-        self.uuid = "{} - {}.{}.{}.{}.{}".format(dm_type, projname, session, 
+        self.uuid = "{} - {}.{}.{}.{}.{}".format(dm_type, projname, session,
                                                  user, seq, ts)
 
 
@@ -139,13 +144,15 @@ class PTNonTerminalNode(BasicNode):
 
 
 """
-**************************
+ **************************
         DATA FLOW
 **************************
 """
 
+
 class Variable(BasicNode):
-    """ This represent a basic value
+    """
+    This represent a basic value
     """
 
     session      = Property()
@@ -169,3 +176,7 @@ class Variable(BasicNode):
         self.name    = name
         self.uuid    = "{} - {}.{}.{}.{}.{}.{}".format(dm_type, projname, session, 
                                                  user, seq, name, value.encode("utf-8"))
+
+
+
+
