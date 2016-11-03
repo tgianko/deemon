@@ -174,6 +174,8 @@ class Variable(BasicNode):
         self.seq     = seq
         self.value   = value
         self.name    = name
+        if not isinstance(value, basestring):
+            value = str(value)
         self.uuid    = "{} - {}.{}.{}.{}.{}.{}".format(dm_type, projname, session, 
                                                  user, seq, name, value.encode("utf-8"))
 

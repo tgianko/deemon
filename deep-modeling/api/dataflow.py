@@ -64,7 +64,7 @@ def insert_variables(graph, projname, session, user, logger):
         logger.info("Deriving Variables from PTs...")
     
     query = """MATCH p1=(pt:ParseTree)-[:HAS_CHILD*]->(d:PTTerminalNode), 
-                     p2=(pt)-[par:PARSES]->(e:Event) 
+                     p2=(pt)-[par:PARSES]->(e:Event {projname: {projname}, session:{session}, user:{user}}) 
                WHERE size(d.symbol) > 0 
               UNWIND nodes(p1) AS t 
                 WITH collect(t) AS sli, 
@@ -78,7 +78,7 @@ def insert_variables(graph, projname, session, user, logger):
                      d.uuid AS has_value_uuid,
                      e.uuid AS belongs_to_uuid,
                      d.s_type as s_type"""
-    rs = graph.run(query)
+    rs = graph.run(query, projname=projname, session=session, user=user)
     rs = list(rs)
     
     def do_blacklist(e):

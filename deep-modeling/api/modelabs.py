@@ -32,7 +32,7 @@ def get_http_abstraction_hash(httpRequestEvent, graph, logger=None):
         return hashlib.md5("".join(query_hashes)).hexdigest()
 
 
-def get_l_http_event_hash_tuple(projname, graph, logger=None):
+def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
     """
     1. select first selenese command
     2. follow caused link
@@ -41,7 +41,7 @@ def get_l_http_event_hash_tuple(projname, graph, logger=None):
        - save in cons
     4. return cons list
     """
-    firstEvent = Event.select(graph).where("_.dm_type='{}'".format(seleneseIdent)).where("_.projname='{}'".format(projname)).where("_.seq=1").first()
+    firstEvent = Event.select(graph).where("_.dm_type='{}'".format(seleneseIdent)).where("_.projname='{}' AND _.session='{}' AND _.user='{}'".format(projname, session, user)).where("_.seq=1").first()
     print "{}".format(firstEvent)
     firstHttpRequest = list(firstEvent.Caused)[0]
     print "{}".format(firstHttpRequest)
@@ -115,8 +115,8 @@ def create_dfa(projname, event_hash_list, logger=None):
     return start_state
 
 
-def magic_mike(projname, graph, logger=None):
-    l_event_hash_tuple = get_l_http_event_hash_tuple(projname, graph, logger)
+def magic_mike(graph, projname, session, user, logger=None):
+    l_event_hash_tuple = get_l_http_event_hash_tuple(graph, projname, session, user, logger)
     dfa_start = create_dfa(projname, l_event_hash_tuple)
     graph.push(dfa_start)
 

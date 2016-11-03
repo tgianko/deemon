@@ -12,6 +12,7 @@ import utils.log as log
 from api.datamodel.core import *
 from api.acquisition import *
 from api.dataflow import *
+from api.modelabs import *
 
 from shared.config import *
 
@@ -216,28 +217,46 @@ def show_stats_database(args, graph, logger=None):
     stats = graph.run("MATCH (n:Event) RETURN DISTINCT n.projname AS projname, n.session AS session, n.user AS user")
     stats = list(stats)
     print ""
-    print "PROJECTS, SESSIONS, and USERS:"
-    print "------------------------------"
+    print "| {:^20} | {:^20} | {:^20} |".format("PROJECT", "SESSION", "USER")
+    print "=" * 70
     for s in stats:
-        print "projname = {}".format(s["projname"])
-        print "session  = {}".format(s["session"])
-        print "user     = {}".format(s["user"])
-
+        print "| {projname:<20} | {session:<20} | {user:<20} |".format(**s)
+    print "\r\n\r\n"
 
 
     stats = graph.run("START n=node(*) RETURN distinct labels(n) AS l, count(n) AS c ORDER BY c DESC")
-    print ""
-    print "NODE LABELS:"
-    print "----------------------------------------"
+
+    print "| {:^20} | {:^20} |".format("NODE LABEL", "COUNT")
+    print "=" * 47
     for s in stats:
-        print "{:<15} \t {:>15}".format(", ".join(s["l"]), s["c"])
+        print "| {:<20} | {:>20} |".format(", ".join(s["l"]), s["c"])
+    print "\r\n\r\n"
 
     stats = graph.run("START n=relationship(*) RETURN distinct type(n) AS t, count(n) AS c ORDER BY c DESC")
-    print ""
-    print "RELATIONSHIPS:"
-    print "----------------------------------------"
+
+    print "| {:^20} | {:^20} |".format("REL.TYPE", "COUNT")
+    print "=" * 47
     for s in stats:
-        print "{:<15} \t {:>15}".format(s["t"], s["c"])
+        print "| {:<20} | {:>20} |".format(s["t"], s["c"])
+    print "\r\n\r\n"
+
+def show_csrf(args, graph, logger=None):
+
+
+    http_stchang = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
+                               RETURN e.projname AS projname, 
+                                      e.session AS session, 
+                                      e.user AS user, 
+                                      count(e) AS count""")
+    http_stchang = list(http_stchang)
+    print ""
+    print "| {:^20} | {:^20} | {:^20} | {:^20} |".format("PROJECT", "SESSION", "USER", "HTTP ST.CHNG")
+    print "=" * 93
+    for s in http_stchang:
+        print "| {projname:<20} | {session:<20} | {user:<20} | {count:>20} |".format(**s)
+    print "\r\n\r\n"
+
+
 
 def import_all(args, graph, logger=None):
     if logger is not None:
@@ -296,24 +315,22 @@ def import_session(args, graph, logger=None):
 
 
 
-def do_analysis_dataprop(args, graph, logger=None):
+def analysis_dataflow(args, graph, logger=None):
     insert_variables(graph, args.projname,
                                     args.session, args.user, logger)
     insert_vertical_chains(graph, args.projname,
                                     args.session, args.user, logger)
     insert_backward_selenese_chains(graph, args.projname,
                                     args.session, args.user, logger)
-    #insert_data_flows(graph, logger)
 
 
-# def do_analysis_abstraction(args, graph, logger=None):
-#     add_full_abstraction_layer(graph, logger)
+def analysis_model_inference(args, graph, logger=None):
+    magic_mike(graph, args.projname, args.session, args.user, logger)
 
 
 def do_analysis_all(args, graph, logger=None):
-    do_analysis_dataprop(args, graph, logger=logger)
-    #do_analysis_abstraction(args, graph, logger=logger)
-
+    analysis_dataflow(args, graph, logger)
+    analysis_model_inference(args, graph, logger)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -334,6 +351,8 @@ def parse_args(args):
     stats_p = subp.add_parser("stats", help="Show statistics: project names, sessions, and users")
     stats_p.set_defaults(func=show_stats_database)    
 
+    stats_p = subp.add_parser("csrf", help="Show CSRF data")
+    stats_p.set_defaults(func=show_csrf) 
 
     """
     ========
@@ -353,20 +372,22 @@ def parse_args(args):
     Data propagation
     """
 
-    analysis_dataprop = analysis_subp.add_parser("datapropagation",
-                                                 help="add datapropagation\
- relationships")
-    analysis_dataprop.add_argument("projname", help="Project name")
-    analysis_dataprop.add_argument("session",  help="Session identifier")
-    analysis_dataprop.add_argument("user",     help="User identifier")
-    analysis_dataprop.set_defaults(func=do_analysis_dataprop)
+    analysis_df = analysis_subp.add_parser("dataflow",
+                                                 help="Create data flow model")
+    analysis_df.add_argument("projname", help="Project name")
+    analysis_df.add_argument("session",  help="Session identifier")
+    analysis_df.add_argument("user",     help="User identifier")
+    analysis_df.set_defaults(func=analysis_dataflow)
 
     """
-    Abstraction
+    Model inference
     """
-    # analysis_abstract = analysis_subp.add_parser("databstraction",
-    #                                              help="add abstraction layer")
-    # analysis_abstract.set_defaults(func=do_analysis_abstraction)
+    analysis_inference = analysis_subp.add_parser("inference",
+                                                  help="Infer DFA/NFA models")
+    analysis_inference.add_argument("projname", help="Project name")
+    analysis_inference.add_argument("session",  help="Session identifier")
+    analysis_inference.add_argument("user",     help="User identifier")
+    analysis_inference.set_defaults(func=analysis_model_inference)
 
     
 
