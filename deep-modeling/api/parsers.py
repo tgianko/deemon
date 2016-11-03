@@ -386,8 +386,16 @@ def parseSessionContentElement(string, projname, pos):
         n = PTTerminalNode(projname, PHPSESSION, None, "element-empty", pos)
         return n, rem[4:]
     elif type_e == SessionElementType.string:
-        n = PTTerminalNode(projname, PHPSESSION, rem[2:rem.index(')')], "element-string", pos)
-        rem = rem[rem.index(')')+1:]
+        s = ""
+        if rem[2] == "/": # regexp use / [...] / ?
+            s = rem[2:rem[3:].index('/i)')+5]
+            rem = rem[rem[3:].index('/i)')+6:]
+        else:
+            s = rem[2:rem.index(')')]
+            rem = rem[rem.index(')')+1:]
+    
+        n = PTTerminalNode(projname, PHPSESSION, s, "element-string", pos)
+        
         return n, rem
     elif type_e == SessionElementType.integer:
         integerContent = rem[2:rem.index(')')]
