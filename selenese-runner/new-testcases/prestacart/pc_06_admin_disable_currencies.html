@@ -4,44 +4,43 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.181.212.51/" />
-<title>pc_admin_delete_carrier</title>
+<title>pc_admin_disable_currencies</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">pc_admin_delete_carrier</td></tr>
+<tr><td rowspan="1" colspan="3">pc_admin_disable_currencies</td></tr>
 </thead><tbody>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=#maintab-AdminParentShipping &gt; a.title &gt; span</td>
+	<td>css=#maintab-AdminParentLocalization &gt; a.title &gt; span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Currencies</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>css=#tr_2_2_1 &gt; td.row-selector.text-center &gt; input[name=&quot;carrierBox[]&quot;]</td>
+	<td>xpath=(//input[@name='currencyBox[]'])[2]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>//tr[@id='tr_2_2_0']/td[8]/div/div/button</td>
+	<td>//form[@id='form-currency']/div/div[2]/table/tbody/tr[2]/td[9]/div/div/button</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>link=Delete</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=div.alert.alert-success</td>
+	<td>//a[@onclick=&quot;if (confirm('Delete selected item?\n\nName Dollar')){return true;}else{event.stopPropagation(); event.preventDefault();};&quot;]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>assertConfirmation</td>
-	<td>Delete selected item?<br /><br />Name PrestaShop</td>
+	<td>Delete selected item?<br /><br />Name Dollar</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

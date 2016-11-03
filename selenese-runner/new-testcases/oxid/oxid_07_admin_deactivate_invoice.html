@@ -3,40 +3,44 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://10.181.212.51/" />
-<title>pc_admin_create_product</title>
+<link rel="selenium.base" href="http://10.181.213.183/" />
+<title>oxid_admin_deactivate_invoice</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">pc_admin_create_product</td></tr>
+<tr><td rowspan="1" colspan="3">oxid_admin_deactivate_invoice</td></tr>
 </thead><tbody>
 <tr>
-	<td>clickAndWait</td>
-	<td>link=Products</td>
+	<td>click</td>
+	<td>css=#nav-1-2 &gt; a.rc &gt; b</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#nav-1-2-1 &gt; a.rc &gt; b</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>id=basefrm</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=i.process-icon-new</td>
+	<td>link=Invoice</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>id=name_1</td>
-	<td>Awesome product</td>
-</tr>
-<tr>
-	<td>waitForEditable</td>
-	<td>name=submitAddproductAndStay</td>
-	<td>Save and stay</td>
+	<td>click</td>
+	<td>name=editval[oxpayments__oxactive]</td>
+	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>name=submitAddproductAndStay</td>
+	<td>document.myedit.save[2]</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

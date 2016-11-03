@@ -4,31 +4,46 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://10.181.213.183/" />
-<title>oxid_admin_update_product</title>
+<title>oxid_admin_deactivate_paypal</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">oxid_admin_update_product</td></tr>
+<tr><td rowspan="1" colspan="3">oxid_admin_deactivate_paypal</td></tr>
 </thead><tbody>
 <tr>
-	<td>click</td>
-	<td>css=#nav-1-4-1 &gt; a.rc &gt; b</td>
+	<td>clickAndWait</td>
+	<td>//dl[3]/dd/ul/li[2]/a/b</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>name=list</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Harness MADTRIXX</td>
+	<td>link=PayPal</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>name=editval[oxarticles__oxprice]</td>
-	<td>1</td>
+	<td>waitForFrameToLoad</td>
+	<td>name=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>name=edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=h1</td>
+	<td>PayPal</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>id=oLockButton</td>
+	<td>id=module_activate</td>
 	<td></td>
 </tr>
 </tbody></table>

@@ -3,40 +3,44 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="http://10.181.212.51/" />
-<title>pc_admin_disable_some_prefs</title>
+<link rel="selenium.base" href="https://192.168.56.101/" />
+<title>oxidTC04_buy_stuff</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">pc_admin_disable_some_prefs</td></tr>
+<tr><td rowspan="1" colspan="3">oxidTC04_buy_stuff</td></tr>
 </thead><tbody>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=General</td>
+	<td>css=form[name=&quot;tobasketnewItems_7&quot;] &gt; div.listDetails &gt; div.buttonBox &gt; button.submitButton.largeButton</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>id=PS_SSL_ENABLED_off</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=PS_TOKEN_ENABLE_off</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>id=PS_USE_HTMLPURIFIER_off</td>
+	<td>id=minibasketIcon</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>name=submitOptionsconfiguration</td>
+	<td>link=Checkout</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>clickAndWait</td>
+	<td>id=paymentNextStepBottom</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>xpath=(//button[@type='submit'])[5]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Home</td>
+	<td></td>
+</tr>
 </tbody></table>
 </body>
 </html>
