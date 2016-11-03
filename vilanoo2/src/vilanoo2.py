@@ -14,7 +14,7 @@ import threading
 import signal
 
 DEBUG     = False
-VERBOSITY = 1
+VERBOSITY = 2
 SIM_DELAY = False
 DELAY     = 1
 
@@ -185,11 +185,14 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
     Q=[]
 
     def do_GET(self):
+        self.close_connection = 1 # THIS STUPID LINE OF CODE IS DOING THE MIRACLE TO AVOID TIMEOUT. DO. NOT. REMOVE. IT. !!!.
         if external_request(self):
             ProxyRequestHandler.do_GET(self)
         else:
             with lock:
                 ProxyRequestHandler.do_GET(self)
+        #self.log_message("Closing TCP connection w/ browser")
+        #self.connection.close()
 
     def request_handler(self, req, req_body):
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
@@ -239,6 +242,10 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
     		self.print_info(req, req_body, res, res_body)
     	else:
     		v_logger.info(http_to_logevt(req, res))
+    
+    def log_message(self, format, *args):
+        v_logger.info(format%args)
+
 
 def start_proxy(address, port, HandlerClass=VilanooProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):
     HandlerClass.protocol_version = protocol

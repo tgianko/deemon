@@ -41,7 +41,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     cacert = 'ca.crt'
     certkey = 'cert.key'
     certdir = 'certs/'
-    timeout = 15
+    timeout = 60
     lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
@@ -116,7 +116,6 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         """
         retries = get_retry_param(url) # if no retry, default 0
         """
-
         if self.path == 'http://proxy2.test/':
             self.send_cacert()
             return
@@ -124,7 +123,6 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         req = self
         content_length = int(req.headers.get('Content-Length', 0))
         req_body = self.rfile.read(content_length) if content_length else None
-
         if req.path[0] == '/':
             if isinstance(self.connection, ssl.SSLSocket):
                 req.path = "https://%s%s" % (req.headers['Host'], req.path)
@@ -159,6 +157,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             res = conn.getresponse()
             res_body = res.read()
         except httplib.BadStatusLine as e:
+            self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
             if origin in self.tls.conns:
                 #print self.tls.conns[origin].sock
                 del self.tls.conns[origin]
@@ -176,6 +175,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             #self.send_error(502)
             return
         except Exception as e:
+            self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
             import SimpleHTTPServer
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
