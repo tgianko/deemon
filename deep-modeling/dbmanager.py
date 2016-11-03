@@ -242,18 +242,67 @@ def show_stats_database(args, graph, logger=None):
 
 def show_csrf(args, graph, logger=None):
 
-
-    http_stchang = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
+    http_reqs   = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})
                                RETURN e.projname AS projname, 
                                       e.session AS session, 
                                       e.user AS user, 
-                                      count(e) AS count""")
-    http_stchang = list(http_stchang)
+                                      count(e) AS http_reqs
+                             ORDER BY projname,
+                                      session,
+                                      user,
+                                      http_reqs""")
+    http_reqs = list(http_reqs)
+
+    sql   = graph.run("""MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[:PARSES]->(e:Event)
+                          WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, pt 
+                        RETURN projname, 
+                               session, 
+                               user, 
+                               count(pt) AS sql
+                      ORDER BY projname,
+                               session,
+                               user,
+                               sql""")
+    sql = list(sql)
+
+    http_stchng = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
+                                 WITH DISTINCT e
+                               RETURN e.projname AS projname, 
+                                      e.session AS session, 
+                                      e.user AS user, 
+                                      count(e) AS http_stchng
+                             ORDER BY projname,
+                                      session,
+                                      user,
+                                      http_stchng""")
+    http_stchng = list(http_stchng)
+
+    stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}) 
+                     WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, sym 
+                   RETURN projname, 
+                          session, 
+                          user, 
+                          count(sym) as stchng_op
+                 ORDER BY projname,
+                          session,
+                          user,
+                          stchng_op""")
+
+    stchang_op = list(stchang_op)
+
+    out = []
+    for els in zip(http_reqs, sql, http_stchng, stchang_op):
+        aux = dict()
+        for e in els:
+            aux.update(dict(e))
+        out.append(aux)
+
+
     print ""
-    print "| {:^20} | {:^20} | {:^20} | {:^20} |".format("PROJECT", "SESSION", "USER", "HTTP ST.CHNG")
-    print "=" * 93
-    for s in http_stchang:
-        print "| {projname:<20} | {session:<20} | {user:<20} | {count:>20} |".format(**s)
+    print "| {:^11} | {:^11} | {:^11} | {:^11} | {:^11} | {:^11} | {:^11} |".format("PROJECT", "SESSION", "USER", "HTTP Reqs.", "SQL Qs.", "HTTP ST.CNG", "ST.CNG OP")
+    print "=" * 99
+    for s in out:
+        print "| {projname:<11} | {session:<11} | {user:<11} | {http_reqs:>11} | {sql:>11} | {http_stchng:>11} | {stchng_op:>11} |".format(**s)
     print "\r\n\r\n"
 
 

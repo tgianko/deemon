@@ -20,7 +20,7 @@ def get_all_sql_queries_of(xdebug_event, graph, logger=None):
 
 def get_http_abstraction_hash(httpRequestEvent, graph, logger=None):
     if list(httpRequestEvent.Caused) == []:
-        print "{} has no xdebug".format(httpRequestEvent)
+        logger.info("{} has no xdebug".format(httpRequestEvent))
         return hashlib.md5("").hexdigest()
     else:
         xdebug = list(httpRequestEvent.Caused)[0]
@@ -42,9 +42,9 @@ def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
     4. return cons list
     """
     firstEvent = Event.select(graph).where("_.dm_type='{}'".format(seleneseIdent)).where("_.projname='{}' AND _.session='{}' AND _.user='{}'".format(projname, session, user)).where("_.seq=1").first()
-    print "{}".format(firstEvent)
+    #print "{}".format(firstEvent)
     firstHttpRequest = list(firstEvent.Caused)[0]
-    print "{}".format(firstHttpRequest)
+    #print "{}".format(firstHttpRequest)
     retList = [[firstHttpRequest, get_http_abstraction_hash(firstHttpRequest,
                                                             graph,
                                                             logger)]]
@@ -103,6 +103,7 @@ def create_dfa(projname, event_hash_list, logger=None):
     state_counter = 0
     start_state = state_to_cluster[state_counter]
     current_state = state_to_cluster[state_counter]
+
     for cons in event_hash_list:
         print "in state {}".format(current_state.uuid)
         state_counter += 1
@@ -116,7 +117,9 @@ def create_dfa(projname, event_hash_list, logger=None):
 
 
 def magic_mike(graph, projname, session, user, logger=None):
+    logger.info("Retrieveing HTTP requests and clustering by state-changing operations...")
     l_event_hash_tuple = get_l_http_event_hash_tuple(graph, projname, session, user, logger)
+    logger.info("Creating DFA...")
     dfa_start = create_dfa(projname, l_event_hash_tuple)
     graph.push(dfa_start)
 
