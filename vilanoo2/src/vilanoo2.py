@@ -316,11 +316,15 @@ def start_selenese_runner(fname,selenese_log):
                     s_logger.info("Pressed  ENTER")
                 
         if proc.poll() is not None:
-            s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
+            if int(proc.poll()) != 0: 
+                s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
+            else:
+                s_logger.error("Selenese-runner-java terminated with code {}. Sending SIGTERM.".format(proc.poll()))
             # TODO: kill only if proc.poll() != 0
-            os.kill(os.getpid(), signal.SIGTERM)
+            
+        s_logger.info("Selenese-runner-jave has terminated. Sending SIGTERM.")
+        os.kill(os.getpid(), signal.SIGTERM)
 
-        s_logger.info("selenese-runner-jave has terminated.")
 
     global selrun_thr
     selrun_thr = threading.Thread(target=_run, name="Selenese Runner")
