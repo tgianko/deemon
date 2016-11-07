@@ -68,7 +68,7 @@ sleep 2
 
 
 tmux new -s ${start_state_name} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -p ${inter_com_port} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
-                                 split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w 5 -p ${vilanoo_listen_port} -P ${inter_com_port} -s ${vilanoo_db_path} -S ${selenese_test_file} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 1024\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
+                                 split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w 10 -p ${vilanoo_listen_port} -P ${inter_com_port} -s ${vilanoo_db_path} -S ${selenese_test_file} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 2048\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
 
 
 

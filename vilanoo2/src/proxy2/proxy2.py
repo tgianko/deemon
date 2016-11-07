@@ -41,7 +41,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     cacert = 'ca.crt'
     certkey = 'cert.key'
     certdir = 'certs/'
-    timeout = 15
+    timeout = 60
     lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
