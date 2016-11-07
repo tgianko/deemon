@@ -264,7 +264,7 @@ def connect_to_mosgi(address, port):
     mosgi_connection.connect((address, port))
 
 
-def start_selenese_runner(fname):
+def start_selenese_runner(fname,selenese_log):
     
     def _run():
         cmdline = ["java", 
@@ -287,7 +287,7 @@ def start_selenese_runner(fname):
         proc = subprocess.Popen(cmdline, bufsize=0, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         time.sleep(0.5)
 
-        with open("selenese.log", "w") as f:
+        with open(selenese_log, "w") as f:
             """
             Read stdout
             """            
@@ -348,6 +348,7 @@ def parse_args(args):
                         default='127.0.0.1',            
                         metavar="IP",   
                         type=str)
+
     parser.add_argument("-P", "--mosgi-port",
                         dest="mosgi_port",
                         help="MOSGI TCP port.",         
@@ -371,6 +372,11 @@ def parse_args(args):
                         dest="selenese",                  
                         help="Specify the selenese test case/suite to run. Vilanoo uses selenese-runner-java (modified to be interactive).",            
                         metavar="PATH", type=str)  
+
+    parser.add_argument("-l", "--selenese-log",
+                        dest="selenese_log",
+                        help="the file which is the selense log for the current run",
+                        metavar="PATH", type=str)
 
     parser.add_argument(      "--selenese-args", 
                         dest="selenese_args",             
@@ -400,7 +406,7 @@ def main(args):
     
     if args_obj.selenese:
         store_sel_commands(args_obj.selenese)
-        start_selenese_runner(args_obj.selenese)
+        start_selenese_runner(args_obj.selenese, args_obj.selenese_log)
         print "started selenese runner"
 
     print "start proxy"

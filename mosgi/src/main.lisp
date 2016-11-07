@@ -193,7 +193,7 @@ waits/responds for commands and executes given commands
 	(FORMAT T "Congratulation you started mosgi - a program which will most likely:~%")
 	(FORMAT T "- crash your computer~%")
 	(FORMAT T "Furthermore it will do/use:~%")
-	(FORMAT T "listen on ~a:~a~%" (aif (getf options :interface) it "127.0.0.1") (aif (getf options :port) it "8844"))
+	(FORMAT T "listen on ~a:~a~%" (aif (getf options :interface) it "127.0.0.1") (aif (getf options :port) it 8844))
 	(FORMAT T "target ssh ~a@~a using password ~a~%" 
 		(aif (getf options :target-system-root) it "root") 
 		(getf options :target-system-ip) 
@@ -213,7 +213,7 @@ waits/responds for commands and executes given commands
                                                    (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
                                                    (aif (getf options :target-system-pwd) it "bitnami")
                                                    (aif (getf options :interface) it "127.0.0.1")
-                                                   (aif (getf options :port) it "8844"))))
+                                                   (aif (getf options :port) it 8844))))
             (unwind-protect
                  (progn 
                    #|(ssh-interface:register-machine (aif (getf options :target-system-root) it "root")
