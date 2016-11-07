@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -ne 7 ]; then
-    echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <mosgi-port>"
+if [ $# -ne 8 ]; then
+    echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <mosgi-port> <vilanoo-port>"
     exit 1
 fi
 
@@ -22,7 +22,7 @@ timestamp=`date '+%Y%m%d%H%M'`
 db_postfix=".db"
 log_postfix=".log"
 mosgi_port=$7
-vilanoo_listen_port=8080
+vilanoo_listen_port=$8
 vilanoo_db_path="${vilanoo_folder}${test_name}-${timestamp}-vilanoo${db_postfix}"
 mosgi_db_path="${vilanoo_folder}${test_name}-${timestamp}-mosgi${db_postfix}"
 vilanoo_log_path="${vilanoo_folder}${test_name}-${timestamp}-vilanoo${log_postfix}"
