@@ -39,7 +39,7 @@ else
 fi
 
 
-java -jar ${selenese_runner} --firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 2048 --set-speed 5000  ${test_case}
+java -jar ${selenese_runner} --firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 2048 --set-speed 8000  ${test_case}
 
 
 vboxmanage snapshot ${vm_name} take ${end_state}

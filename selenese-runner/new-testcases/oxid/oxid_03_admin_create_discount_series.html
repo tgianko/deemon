@@ -3,47 +3,47 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.181.212.172/" />
-<title>Abantecart_admin_logs_in_and_changes_order_status</title>
+<link rel="selenium.base" href="http://10.181.213.183/" />
+<title>oxid_admin_create_discount</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Abantecart_admin_logs_in_and_changes_order_status</td></tr>
+<tr><td rowspan="1" colspan="3">oxid_admin_create_discount</td></tr>
 </thead><tbody>
 <tr>
-	<td>click</td>
-	<td>css=#menu_sale &gt; a.top</td>
+	<td>clickAndWait</td>
+	<td>//dl[2]/dd/ul/li[5]/a/b</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>link=Orders</td>
+	<td>click</td>
+	<td>name=editval[oxvoucherseries__oxserienr]</td>
 	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=editval[oxvoucherseries__oxserienr]</td>
+	<td>Discount time!</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>name=editval[oxvoucherseries__oxdiscount]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=editval[oxvoucherseries__oxdiscount]</td>
+	<td>100</td>
 </tr>
 <tr>
 	<td>select</td>
-	<td>id=order_status_id13</td>
-	<td>label=Completed</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#order_status_id13 &gt; option[value=&quot;5&quot;]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//tr[@id='13']/td[7]/a[2]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//button[@type='button']</td>
-	<td></td>
+	<td>name=editval[oxvoucherseries__oxdiscounttype]</td>
+	<td>label=%</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Logout</td>
+	<td>name=save</td>
 	<td></td>
 </tr>
 </tbody></table>

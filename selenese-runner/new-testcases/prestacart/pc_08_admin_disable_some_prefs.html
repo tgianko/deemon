@@ -3,47 +3,37 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="https://10.181.212.172/" />
-<title>Abantecart_admin_logs_in_and_changes_order_status</title>
+<link rel="selenium.base" href="http://10.181.212.51/" />
+<title>pc_admin_disable_some_prefs</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">Abantecart_admin_logs_in_and_changes_order_status</td></tr>
+<tr><td rowspan="1" colspan="3">pc_admin_disable_some_prefs</td></tr>
 </thead><tbody>
 <tr>
+	<td>clickAndWait</td>
+	<td>css=#maintab-AdminParentPreferences &gt; a.title &gt; span</td>
+	<td></td>
+</tr>
+<tr>
 	<td>click</td>
-	<td>css=#menu_sale &gt; a.top</td>
+	<td>id=PS_SSL_ENABLED_off</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=PS_TOKEN_ENABLE_off</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=PS_USE_HTMLPURIFIER_off</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Orders</td>
-	<td></td>
-</tr>
-<tr>
-	<td>select</td>
-	<td>id=order_status_id13</td>
-	<td>label=Completed</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>css=#order_status_id13 &gt; option[value=&quot;5&quot;]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//tr[@id='13']/td[7]/a[2]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>//button[@type='button']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Logout</td>
+	<td>name=submitOptionsconfiguration</td>
 	<td></td>
 </tr>
 </tbody></table>
