@@ -33,8 +33,8 @@ to the result handler. The result of the result-handler will be returned"
          (progn 
            (funcall logger (FORMAT nil "running remote command ~a" command))
            (ssh:with-command (*global-ssh-connection* stream command)        
-             (funcall result-handler stream))))
-      (funcall logger (FORMAT nil "finished remote command ~a" command))))
+             (funcall result-handler stream)))
+      (funcall logger (FORMAT nil "finished remote command ~a" command)))))
   
 
 (defun scp (remote-name local-name user host password &optional (logger #'(lambda(string)
@@ -132,38 +132,3 @@ using ssh connection with provided username host and password"
 
 
 
-
-#|
-(defparameter *run-p* T)
-
-(with-active-ssh-connection ("root" "192.168.56.101" "bitnami")
-  (let ((thread-2 (sb-thread:make-thread #'(lambda ()
-                                             (do ()
-                                                 ((not *run-p*) nil)
-                                               (backup-all-files-from "/opt/bitnami/php/tmp/" 
-                                                                      "/tmp/test-1/" 
-                                                                      "root" 
-                                                                      "192.168.56.101" 
-                                                                      "bitnami" #'(lambda (string)
-                                                                                    (FORMAT T "~a~%" string)))
-                                               (backup-file "/tmp/xdebug.xt" 
-                                                            "/tmp/test-xdebug-1/" 
-                                                            "root" 
-                                                            "192.168.56.101" 
-                                                            "bitnami" #'(lambda (string)
-                                                                          (FORMAT T "~a~%" string)))))
-                                          :name "mover"))
-        (thread-1 (sb-thread:make-thread #'(lambda ()
-                                             (do ()
-                                                 ((not *run-p*) nil)
-                                               (get-file-as-blob "/tmp/xdebug.xt" 
-                                                                 "root" 
-                                                                 "192.168.56.101" 
-                                                                 "bitnami" #'(lambda (string)
-                                                                               (FORMAT T "~a~%" string)))))
-                                         :name "saver")))
-    (sb-thread:join-thread thread-1)
-    (sb-thread:join-thread thread-2)))
-
-(setf *run-p* t)
-|#
