@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -ne 6 ]; then
-    echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance>"
+if [ $# -ne 7 ]; then
+    echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <timeout>"
     exit 1
 fi
 
