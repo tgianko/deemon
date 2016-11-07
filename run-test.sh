@@ -28,6 +28,7 @@ vilanoo_log_path="${vilanoo_folder}${test_name}-${timestamp}-vilanoo${log_postfi
 mosgi_log_path="${vilanoo_folder}${test_name}-${timestamp}-mosgi${log_postfix}"
 screenshot_path="${vilanoo_folder}${test_name}-${timestamp}-screenshot/"
 db_dump_schema="./data/DBSchemaDump.sql"
+tout=7
 
 
 #default values for bitnami but else these need to become variables
