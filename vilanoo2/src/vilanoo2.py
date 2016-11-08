@@ -262,7 +262,7 @@ def connect_to_mosgi(address, port):
     global mosgi_connection
     mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mosgi_connection.connect((address, port))
-
+    m_logger.info("Connected to MOSGI")
 
 def start_selenese_runner(fname,selenese_log):
     
@@ -325,7 +325,7 @@ def start_selenese_runner(fname,selenese_log):
         s_logger.info("Selenese-runner-jave has terminated. Sending SIGTERM.")
         os.kill(os.getpid(), signal.SIGTERM)
 
-
+    s_logger.info("Running selenese-runner.jar")
     global selrun_thr
     selrun_thr = threading.Thread(target=_run, name="Selenese Runner")
     selrun_thr.start()
@@ -406,14 +406,14 @@ def main(args):
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
 
-    print "connected to mosgi"
+    
     
     if args_obj.selenese:
         store_sel_commands(args_obj.selenese)
         start_selenese_runner(args_obj.selenese, args_obj.selenese_log)
-        print "started selenese runner"
+        
 
-    print "start proxy"
+    
     start_proxy(args_obj.bind, args_obj.port)
     
     return 0
