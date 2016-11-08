@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
-from proxy2.proxy2 import *
+from proxy2.proxy2req import *
 import sqlite3 as lite
 import datetime
 import time
@@ -319,10 +319,11 @@ def start_selenese_runner(fname,selenese_log):
             if int(proc.poll()) != 0: 
                 s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
             else:
-                s_logger.error("Selenese-runner-java terminated with code {}. Sending SIGTERM.".format(proc.poll()))
+                s_logger.error("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
             # TODO: kill only if proc.poll() != 0
-            
-        s_logger.info("Selenese-runner-jave has terminated. Sending SIGTERM.")
+        else:
+            s_logger.info("Selenese-runner.jar has terminated.")
+        
         os.kill(os.getpid(), signal.SIGTERM)
 
     s_logger.info("Running selenese-runner.jar")

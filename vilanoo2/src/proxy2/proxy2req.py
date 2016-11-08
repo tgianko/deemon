@@ -17,7 +17,9 @@ from SocketServer import ThreadingMixIn
 from cStringIO import StringIO
 from subprocess import Popen, PIPE
 from HTMLParser import HTMLParser
-
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def with_color(c, s):
     return "\x1b[%dm%s\x1b[0m" % (c, s)
@@ -41,7 +43,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     cacert = 'ca.crt'
     certkey = 'cert.key'
     certdir = 'certs/'
-    timeout = 60
+    timeout = 120
     lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
@@ -52,10 +54,11 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
     def log_error(self, format, *args):
         # surpress "Request timed out: timeout('timed out',)"
-        if isinstance(args[0], socket.timeout):
-            return
+        #if isinstance(args[0], socket.timeout):
+        #    return
 
         self.log_message(format, *args)
+
 
     def do_CONNECT(self):
         if os.path.isfile(self.cakey) and os.path.isfile(self.cacert) and os.path.isfile(self.certkey) and os.path.isdir(self.certdir):
@@ -140,31 +143,20 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         req_headers = self.filter_headers(req.headers)
 
         try:
-            origin = (scheme, netloc)
-            if not origin in self.tls.conns:
-                if scheme == 'https':
-                    ver = sys.version_info[0:3]
-                    if ver[0] == 2 and ver[1] == 7 and ver[2] < 9: 
-                        self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout)
-                    else:
-                        self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context())
-                else:
-                    self.tls.conns[origin] = httplib.HTTPConnection(netloc, timeout=self.timeout)
-            conn = self.tls.conns[origin]
-            conn.request(self.command, path, req_body, dict(req_headers))
-            res = conn.getresponse()
+            s = requests.Session()
+            n_req = requests.Request(self.command, req.path, data=req_body, headers=dict(req_headers))
+            prepped = n_req.prepare()
+            n_resp = s.send(prepped, timeout=self.timeout, stream=True, allow_redirects=False, verify=False)
+            res = n_resp.raw
             res_body = res.read()
+            res.msg = n_resp.headers
+            s.close()
         except httplib.BadStatusLine as e:
             self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
-            if origin in self.tls.conns:
-                del self.tls.conns[origin]
-            #self.send_error(502)
+
             return
         except Exception as e:
             self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
-            import SimpleHTTPServer
-            if origin in self.tls.conns:
-                del self.tls.conns[origin]
             self.send_error(502)
             return
 
@@ -172,20 +164,20 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         setattr(res, 'headers', res.msg)
         setattr(res, 'response_version', version_table[res.version])
 
-        content_encoding = res.headers.get('Content-Encoding', 'identity')
+        content_encoding = res.headers.get('content-encoding', 'identity')
         res_body_plain = self.decode_content_body(res_body, content_encoding)
 
         res_body_modified = self.response_handler(req, req_body, res, res_body_plain)
         if res_body_modified is not None:
-            res_body_plain = res_body_modified
-            res_body = self.encode_content_body(res_body_plain, content_encoding)
-            res.headers['Content-Length'] = str(len(res_body))
+             res_body_plain = res_body_modified
+             res_body = self.encode_content_body(res_body_plain, content_encoding)
+             res.headers['Content-Length'] = str(len(res_body))
 
         res_headers = self.filter_headers(res.headers)
 
         self.wfile.write("%s %d %s\r\n" % (self.protocol_version, res.status, res.reason))
-        for line in res_headers.headers:
-            self.wfile.write(line)
+        for k, v in res_headers.iteritems():
+            self.wfile.write("{}: {}\r\n".format(k,v))
         self.end_headers()
         self.wfile.write(res_body)
         self.wfile.flush()
@@ -201,7 +193,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         # http://tools.ietf.org/html/rfc2616#section-13.5.1
         hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade')
         for k in hop_by_hop:
-            del headers[k]
+            if k in headers:
+                del headers[k]
         return headers
 
     def encode_content_body(self, text, encoding):
