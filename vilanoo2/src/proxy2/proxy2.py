@@ -93,6 +93,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         try:
             s = socket.create_connection(address, timeout=self.timeout)
         except Exception as e:
+            self.log_message("{} when creating socket in connect_relay: {}".format(e.__class__.__name__, e.message))
             self.send_error(502)
             return
         self.send_response(200, 'Connection Established')
@@ -162,7 +163,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             return
         except Exception as e:
             self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
-            import SimpleHTTPServer
+            #import SimpleHTTPServer
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
             self.send_error(502)

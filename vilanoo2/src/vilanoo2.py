@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
-from proxy2.proxy2req import *
+from proxy2.proxy2 import *
 import sqlite3 as lite
 import datetime
 import time
@@ -182,7 +182,8 @@ def request_relevant_p(req):
     return True
 
 class VilanooProxyRequestHandler(ProxyRequestHandler):
-    Q=[]
+
+    timeout=120
 
     def do_GET(self):
         self.close_connection = 1 # THIS STUPID LINE OF CODE IS DOING THE MIRACLE TO AVOID TIMEOUT. DO. NOT. REMOVE. IT. !!!.
@@ -230,7 +231,6 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
                 # res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
                 # print with_color(32, res_header_text)
                 m_logger.debug("===================finished======================")
-            
 
         
         if SIM_DELAY:
@@ -319,7 +319,7 @@ def start_selenese_runner(fname,selenese_log):
             if int(proc.poll()) != 0: 
                 s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
             else:
-                s_logger.error("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
+                s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
             # TODO: kill only if proc.poll() != 0
         else:
             s_logger.info("Selenese-runner.jar has terminated.")
