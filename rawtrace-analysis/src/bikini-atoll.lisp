@@ -18,5 +18,6 @@
 
 (in-package :database)
 
-(clsql:with-database (db-source-connection 
-(database:get-xdebug-entry (car rem-ids) db-source-connection)
+(FORMAT T "~a~%"
+        (clsql:with-database (db-source-connection (list "/home/simkoc/hiwi/csrf/results/Abantecart_TS_11_user_logs_in_and_changes_email-201611072217-mosgi.db") :database-type :sqlite3)
+          (database:get-xdebug-entry 26 db-source-connection)))
