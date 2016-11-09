@@ -174,7 +174,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         setattr(res, 'response_version', version_table[res.version])
 
         content_encoding = res.headers.get('Content-Encoding', 'identity')
-        res_body_plain = self(res_body, content_encoding)
+        res_body_plain = self.decode_content_body(res_body, content_encoding)
 
         res_body_modified = self.response_handler(req, req_body, res, res_body_plain)
         if res_body_modified is not None:
