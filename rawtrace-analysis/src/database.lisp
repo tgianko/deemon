@@ -25,7 +25,7 @@
 
 
 (defun merge-databases (source-db-vilanoo source-db-mosgi)
-  (clsql:execute-command "DELETE FROM HTTP-REQUESTS WHERE 1 = 1;" :database source-db-mosgi) 
+  (clsql:execute-command "DELETE FROM HTTP_REQUESTS WHERE 1 = 1;" :database source-db-mosgi) 
   (copy-http-request-entries (get-all-http-request-ids 0 (get-highest-http-request-id-entry source-db-vilanoo) source-db-vilanoo)
 			     source-db-vilanoo
 			     source-db-mosgi))
