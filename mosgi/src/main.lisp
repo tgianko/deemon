@@ -203,6 +203,17 @@ waits/responds for commands and executes given commands
         (ssh-interface:with-active-ssh-connection ((getf options :target-system-root)
                                                    (getf options :target-system-ip)
                                                    (getf options :target-system-pwd))
+          (FORMAT T "scanning /tmp/:~%~a~%"
+                  (ssh-interface:folder-content-guest "/tmp/" 
+                                                      (getf options :target-system-root)
+                                                      (getf options :target-system-ip)
+                                                      (getf options :target-system-pwd)))
+          (ssh-interface:run-remote-shell-command "rm /tmp/*.xt" 
+                                                  (getf options :target-system-root)
+                                                  (getf options :target-system-ip)
+                                                  (getf options :target-system-pwd)
+                                                  #'(lambda (discard)
+                                                      (declare (ignore discard))))
           (let ((differ-thread (create-saver-thread  (aif (getf options :target-system-root) it "root")
                                                      (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
                                                      (aif (getf options :target-system-pwd) it "bitnami")

@@ -57,6 +57,7 @@ chmod +x $mount_point$bitnami_startup_script
 
 echo "ifconfig eth0 | grep 'inet addr' | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> $mount_point$bitnami_startup_script
 
+
 #enabling a root password
 cp ./bitnami_shadow "${mount_point}/etc/shadow"
 chmod "u-x,g-x,o-wx" "${mount_point}/etc/shadow" 
