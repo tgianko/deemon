@@ -144,18 +144,23 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun parse-xdebug-trace-helper (stream)
+  (progn 
     (read-line stream nil nil) ;the first three
     (read-line stream nil nil) ;lines are really
     (read-line stream nil nil) ;not needed
     (do ((line (read-line stream nil nil)
-	       (read-line stream nil nil))
-	 (records nil)
-	 (stop-p nil))
-	(stop-p (reverse records))
-      (let ((last (parse-xdebug-trace-line line)))
-	(if last 
-	    (push last records)
-	    (setf stop-p T)))))
+               (read-line stream nil nil))
+         (records nil)
+         (stop-p nil))
+        (stop-p (reverse records))
+      (handler-case
+          (let ((last (parse-xdebug-trace-line line)))
+            (if last 
+                (push last records)
+                (setf stop-p T)))
+        (error (e)
+          (FORMAT T "ERROR WHILE PARSING XDEBUG~% LINE: ~a~% ERROR:~%~a~%" line e))))))
+        
 	  
 
 (defun make-xdebug-trace (stream)
