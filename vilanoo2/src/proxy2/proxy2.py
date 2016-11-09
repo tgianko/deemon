@@ -155,6 +155,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             conn.request(self.command, path, req_body, dict(req_headers))
             res = conn.getresponse()
             res_body = res.read()
+            print "I READ THE BODY!!", res_body
         except httplib.BadStatusLine as e:
             self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
             if origin in self.tls.conns:
@@ -184,6 +185,9 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         res_headers = self.filter_headers(res.headers)
 
+        if "content-length" not in res_headers:
+            res_headers["content-length"] = str(len(res_body))
+
         self.wfile.write("%s %d %s\r\n" % (self.protocol_version, res.status, res.reason))
         for line in res_headers.headers:
             self.wfile.write(line)
@@ -193,6 +197,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         with self.lock:
             self.save_handler(req, req_body, res, res_body_plain)
+
 
     do_HEAD = do_GET
     do_POST = do_GET

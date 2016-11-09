@@ -120,11 +120,12 @@ def store_httpreq(request,request_body):
     method_type = request.command
     
 
-    con = lite.connect(args_obj.sqlitedb)        
+    con = lite.connect(args_obj.sqlitedb) 
+    con.text_factory = str       
     with con:            
         cur = con.cursor()            
         ##inserting the http_request that triggered the sql_queries            
-        data = (sel_cmd_id, datetime.datetime.now(), request.path, headers,body, method_type, cookies, "unknown")
+        data = (sel_cmd_id, datetime.datetime.now(), request.path, headers, body, method_type, cookies, "unknown")
         cur.execute("INSERT INTO http_requests (command_id, time, request_url, headers, request_body, method_type, cookies, status_code) VALUES(?,?,?,?,?,?,?,?)",
                     data)
         request_id = cur.lastrowid
@@ -291,7 +292,7 @@ def start_selenese_runner(fname,selenese_log):
             """
             Read stdout
             """            
-            s_logger.info("start running the show")
+            s_logger.info("Start running the show")
             for line in iter(proc.stdout.readline, b""):
                 f.write(line)
 
@@ -315,15 +316,19 @@ def start_selenese_runner(fname,selenese_log):
                     proc.stdin.write("\n")
                     s_logger.info("Pressed  ENTER")
                 
-        if proc.poll() is not None:
-            if int(proc.poll()) != 0: 
-                s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
-            else:
-                s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
-            # TODO: kill only if proc.poll() != 0
+        #if proc.poll() is not None:
+        #    if int(proc.poll()) != 0: 
+        #        s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
+        #    else:
+        #        s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
+        #    # TODO: kill only if proc.poll() != 0
+        #else:
+        #    s_logger.info("Selenese-runner.jar has terminated.")
+        if proc.returncode != 0:
+            s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
         else:
-            s_logger.info("Selenese-runner.jar has terminated.")
-        
+            s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
+
         os.kill(os.getpid(), signal.SIGTERM)
 
     s_logger.info("Running selenese-runner.jar")
