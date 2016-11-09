@@ -120,13 +120,13 @@ def load_cmd2http_sqlite(fname, logger=None):
 
 def load_xdebug_sqlite(fname, logger=None):
     if logger is not None:
-        logger.info("Loading XDEBUG traces from Analyzer SQLite db")
+        logger.info("Loading XDEBUG traces from Mosgi SQLite db")
 
     con = lite.connect(fname)
     ids = []
     with con:
         cur = con.cursor()
-        rs = cur.execute("SELECT DISTINCT  http_request_id FROM sql_queries ORDER BY 1 ASC")
+        rs = cur.execute("SELECT DISTINCT  http_request_id FROM xdebug_dumps ORDER BY 1 ASC")
         ids = list(rs)
     return ids
 
@@ -217,10 +217,10 @@ def show_stats_database(args, graph, logger=None):
     stats = graph.run("MATCH (n:Event) RETURN DISTINCT n.projname AS projname, n.session AS session, n.user AS user")
     stats = list(stats)
     print ""
-    print "| {:^20} | {:^20} | {:^20} |".format("PROJECT", "SESSION", "USER")
-    print "=" * 70
+    print "| {:^20} | {:^60} | {:^20} |".format("PROJECT", "SESSION", "USER")
+    print "=" * 110
     for s in stats:
-        print "| {projname:<20} | {session:<20} | {user:<20} |".format(**s)
+        print "| {projname:<20} | {session:<60} | {user:<20} |".format(**s)
     print "\r\n\r\n"
 
 
@@ -290,8 +290,43 @@ def show_csrf(args, graph, logger=None):
 
     stchang_op = list(stchang_op)
 
+    df_stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}), 
+                                        df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
+                         WITH DISTINCT sym.projname AS projname, 
+                                       e.session AS session, 
+                                       e.user AS user, 
+                                       v1 
+                                RETURN projname, 
+                                       session, 
+                                       user, 
+                                       count(v1) AS df_stchng_op
+                              ORDER BY projname,
+                                       session,
+                                       user,
+                                       df_stchng_op""")
+
+    df_stchang_op = list(df_stchang_op)
+
+    df_big_stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}), 
+                                           df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
+                                     WHERE size(v1.value) > 10
+                             WITH DISTINCT sym.projname AS projname, 
+                                           e.session AS session, 
+                                           e.user AS user, 
+                                           v1 
+                                      RETURN projname, 
+                                           session, 
+                                           user, 
+                                           count(v1) AS df_big_stchng_op
+                                  ORDER BY projname,
+                                           session,
+                                           user,
+                                           df_big_stchng_op""")
+
+    df_big_stchang_op = list(df_big_stchang_op)
+
     out = []
-    for els in zip(http_reqs, sql, http_stchng, stchang_op):
+    for els in zip(http_reqs, sql, http_stchng, stchang_op, df_stchang_op, df_big_stchang_op):
         aux = dict()
         for e in els:
             aux.update(dict(e))
@@ -299,10 +334,11 @@ def show_csrf(args, graph, logger=None):
 
 
     print ""
-    print "| {:^11} | {:^11} | {:^11} | {:^11} | {:^11} | {:^11} | {:^11} |".format("PROJECT", "SESSION", "USER", "HTTP Reqs.", "SQL Qs.", "HTTP ST.CNG", "ST.CNG OP")
-    print "=" * 99
+    hdr = "| {:^14} | {:^60} | {:^14} | {:^14} | {:^14} | {:^14} | {:^14} | {:^14} | {:^14}|".format("PROJECT", "SESSION", "USER", "HTTP Reqs.", "SQL Qs.", "HTTP ST.CNG", "ST.CNG OP", "DF ST.CNG OP", "DF ST.CNG OP>10")
+    print hdr
+    print "=" * len(hdr)
     for s in out:
-        print "| {projname:<11} | {session:<11} | {user:<11} | {http_reqs:>11} | {sql:>11} | {http_stchng:>11} | {stchng_op:>11} |".format(**s)
+        print "| {projname:<14} | {session:<60} | {user:<14} | {http_reqs:>14} | {sql:>14} | {http_stchng:>14} | {stchng_op:>14} | {df_stchng_op:>14} | {df_big_stchng_op:>14} |".format(**s)
     print "\r\n\r\n"
 
 
@@ -325,40 +361,40 @@ def import_all(args, graph, logger=None):
 
 
 def import_selenese(args, graph, logger=None):
-    cmdlist = load_selcmd_sqlite(args.raw_filename)
+    cmdlist = load_selcmd_sqlite(args.vilanoo_fname)
     insert_selenese(graph, cmdlist, args.projname,
                                      args.session, args.user, logger)
     
 
 def import_http(args, graph, logger=None):
-    hreqs = load_hreqs_sqlite(args.raw_filename)
-    hress = load_hres_sqlite(args.raw_filename)
+    hreqs = load_hreqs_sqlite(args.vilanoo_fname)
+    hress = load_hres_sqlite(args.vilanoo_fname)
     insert_http(graph, hreqs, hress, args.projname,
                                     args.session, args.user, logger)
 
     
 def import_rel_selhttp(args, graph, logger=None):
-    ids = load_cmd2http_sqlite(args.raw_filename)
+    ids = load_cmd2http_sqlite(args.vilanoo_fname)
     insert_causality_selhttp(graph, ids, args.projname,
                                     args.session, args.user, logger)
 
 
 def import_xdebug(args, graph, logger=None):
-    ids = load_xdebug_sqlite(args.parsed_filename)
+    ids = load_xdebug_sqlite(args.mosgi_fname)
     insert_xdebug(graph, ids, args.projname,
                                    args.session, args.user, logger)
 
 def import_sql(args, graph, logger=None):
-    ids = load_queries_sqlite(args.parsed_filename)
+    ids = load_queries_sqlite(args.analyzer_fname)
     insert_queries(graph, ids, args.projname,
                                    args.session, args.user, logger)
 
 
 def import_session(args, graph, logger=None):
-    sessions = load_php_sessions_dumps(args.parsed_filename)
+    sessions = load_php_sessions_dumps(args.analyzer_fname)
     insert_session_dumps(graph, sessions, args.projname,
                                     args.session, args.user, logger)
-    sessions = load_php_sessions(args.parsed_filename)
+    sessions = load_php_sessions(args.analyzer_fname)
     insert_sessions(graph, sessions, args.projname,
                                      args.session, args.user, logger)
 
@@ -454,26 +490,24 @@ def parse_args(args):
     Import all
     """
 
-    imp_all_p = imp_subp.add_parser("all", help="Import all data into Neo4j")
-    imp_all_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
- database filename")
-    imp_all_p.add_argument("parsed_filename", help="Analyzer SQLite3 database")
-    imp_all_p.add_argument("projname", help="Project name")
-    imp_all_p.add_argument("session",  help="Session identifier")
-    imp_all_p.add_argument("user",     help="User identifier")
+    imp_all_p = imp_subp.add_parser("all",   help="Import all data into Neo4j")
+    imp_all_p.add_argument("vilanoo_fname",  help="Vilanoo2 SQLite3 database filename")
+    imp_all_p.add_argument("mosgi_fname",    help="Mosgi SQLite3 database")
+    imp_all_p.add_argument("analyzer_fname", help="Analyzer SQLite3 database")
+    imp_all_p.add_argument("projname",       help="Project name")
+    imp_all_p.add_argument("session",        help="Session identifier")
+    imp_all_p.add_argument("user",           help="User identifier")
     imp_all_p.set_defaults(func=import_all)
 
     """
     Import Selenese
     """
 
-    imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese PTs/trace\
- from vilanoo2 SQLite3 database")
-    imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
- database filename")
-    imp_sel_p.add_argument("projname", help="Project name")
-    imp_sel_p.add_argument("session",  help="Session identifier")
-    imp_sel_p.add_argument("user",     help="User identifier")
+    imp_sel_p = imp_subp.add_parser("selenese", help="Import Selenese PTs/trace from vilanoo2 SQLite3 database")
+    imp_sel_p.add_argument("vilanoo_fname",     help="Vilanoo2 SQLite3 database filename")
+    imp_sel_p.add_argument("projname",          help="Project name")
+    imp_sel_p.add_argument("session",           help="Session identifier")
+    imp_sel_p.add_argument("user",              help="User identifier")
     imp_sel_p.set_defaults(func=import_selenese)
 
     """
@@ -482,7 +516,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("http", help="Import HTTP PTs/trace from\
  vilanoo2 SQLite3 database")
-    imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
+    imp_sel_p.add_argument("vilanoo_fname", help="Vilanoo2 SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
@@ -496,7 +530,7 @@ def parse_args(args):
     imp_sel_p = imp_subp.add_parser("rel_selhttp", help="Import causality\
  between Selenese and HTTP events from from vilanoo2\
  SQLite3 database")
-    imp_sel_p.add_argument("raw_filename", help="Vilanoo2 SQLite3\
+    imp_sel_p.add_argument("vilanoo_fname", help="Vilanoo2 SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
@@ -509,8 +543,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("xdebug", help="Import XDEBUG traces\
  from Analyzer SQLite3 database")
-    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
- database filename")
+    imp_sel_p.add_argument("mosgi_fname", help="Mosgi SQLite3 database")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
     imp_sel_p.add_argument("user",     help="User identifier")
@@ -522,7 +555,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("sql", help="Import SQL PTs\
  from Analyzer SQLite3 database")
-    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
+    imp_sel_p.add_argument("analyzer_fname", help="Analyzer SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
@@ -535,7 +568,7 @@ def parse_args(args):
 
     imp_sel_p = imp_subp.add_parser("phpsession", help="Import PHPSessions Trace and PTs\
  from Analyzer SQLite3 database")
-    imp_sel_p.add_argument("parsed_filename", help="Analyzer SQLite3\
+    imp_sel_p.add_argument("analyzer_fname", help="Analyzer SQLite3\
  database filename")
     imp_sel_p.add_argument("projname", help="Project name")
     imp_sel_p.add_argument("session",  help="Session identifier")
