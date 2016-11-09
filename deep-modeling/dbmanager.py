@@ -377,7 +377,7 @@ def analysis_model_inference(args, graph, logger=None):
     magic_mike(graph, args.projname, args.session, args.user, logger)
 
 
-def do_analysis_all(args, graph, logger=None):
+def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
     analysis_model_inference(args, graph, logger)
 
@@ -409,34 +409,36 @@ def parse_args(args):
     ========
     """
 
-    analysis_p = subp.add_parser("analysis", help="analysing existing graph")
-    analysis_subp = analysis_p.add_subparsers()
+    an_p = subp.add_parser("analysis", help="analysing existing graph")
+    an_subp = an_p.add_subparsers()
 
-    analysis_all = analysis_subp.add_parser("all",
-                                            help="do all avail. analysis")
-    analysis_all.set_defaults(func=do_analysis_all)
+    an_all = an_subp.add_parser("all", help="do all avail. analysis")
+    an_all.add_argument("projname", help="Project name")
+    an_all.add_argument("session",  help="Session identifier")
+    an_all.add_argument("user",     help="User identifier")
+    an_all.set_defaults(func=analysis_all)
 
 
     """
     Data propagation
     """
 
-    analysis_df = analysis_subp.add_parser("dataflow",
+    an_df = an_subp.add_parser("dataflow",
                                                  help="Create data flow model")
-    analysis_df.add_argument("projname", help="Project name")
-    analysis_df.add_argument("session",  help="Session identifier")
-    analysis_df.add_argument("user",     help="User identifier")
-    analysis_df.set_defaults(func=analysis_dataflow)
+    an_df.add_argument("projname", help="Project name")
+    an_df.add_argument("session",  help="Session identifier")
+    an_df.add_argument("user",     help="User identifier")
+    an_df.set_defaults(func=analysis_dataflow)
 
     """
     Model inference
     """
-    analysis_inference = analysis_subp.add_parser("inference",
+    an_inference = an_subp.add_parser("inference",
                                                   help="Infer DFA/NFA models")
-    analysis_inference.add_argument("projname", help="Project name")
-    analysis_inference.add_argument("session",  help="Session identifier")
-    analysis_inference.add_argument("user",     help="User identifier")
-    analysis_inference.set_defaults(func=analysis_model_inference)
+    an_inference.add_argument("projname", help="Project name")
+    an_inference.add_argument("session",  help="Session identifier")
+    an_inference.add_argument("user",     help="User identifier")
+    an_inference.set_defaults(func=analysis_model_inference)
 
     
 

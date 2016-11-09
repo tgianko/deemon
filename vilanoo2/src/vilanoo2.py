@@ -182,7 +182,8 @@ def request_relevant_p(req):
     return True
 
 class VilanooProxyRequestHandler(ProxyRequestHandler):
-    Q=[]
+
+    timeout=120
 
     def do_GET(self):
         self.close_connection = 1 # THIS STUPID LINE OF CODE IS DOING THE MIRACLE TO AVOID TIMEOUT. DO. NOT. REMOVE. IT. !!!.
@@ -230,7 +231,6 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
                 # res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)       
                 # print with_color(32, res_header_text)
                 m_logger.debug("===================finished======================")
-            
 
         
         if SIM_DELAY:
@@ -262,7 +262,7 @@ def connect_to_mosgi(address, port):
     global mosgi_connection
     mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     mosgi_connection.connect((address, port))
-
+    m_logger.info("Connected to MOSGI")
 
 def start_selenese_runner(fname,selenese_log):
     
@@ -319,13 +319,14 @@ def start_selenese_runner(fname,selenese_log):
             if int(proc.poll()) != 0: 
                 s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
             else:
-                s_logger.error("Selenese-runner-java terminated with code {}. Sending SIGTERM.".format(proc.poll()))
+                s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
             # TODO: kill only if proc.poll() != 0
-            
-        s_logger.info("Selenese-runner-jave has terminated. Sending SIGTERM.")
+        else:
+            s_logger.info("Selenese-runner.jar has terminated.")
+        
         os.kill(os.getpid(), signal.SIGTERM)
 
-
+    s_logger.info("Running selenese-runner.jar")
     global selrun_thr
     selrun_thr = threading.Thread(target=_run, name="Selenese Runner")
     selrun_thr.start()
@@ -406,14 +407,14 @@ def main(args):
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
 
-    print "connected to mosgi"
+    
     
     if args_obj.selenese:
         store_sel_commands(args_obj.selenese)
         start_selenese_runner(args_obj.selenese, args_obj.selenese_log)
-        print "started selenese runner"
+        
 
-    print "start proxy"
+    
     start_proxy(args_obj.bind, args_obj.port)
     
     return 0
