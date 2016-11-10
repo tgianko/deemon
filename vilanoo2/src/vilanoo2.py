@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
-from proxy2.proxy2 import *
+from proxy2.proxy2req import *
 import sqlite3 as lite
 import datetime
 import time
