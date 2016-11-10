@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
-from proxy2.proxy2 import *
+from proxy2.proxy2req import *
 import sqlite3 as lite
 import datetime
 import time
@@ -14,7 +14,7 @@ import threading
 import signal
 
 DEBUG     = False
-VERBOSITY = 2
+VERBOSITY = 1
 SIM_DELAY = False
 DELAY     = 1
 
@@ -198,7 +198,10 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
 
     def request_handler(self, req, req_body):
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
-        v_logger.debug(with_color(32, req_header_text))
+        if VERBOSITY > 2:
+            v_logger.debug(with_color(32, req_header_text))
+        #elif VERBOSITY == 1 and request_relevant_p(req):
+        #    v_logger.debug(with_color(32, req_header_text))
 
         if args_obj.dismosgi:
             m_logger.debug("===================start=========================")
@@ -207,8 +210,11 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
 
     def response_handler(self, req, req_body, res, res_body):
         res_header_text = "%s %d %s\n%s" % (res.response_version, res.status, res.reason, res.headers)   
-        v_logger.debug(with_color(32, res_header_text))
-               
+        if VERBOSITY > 2:
+            v_logger.debug(with_color(32, res_header_text))
+        #elif VERBOSITY == 1 and request_relevant_p(req):
+        #    v_logger.debug(with_color(32, res_header_text))
+            
         if request_relevant_p(req):
             
             v_logger.debug("Storing HTTP request and responses into DB")
@@ -240,7 +246,11 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
 
     def save_handler(self, req, req_body, res, res_body):
     	if DEBUG:
-    		self.print_info(req, req_body, res, res_body)
+            if VERBOSITY > 2:
+                self.print_info(req, req_body, res, res_body)
+            elif VERBOSITY == 1 and request_relevant_p(req):
+                self.print_info(req, req_body, res, res_body)
+
     	else:
     		v_logger.info(http_to_logevt(req, res))
     
@@ -324,7 +334,7 @@ def start_selenese_runner(fname,selenese_log):
         #    # TODO: kill only if proc.poll() != 0
         #else:
         #    s_logger.info("Selenese-runner.jar has terminated.")
-        if proc.returncode != 0:
+        if proc.returncode != "0":
             s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
         else:
             s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))

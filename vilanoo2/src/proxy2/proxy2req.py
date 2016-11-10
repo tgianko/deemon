@@ -149,7 +149,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             n_resp = s.send(prepped, timeout=self.timeout, stream=True, allow_redirects=False, verify=False)
             res = n_resp.raw
             res_body = res.read()
-            res.msg = n_resp.headers
+            res.msg = res.getheaders()
             s.close()
         except httplib.BadStatusLine as e:
             self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
@@ -173,7 +173,10 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
              res_body = self.encode_content_body(res_body_plain, content_encoding)
              res.headers['Content-Length'] = str(len(res_body))
 
-        res_headers = self.filter_headers(res.headers)
+        res_headers = self.filter_respheaders(res.headers)
+
+        if "content-length" not in res_headers:
+            res_headers["content-length"] = str(len(res_body))
 
         self.wfile.write("%s %d %s\r\n" % (self.protocol_version, res.status, res.reason))
         for k, v in res_headers.iteritems():
@@ -189,10 +192,17 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     do_POST = do_GET
     do_OPTIONS = do_GET
 
+
+    hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade')
     def filter_headers(self, headers):
+        # http://tools.ietf.org/html/rfc2616#section-13.5.1        
+        for k in self.hop_by_hop:
+            del headers[k]
+        return headers
+
+    def filter_respheaders(self, headers):
         # http://tools.ietf.org/html/rfc2616#section-13.5.1
-        hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade')
-        for k in hop_by_hop:
+        for k in self.hop_by_hop:
             if k in headers:
                 del headers[k]
         return headers
@@ -289,9 +299,9 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         print with_color(36, res_header_text)
 
-        cookies = res.headers.getheaders('Set-Cookie')
+        cookies = res.headers.get('Set-Cookie', None)
         if cookies:
-            cookies = '\n'.join(cookies)
+            #cookies = '\n'.join(cookies)
             print with_color(31, "==== SET-COOKIE ====\n%s\n" % cookies)
 
         if res_body is not None:
