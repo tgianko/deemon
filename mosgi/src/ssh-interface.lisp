@@ -86,12 +86,36 @@ in folder path using ssh connection with provided username host and password"
   "returns the string that represents the contetn of the file specified as file-path
 using ssh connection with provided username host and password"
   (sb-thread:with-mutex (*ssh-file-mutex*)
+    (sb-ext:gc :full t)
     (scp file-path +scp-buffer-file-path+ username host password)
-    (with-open-file (tmp-stream +scp-buffer-file-path+)
-      (funcall logger (FORMAT nil "transfered ~a characters from ~a" (file-length tmp-stream) file-path))
-      (let ((sequence (make-array (file-length tmp-stream) :element-type 'character :adjustable nil)))
-        (read-sequence sequence tmp-stream)
-        sequence))))
+    (let ((result (get-file-as-simple-string +scp-buffer-file-path+)))
+      (sleep 3)
+      (sb-ext:gc :full t)
+      result)))
+
+
+(defun get-file-as-file (remote-target local-target &optional (logger #'(lambda(string)
+                                                                          (FORMAT (make-broadcast-stream) "~a~%" string))))
+  (scp remote-target local-target "" "" "" logger)
+  local-target)
+
+
+(defun get-file-as-simple-string (file-path)
+  (labels ((get-simple-string ()
+             (with-open-file (tmp-stream file-path :element-type 'character :external-format :latin1)
+               (let ((sequence (make-array (file-length tmp-stream) :element-type 'character :adjustable nil)))
+                 (read-sequence sequence tmp-stream)
+                 (let ((clean-sequence (remove-if-not #'(lambda(char)
+                                                          (typep char 'base-char)) sequence)))
+                   (let ((simple-string (make-array (length clean-sequence) 
+                                                    :element-type 'base-char
+                                                    :initial-contents clean-sequence
+                                                    :adjustable nil)))
+                     (setf sequence nil)
+                     (setf clean-sequence nil)
+                     simple-string))))))
+    (let ((simple-string (get-simple-string)))
+      simple-string)))
 
 
 (defun get-file-as-blob (file-path username host password &optional (logger #'(lambda(string)
@@ -129,6 +153,4 @@ using ssh connection with provided username host and password"
 (defun delete-folder (folder user host pwd &optional (logger #'(lambda(string)
                                                                  (FORMAT (make-broadcast-stream) "~a~%" string))))
   (run-remote-shell-command (FORMAT nil "rm -rf ~a" folder) user host pwd (discard-data-lambda) logger))
-
-
 

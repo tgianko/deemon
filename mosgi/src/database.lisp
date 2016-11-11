@@ -1,5 +1,7 @@
 (in-package :de.uni-saarland.syssec.mosgi.database)
 
+(defparameter +inbetween-buffer+ "/tmp/clsqlbuffer")
+(defparameter +inbetween-buffer-query+ "/tmp/clsqlbuffer64-query")
 
 (clsql:file-enable-sql-reader-syntax)
 
@@ -15,22 +17,23 @@
 			  :database database-connection)))
     
 
+(defun create-file-query (xdebug-file-path request-db-id)
+  ;(with-open-file (stream +inbetween-buffer+ :direction :output :if-does-not-exist :create :if-exists :supersede)
+  ;  (FORMAT stream "~a" xdebug-string))
+  (with-open-file (stream +inbetween-buffer-query+ :direction :output :if-does-not-exist :create :if-exists :supersede)
+    (FORMAT stream "INSERT INTO XDEBUG_DUMPS (HTTP_REQUEST_ID,DUMP_CONTENT) VALUES (~a,\"" request-db-id))
+  (FORMAT T "ret:~a~%"
+          (trivial-shell:shell-command (FORMAT nil "`/usr/bin/which gzip` ~a --stdout | `/usr/bin/which base64` >> ~a" 
+                                               xdebug-file-path
+                                               +inbetween-buffer-query+)))
+  (with-open-file (stream +inbetween-buffer-query+ :direction :output :if-exists :append)
+    (FORMAT stream "\");")))
 
-(clsql:def-view-class xdebug-dumps ()
-  ((http-request-id
-    :type (integer)
-    :accessor http-request-id
-    :initarg :http-request-id)
-   (dump-content
-    :type (array)
-    :accessor dump-content
-    :initarg :dump-content)))
 
-
-
-(defun enter-xdebug-file-raw-into-db (xdebug-blob request-db-id database-connection com-func)
+(defun enter-xdebug-file-into-db (xdebug-file-path request-db-id database-connection com-func)
   (declare (ignore com-func))
-  (let ((instance (make-instance 'xdebug-dumps
-                                 :dump-content (gzip-stream:gzip-sequence xdebug-blob) ;I hate this scheme but compression is needed else heap exhaustion
-                                 :http-request-id request-db-id)))
-    (clsql:update-records-from-instance instance :database database-connection)))
+  (create-file-query xdebug-file-path request-db-id)
+  (funcall com-func (FORMAT nil "Executed cat | sqlite3: ~a"
+                            (trivial-shell:shell-command (FORMAT nil "`which cat` ~a | `which sqlite3` ~a"
+                                                                 +inbetween-buffer-query+
+                                                                 (clsql:database-name database-connection))))))

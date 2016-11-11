@@ -15,6 +15,8 @@
 	   run-remote-shell-command
 	   convert-to-utf8-encoding
 	   backup-all-files-from
+           get-file-as-simple-string
+           get-file-as-file
 	   backup-file
 	   delete-folder	   
 	   register-machine
@@ -38,5 +40,5 @@
   (:use :cl)
   (:nicknames :database)
   (:export enter-sessions-raw-into-db
-	   enter-xdebug-file-raw-into-db))
+	   enter-xdebug-file-into-db))
 	   

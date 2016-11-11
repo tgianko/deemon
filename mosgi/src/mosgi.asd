@@ -8,7 +8,8 @@
 		 :clsql
 		 :sb-concurrency
                  :gzip-stream
-                 :cl-base64)
+                 :cl-base64
+                 :trivial-shell)
     :components ((:file "packages")
 		 (:file "communication" :depends-on ("packages"))
 		 (:file "ssh-interface" :depends-on ("packages"))
