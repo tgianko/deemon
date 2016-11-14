@@ -13,14 +13,13 @@ import subprocess
 import threading
 import signal
 
-DEBUG     = False
-VERBOSITY = 1
+DEBUG     = True
+VERBOSITY = 2
 SIM_DELAY = False
 DELAY     = 1
 
 # Parsed arguments object
 args_obj = None
-
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
 else:
@@ -187,7 +186,7 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
     timeout=120
 
     def do_GET(self):
-        self.close_connection = 1 # THIS STUPID LINE OF CODE IS DOING THE MIRACLE TO AVOID TIMEOUT. DO. NOT. REMOVE. IT. !!!.
+        self.close_connection = 0 # THIS STUPID LINE OF CODE IS DOING THE MIRACLE TO AVOID TIMEOUT. DO. NOT. REMOVE. IT. !!!.
         if external_request(self):
             ProxyRequestHandler.do_GET(self)
         else:
@@ -246,11 +245,12 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
 
     def save_handler(self, req, req_body, res, res_body):
     	if DEBUG:
-            if VERBOSITY > 2:
+            if VERBOSITY >= 2:
                 self.print_info(req, req_body, res, res_body)
-            elif VERBOSITY == 1 and request_relevant_p(req):
+            elif VERBOSITY > 1 and request_relevant_p(req):
                 self.print_info(req, req_body, res, res_body)
-
+            else:
+                v_logger.info(http_to_logevt(req, res))
     	else:
     		v_logger.info(http_to_logevt(req, res))
     
