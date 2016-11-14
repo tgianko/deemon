@@ -140,7 +140,7 @@ def parse_body(body, ctype, projname, dm_type):
     if "multipart/form-data" in ctype:
         # parse multipart/form-data body
         body_n = ParseTree(projname, MULTIPART, body)
-        s_obj = StringIO(body)
+        s_obj = StringIO(body.encode("utf-8"))
         boundary = ctype.split("; boundary=")[1]
         mp = multipart.MultipartParser(s_obj, boundary)
         pos = 0
