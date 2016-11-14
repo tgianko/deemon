@@ -27,7 +27,7 @@ else:
     log.LEVEL = log.LEVELS[0]
 
 logger        = log.getdebuglogger("tester")
-sqlite_schema = os.path.join(os.getcwd(), "../data/DBSchema_CSRF_tests.sql")
+sqlite_schema = os.path.join(os.getcwd(), "../data/DBSchemaCSRFTests.sql")
 
 
 def test_stats(args, graph, logger=None):
