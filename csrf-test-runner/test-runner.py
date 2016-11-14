@@ -5,6 +5,7 @@ import utils.log as log
 from urlparse import urlunparse, urlparse
 import sqlite3 as lite
 import json
+import datetime
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -76,6 +77,19 @@ def fetch_request_by_id(filename, seq_id):
         reqs = list(rs)
     return reqs
 
+def store_httpresp(req_id, response, filename):
+
+    headers = json.dumps(dict(response.headers))
+
+    con = lite.connect(filename)   
+    con.text_factory = str     
+    with con:            
+        cur = con.cursor()           
+        data = (req_id, datetime.datetime.now(), response.status_code, headers, response.content)
+        cur.execute("INSERT INTO http_responses (req_id, time, status_code, headers, content) VALUES(?,?,?,?,?)",
+                    data)
+
+    return 
 
 def do_send_req(command, url, headers, body, proxy=None):
     """
@@ -183,10 +197,13 @@ def main(args):
 
         reqobj, respobj = do_send_req(command, url, headers, body)
 
+        store_httpresp(seq_id, respobj, args_obj.database)
+
         if args_obj.dismosgi:
             send_start_to_mosgi(seq_id)
 
         print respobj
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
