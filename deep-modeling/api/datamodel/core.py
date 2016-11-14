@@ -101,7 +101,7 @@ class ParseTree(BasicNode):
     pos       = Property()
     message   = Property()
 
-    HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode"])
+    HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode", "ParseTree"])
     Parses    = RelatedTo("Event")
 
     def __init__(self, projname, dm_type, message, pos=-1):
