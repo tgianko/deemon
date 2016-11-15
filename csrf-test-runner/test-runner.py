@@ -174,7 +174,7 @@ def main(args):
     args_obj = parse_args(args)
 
     if args_obj.dismosgi:
-        connect_to_mosgi(args_obj.address, args_obj.port)
+        connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
 
     if args_obj.runsingle >= 0:
         logger.info("Running single test seq_id={}".format(args_obj.runsingle))

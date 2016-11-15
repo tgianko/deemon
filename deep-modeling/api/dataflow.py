@@ -1,5 +1,5 @@
 from datamodel.core import *
-
+from dm_types import *
 
 def insert_propagates_to(graph, rs, logger):
 
@@ -104,6 +104,38 @@ def insert_variables(graph, projname, session, user, logger):
 
         event = Event.select(graph).where(uuid=e["belongs_to_uuid"]).first()
         var.BelongsTo.add(event)
+
+        graph.push(var)
+        i+=1
+
+def insert_user_generated_chains(graph, projname, session, user, logger):
+    
+    query = """MATCH chain=(src:Variable)-[:PROPAGATES_TO*]->(dst:Variable), 
+                     constr=(src {session: {session}, projname:{projname}, user:{user}})-[:HAS_VALUE]->(tn:PTTerminalNode {s_type:"value-value", dm_type:"SeleneseCommand"}) 
+                WITH nodes(chain) AS vlist, src, dst UNWIND vlist AS v 
+                WITH DISTINCT v 
+              RETURN v.uuid
+    """
+
+    rs = graph.run(query, projname=projname, session=session, user=user)
+    rs = list(rs)
+
+    if logger is not None:
+        logger.info("Inferring user generated propagation chains {}".format(len(rs)))
+
+    i = 1
+    for e in rs:
+        var = Variable.select(graph).where(uuid=e["v.uuid"]).first()
+        
+        if var.proptype is None:
+            var.proptype = list()
+
+        if UG not in var.proptype:
+            var.proptype.append(UG)
+            if logger is not None:
+                logger.info("Adding {} type to variable ({}/{})".format(UG, i, len(rs)))
+        else:
+            logger.info("Skipping {} type. Already in variable ({}/{})".format(UG, i, len(rs)))
 
         graph.push(var)
         i+=1
