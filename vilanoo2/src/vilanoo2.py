@@ -13,7 +13,7 @@ import subprocess
 import threading
 import signal
 
-DEBUG     = True
+DEBUG     = False
 VERBOSITY = 2
 SIM_DELAY = False
 DELAY     = 1
