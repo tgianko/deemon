@@ -105,10 +105,10 @@ using ssh connection with provided username host and password"
              (with-open-file (tmp-stream file-path :element-type 'character :external-format :latin1)
                (let ((sequence (make-array (file-length tmp-stream) :element-type 'character :adjustable nil)))
                  (read-sequence sequence tmp-stream)
-                 (let ((clean-sequence (mapcar #'(lambda(char)
-                                                   (if (not (typep char 'base-char))
-                                                       #\SPACE
-                                                       char)) sequence)))
+                 (let ((clean-sequence (map 'list #'(lambda(char)
+                                                      (if (not (typep char 'base-char))
+                                                          #\SPACE
+                                                          char)) sequence)))
                    (let ((simple-string (make-array (length clean-sequence) 
                                                     :element-type 'base-char
                                                     :initial-contents clean-sequence
