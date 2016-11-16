@@ -85,4 +85,4 @@ tmux new -s ${test_name} "sbcl --dynamic-space-size 10000 --noinform --non-inter
 
 
 
-# echo `vboxmanage controlvm ${vm_name} poweroff`
+echo `vboxmanage controlvm ${vm_name} poweroff`
