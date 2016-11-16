@@ -420,7 +420,7 @@ def analysis_intracausality(args, graph, logger=None):
 
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
-    analysis_data_type_inference(arg, graph, logger)
+    analysis_data_type_inference(args, graph, logger)
     analysis_model_inference(args, graph, logger)
     analysis_intracausality(args, graph, logger)
 
