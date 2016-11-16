@@ -62,8 +62,10 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
     def do_CONNECT(self):
         if os.path.isfile(self.cakey) and os.path.isfile(self.cacert) and os.path.isfile(self.certkey) and os.path.isdir(self.certdir):
+            self.log_message("Connect intercept SSL/TLS connection.")
             self.connect_intercept()
         else:
+            self.log_message("Connect relay  SSL/TLS connection.")
             self.connect_relay()
 
     def connect_intercept(self):
@@ -81,14 +83,18 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.connection = ssl.wrap_socket(self.connection, keyfile=self.certkey, certfile=certpath, server_side=True)
+        self.log_message("SSL connection established")
         self.rfile = self.connection.makefile("rb", self.rbufsize)
         self.wfile = self.connection.makefile("wb", self.wbufsize)
+        print self.rfile
+        print self.wfile
 
         conntype = self.headers.get('Proxy-Connection', '')
         if conntype.lower() == 'close':
             self.close_connection = 1
         elif (conntype.lower() == 'keep-alive' and self.protocol_version >= "HTTP/1.1"):
             self.close_connection = 0
+
 
     def connect_relay(self):
         address = self.path.split(':', 1)
@@ -116,7 +122,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 other.sendall(data)
 
     def do_GET(self):
-
+        self.log_message("Processing incoming GET")
         if self.path == 'http://proxy2.test/':
             self.send_cacert()
             return

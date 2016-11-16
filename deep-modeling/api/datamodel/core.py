@@ -49,7 +49,7 @@ class DFAStateTransition(BasicNode):
 
     accepted = Property()
 
-    To = RelatedTo("DFAState")
+    To      = RelatedTo("DFAState")
     Accepts = RelatedTo(["Event", "ParseTree"])
     
     def __init__(self, projname, dm_type, symbol):
@@ -73,8 +73,9 @@ class Event(BasicNode):
     ts      = Property()
     message = Property()
 
-    IsFollowedBy = RelatedTo("Event")
-    Caused       = RelatedTo("Event")
+    IsFollowedBy  = RelatedTo("Event")
+    Caused        = RelatedTo("Event") # for cross-tiers causality
+    IsGeneratedBy = RelatedTo("Event") # for intra-tier  causality
 
     def __init__(self, projname, dm_type, session, user, seq, ts, message):
         super(Event, self).__init__(projname ,dm_type)
@@ -101,7 +102,7 @@ class ParseTree(BasicNode):
     pos       = Property()
     message   = Property()
 
-    HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode"])
+    HasChild  = RelatedTo(["PTTerminalNode", "PTNonTerminalNode", "ParseTree"])
     Parses    = RelatedTo("Event")
 
     def __init__(self, projname, dm_type, message, pos=-1):
@@ -160,7 +161,9 @@ class Variable(BasicNode):
     seq          = Property()
     name         = Property()
     value        = Property()
-    vtype        = Property()
+    symtype      = Property()
+    semvtype     = Property()
+    proptype     = Property()
 
     PropagatesTo = RelatedTo(["Variable"]) # here we list all nodes that can be connected in chains
     HasName      = RelatedTo(["PTTerminalNode"])

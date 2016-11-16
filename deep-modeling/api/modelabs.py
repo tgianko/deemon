@@ -1,4 +1,5 @@
 from datamodel.core import Event, ParseTree, DFAState, DFAStateTransition
+from dm_types import *
 import sqlnorm
 import hashlib
 
@@ -135,3 +136,37 @@ def hash_to_state(event_hash_list, clusterList):
             hash_to_state[cons[1]] = clusterList[counter]
 
     return hash_to_state
+
+
+def insert_intracausality(graph, projname, session, user, logger=None):
+
+    query = """MATCH (e1:Event {dm_type:"HttpRequest", projname:{projname}, session:{session}, user:{user}})<-[]-(pt1:ParseTree), 
+                     (pt1)-[:HAS_CHILD*]->(nt:PTNonTerminalNode)-[:HAS_CHILD]->(ref1:PTTerminalNode {symbol:"referer"}), 
+                     (nt)-[:HAS_CHILD]->(url_ref1:ParseTree {dm_type:"URL"}), 
+                     dist=shortestPath((e2:Event)-[:IS_FOLLOWED_BY*..30]->(e1)), 
+                     (pt1:ParseTree)-[:HAS_CHILD]->(url1:ParseTree {dm_type:"URL"}), 
+                     (e2)<-[]-(pt2:ParseTree)-[:HAS_CHILD]->(url2:ParseTree {dm_type:"URL"}) 
+               WHERE url2.message = url_ref1.message 
+       WITH DISTINCT e1, e2 
+              RETURN e1.seq, MAX(e2.seq) AS prev
+            ORDER BY e1.seq, prev
+    """
+
+    rs = graph.run(query, projname=projname, session=session, user=user)
+    rs = list(rs)
+
+    if logger is not None:
+        logger.info("Adding Intra-causality Edges {}".format(len(rs)))
+
+    i = 1
+    for e in rs:
+        e1 = Event.select(graph).where(seq=e["e1.seq"], dm_type=HTTPREQ, projname=projname, session=session, user=user).first()
+        e2 = Event.select(graph).where(seq=e["prev"], dm_type=HTTPREQ, projname=projname, session=session, user=user).first()
+        
+        if logger is not None:
+            logger.info("Adding intra-causality {}-[IS_GENERATED_BY]->{} ({}/{})".format(e1.seq, e2.seq, i, len(rs)))
+
+        e1.IsGeneratedBy.add(e2)
+
+        graph.push(e1)
+        i+=1

@@ -21,10 +21,11 @@ SETCOOKIE  = "SetCookie"
 """
 Message encoding related
 """
-
 MULTIPART  = "Multipart"
 FORMURLENC = "FormURLEncoded"
 JSON       = "JSON"
+_BODY      = [MULTIPART, FORMURLENC, JSON]
+
 """
 Server-side Program related
 """
@@ -37,3 +38,9 @@ Disk I/O related
 SQL        = "SQLQuery"
 ABSQUERY   = "AbsQuery"
                     
+
+"""
+PROPAGATION CHAIN TYPES
+"""
+
+UG         = "UG"

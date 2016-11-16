@@ -408,14 +408,21 @@ def analysis_dataflow(args, graph, logger=None):
     insert_backward_selenese_chains(graph, args.projname,
                                     args.session, args.user, logger)
 
+def analysis_data_type_inference(args, graph, logger=None):
+    insert_user_generated_chains(graph, args.projname,
+                                    args.session, args.user, logger)
 
 def analysis_model_inference(args, graph, logger=None):
     magic_mike(graph, args.projname, args.session, args.user, logger)
 
+def analysis_intracausality(args, graph, logger=None):
+    insert_intracausality(graph, args.projname, args.session, args.user, logger)
 
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
+    analysis_data_type_inference(args, graph, logger)
     analysis_model_inference(args, graph, logger)
+    analysis_intracausality(args, graph, logger)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -445,10 +452,10 @@ def parse_args(args):
     ========
     """
 
-    an_p = subp.add_parser("analysis", help="analysing existing graph")
+    an_p = subp.add_parser("analysis", help="Analyze existing deep models")
     an_subp = an_p.add_subparsers()
 
-    an_all = an_subp.add_parser("all", help="do all avail. analysis")
+    an_all = an_subp.add_parser("all", help="Perform all analyses")
     an_all.add_argument("projname", help="Project name")
     an_all.add_argument("session",  help="Session identifier")
     an_all.add_argument("user",     help="User identifier")
@@ -459,29 +466,46 @@ def parse_args(args):
     Data propagation
     """
 
-    an_df = an_subp.add_parser("dataflow",
-                                                 help="Create data flow model")
+    an_df = an_subp.add_parser("dataflow", help="Create the data flow model")
     an_df.add_argument("projname", help="Project name")
     an_df.add_argument("session",  help="Session identifier")
     an_df.add_argument("user",     help="User identifier")
     an_df.set_defaults(func=analysis_dataflow)
 
     """
+    Data propagation type inference
+    """
+
+    an_df = an_subp.add_parser("datatype", help="Infere data types (syn, sem, and prop)")
+    an_df.add_argument("projname", help="Project name")
+    an_df.add_argument("session",  help="Session identifier")
+    an_df.add_argument("user",     help="User identifier")
+    an_df.set_defaults(func=analysis_data_type_inference)
+
+    """
     Model inference
     """
-    an_inference = an_subp.add_parser("inference",
-                                                  help="Infer DFA/NFA models")
+    an_inference = an_subp.add_parser("inference", help="Infer DFA/NFA models")
     an_inference.add_argument("projname", help="Project name")
     an_inference.add_argument("session",  help="Session identifier")
     an_inference.add_argument("user",     help="User identifier")
     an_inference.set_defaults(func=analysis_model_inference)
 
+    """
+    Intra-causality
+    """
+    an_inference = an_subp.add_parser("intracaus", help="Adjust causality according to Referer")
+    an_inference.add_argument("projname", help="Project name")
+    an_inference.add_argument("session",  help="Session identifier")
+    an_inference.add_argument("user",     help="User identifier")
+    an_inference.set_defaults(func=analysis_intracausality)
+
     
 
     """
-    ===========
-    IMPORT DATA
-    ===========
+    =============
+    IMPORT TRACES
+    =============
     """
     imp_p = subp.add_parser("import", help="Import data")
     imp_subp = imp_p.add_subparsers()

@@ -11,3 +11,11 @@
 
 (mosgi:main)
 
+
+(ssh-interface:with-active-ssh-connection ("root" "192.168.56.101" "bitnami")
+  (ssh-interface:folder-content-guest "/tmp/" "" "" ""))
+
+
+(ssh-interface:with-active-ssh-connection ("root" "192.168.56.101" "bitnami")
+  (ssh-interface:run-remote-shell-command "rm -f /tmp/*" "" "" "" #'(lambda (stream)
+								   (declare (ignore stream)))))
