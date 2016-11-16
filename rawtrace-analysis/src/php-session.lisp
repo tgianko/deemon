@@ -50,6 +50,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     :initform :string)))
 
 
+
 (defmethod print-object ((content-element php-session-string-element) stream)
   (with-slots (content)
       content-element
@@ -59,21 +60,18 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 (defun parse-content-element-string (size char-list)
   (when (not (char= #\" (car char-list)))
     (error 'php-text-serialized-session-parsing-condition
-	   :format-control "expected \" to start string content but encountered ~a in ~a"
-	   :format-arguments (list (car char-list) char-list)))
-  (let ((string-content-end (position #\" char-list :start 1 :test #'char=)))
-    (if (or (not string-content-end)
-	    (= string-content-end size))
-	(error 'php-text-serialized-session-parsing-condition 
-	       :format-control "expected string of length ~a but encountered end of list/bad size ~a"
-	       :format-arguments (list size char-list))
-	(values (make-instance 'php-session-string-element 
-			       :content (coerce (subseq char-list 1 string-content-end) 'string))
-		(if (not (char= #\; (car (subseq char-list (+ string-content-end 1)))))
-		    (error 'php-text-serialized-session-parsing-condition
-			   :format-control "expected ; as string delimiter but encountered ~a in ~a"
-			   :format-arguments (list (car (subseq char-list (+ string-content-end 1))) char-list))
-		    (cdr (subseq char-list (+ string-content-end 1))))))))
+           :format-control "expected \" to start string content but encountered ~a in ~a"
+           :format-arguments (list (car char-list) char-list)))
+  (let ((char-list (cdr char-list)))                                        
+    (let ((string-content-end size)) ;(position #\" char-list :start 1 :test #'char=))) ;yep I am quite stupid however now fixed                  
+      (values (make-instance 'php-session-string-element 
+                             :content (coerce (subseq char-list 1 string-content-end) 'string))
+              (if (not (char= #\; (car (subseq char-list (+ string-content-end 1)))))
+                  (error 'php-text-serialized-session-parsing-condition
+                         :format-control "expected ; as string delimiter but encountered ~a in ~a"
+                         :format-arguments (list (car (subseq char-list (+ string-content-end 1))) 
+                                                 (coerce char-list 'string)))
+                  (cdr (subseq char-list (+ string-content-end 1))))))))
 
 
 (defclass php-session-array-element (php-session-content)
@@ -284,7 +282,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
     (if (not line)
 	(create-empty-php-session session-id)
 	(do ((char-list (coerce line 'list))
-	     (session-elements nil))
+             (session-elements nil))
 	    ((not char-list) (make-instance 'php-session :elements (sort session-elements #'string<= :key #'name) :session-id session-id))
 	  (if (and (not (find #\| char-list :test #'char=))
 		   char-list)

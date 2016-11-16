@@ -91,7 +91,7 @@ using ssh connection with provided username host and password"
     (let ((result (get-file-as-simple-string +scp-buffer-file-path+)))
       (sleep 3)
       (sb-ext:gc :full t)
-      result)))
+      result))) ;I MUST NOT DELETE SHIT FROM INSIDE A FILE
 
 
 (defun get-file-as-file (remote-target local-target &optional (logger #'(lambda(string)
@@ -105,8 +105,10 @@ using ssh connection with provided username host and password"
              (with-open-file (tmp-stream file-path :element-type 'character :external-format :latin1)
                (let ((sequence (make-array (file-length tmp-stream) :element-type 'character :adjustable nil)))
                  (read-sequence sequence tmp-stream)
-                 (let ((clean-sequence (remove-if-not #'(lambda(char)
-                                                          (typep char 'base-char)) sequence)))
+                 (let ((clean-sequence (mapcar #'(lambda(char)
+                                                   (if (not (typep char 'base-char))
+                                                       #\SPACE
+                                                       char)) sequence)))
                    (let ((simple-string (make-array (length clean-sequence) 
                                                     :element-type 'base-char
                                                     :initial-contents clean-sequence
