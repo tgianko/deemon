@@ -218,7 +218,7 @@ waits/responds for commands and executes given commands
                                                       (getf options :target-system-root)
                                                       (getf options :target-system-ip)
                                                       (getf options :target-system-pwd)))
-          (ssh-interface:run-remote-shell-command "rm /tmp/*.xt" 
+          (ssh-interface:run-remote-shell-command "rm -f /tmp/*.xt" 
                                                   (getf options :target-system-root)
                                                   (getf options :target-system-ip)
                                                   (getf options :target-system-pwd)

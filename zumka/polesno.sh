@@ -56,7 +56,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-vboxmanage startvm $vm_name #--type headless
+vboxmanage startvm $vm_name --type headless
 
 echo "waiting for guest to finish starting up..."
 guest_ip=`nc -l $com_port`

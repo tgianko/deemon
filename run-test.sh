@@ -55,8 +55,11 @@ if vboxmanage list vms | grep --quiet "\"${vm_name}\""; then
     echo "test vm ${vm_name} is currently running - shut down before trying again with using die .vdi and polesno.sh"
     exit 1
     else
+    echo "restoring snapshot"
     echo `vboxmanage snapshot ${vm_name} restore ${start_state_name}`
-    echo `vboxmanage startvm ${vm_name}`
+    echo "starting up machine"
+    echo `vboxmanage startvm ${vm_name} --type headless`
+    echo "everything done"
     fi
     
 else
@@ -82,4 +85,4 @@ tmux new -s ${test_name} "sbcl --dynamic-space-size 10000 --noinform --non-inter
 
 
 
-echo `vboxmanage controlvm ${vm_name} poweroff`
+# echo `vboxmanage controlvm ${vm_name} poweroff`
