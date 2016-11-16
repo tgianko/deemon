@@ -139,6 +139,24 @@
          (get-xdebug-blob entry))
         nil)))
 
+(defconstant +query-result-buffer+ "/tmp/analysis-query-result-buffer")
+
+(defun create-query (id)
+  (with-open-file (stream +query-buffer+ :direction :output :if-exists :supersede :if-does-not-exist :create)
+    (FORMAT stream "SELECT dump_content WHERE http_request_id = ~a;"
+            id)))
+
+#|this is everything but same or smart - do not use in parallel
+do not expect great performance|#
+(defun get-xdebug-entry-as-file-path (id db-connection)
+  (let ((command (FORMAT nil "echo ~a | sqlite3 ~a | base64 -d | gunzip >> ~a"
+                         (FORMAT nil "SELECT dump_content WHERE http_request_id = ~a;"  id)
+                         (clsql:database-name db-connection)
+                         +query-result-buffer+)))
+    (FORMAT T "executing command ~a~%" command)
+    (trivial-shell:shell-command command)
+    +query-result-buffer+))
+
 
 #|
 (defun get-xdebug-entry (id db-connection)

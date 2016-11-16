@@ -50,7 +50,7 @@
       (analysis:add-next-state-* *php-session-diff-state*
 				 (analysis:make-php-session-history-state (database:get-all-session-entries (car rem-ids) db-source-connection)))
       (FORMAT T "xdebug analysis for request ~a/~a~%" (car rem-ids) (car (last rem-ids)))
-      (let ((xdebug (xdebug:make-xdebug-trace (database:get-xdebug-entry (car rem-ids) db-source-connection))))
+      (let ((xdebug (xdebug:make-xdebug-trace-from-file (database:get-xdebug-entry-as-file-path (car rem-ids) db-source-connection))))
 	(analysis:add-next-state-* *file-diff-state* 
 				   (analysis:make-file-history-state 
 				    (xdebug:get-changed-files-paths 

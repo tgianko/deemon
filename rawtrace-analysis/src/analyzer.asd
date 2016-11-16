@@ -8,7 +8,8 @@
 		 :cl-fad
                  :gzip-stream
                  :flexi-streams
-                 :cl-base64)
+                 :cl-base64
+                 :trivial-shell)
     :components ((:file "packages")
 		 (:file "php-session" :depends-on ("packages"))
 		 (:file "php-session-diff" :depends-on ("packages"

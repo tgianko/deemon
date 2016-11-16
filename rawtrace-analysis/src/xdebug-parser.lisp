@@ -135,15 +135,15 @@ given trace and returns all parameters passed to those calls.
 		  :format-control "there aint no such thing as ~a as the always record part in ~a"
 		  :format-arguments (list always line)))))))
        
-
+#|
 (defun parse-xdebug-trace (string)
   (if string 
       (let ((stream (make-string-input-stream string)))
 	(parse-xdebug-trace-helper stream))
       (FORMAT T "WARNING: NO XDEBUG DUMP FUND - CONTINUING ANYWAYS!~%")))
+|#
 
-
-(defun parse-xdebug-trace-helper (stream)
+(defun parse-xdebug-trace (stream)
   (progn 
     (read-line stream nil nil) ;the first three
     (read-line stream nil nil) ;lines are really
@@ -166,6 +166,11 @@ given trace and returns all parameters passed to those calls.
 (defun make-xdebug-trace (stream)
   (make-instance 'xdebug-trace
 		 :trace-content (parse-xdebug-trace stream)))
+
+
+(defun make-xdebug-trace-from-file (file-path)
+  (with-open-file (stream file-path)
+    (make-xdebug-trace stream)))
 
 
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))

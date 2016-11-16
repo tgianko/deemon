@@ -17,7 +17,8 @@
 	   commit-latest-diff
 	   commit-full-sessions
 	   commit-latest-diff
-	   merge-databases))
+	   merge-databases
+           get-xdebug-entry-as-file-path))
 
 
 (defpackage de.uni-saarland.syssec.analyzer.analysis
@@ -51,4 +52,5 @@
   (:nicknames :xdebug)
   (:export make-xdebug-trace
 	   get-changed-files-paths
-	   get-sql-queries))
+	   get-sql-queries
+           make-xdebug-trace-from-file))
