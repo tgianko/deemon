@@ -18,7 +18,8 @@
 	   commit-full-sessions
 	   commit-latest-diff
 	   merge-databases
-           get-xdebug-entry-as-file-path))
+           get-xdebug-entry-as-file-path
+           commit-raw-sessions))
 
 
 (defpackage de.uni-saarland.syssec.analyzer.analysis

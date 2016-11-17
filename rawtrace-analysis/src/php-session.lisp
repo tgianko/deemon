@@ -232,6 +232,8 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 		(ecase type
 		  (#\s
 		   (parse-content-element-string size rest))
+                  (#\O
+                   (parse-content-element-string size rest)) ;this is undocumented and encountered in OXID
 		  (#\a
 		   (parse-content-element-array size rest))))))))
       

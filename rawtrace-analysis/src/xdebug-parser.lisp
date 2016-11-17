@@ -169,7 +169,7 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun make-xdebug-trace-from-file (file-path)
-  (with-open-file (stream file-path)
+  (with-open-file (stream file-path :external-format :latin1)
     (make-xdebug-trace stream)))
 
 
@@ -184,7 +184,9 @@ given trace and returns all parameters passed to those calls.
 
 (defun remove-non-state-changing-queries(query-list)
   (remove-if #'(lambda(query)
-                 (cl-ppcre:scan "SELECT" query))
+                 (or 
+                  (cl-ppcre:scan "SELECT" query)
+                  (cl-ppcre:scan "select" query)))
              query-list))
 
 

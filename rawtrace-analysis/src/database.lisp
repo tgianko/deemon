@@ -61,9 +61,21 @@
   (dolist (session php-session-list)
     (clsql:insert-records :into [SESSIONS]
 			  :ATTRIBUTES '([HTTP-REQUEST-ID] [SESSION-ID] [SESSION-STRING])
-			  :VALUES (list request-db-id (php-session:session-id session)
-					(FORMAT nil "~a" session))
+			  :VALUES (list request-db-id 
+                                        (php-session:session-id session)
+					(base64:string-to-base64-string (FORMAT nil "~a" session)))
 			  :database database)))
+
+
+
+(defun commit-raw-sessions (request-db-id session-list sink-connection)
+  (dolist (session session-list)
+    (clsql:insert-records :INTO [SESSIONS]
+                          :ATTRIBUTES '([HTTP-REQUEST-ID] [SESSION-ID] [SESSION-STRING])
+                          :VALUES (list request-db-id
+                                        (car session)
+                                        (base64:string-to-base64-string (cadr session)))
+                          :database sink-connection)))
 
 
 (defmethod commit-latest-diff (database request-db-id (state-trace analysis:state-trace))  
@@ -85,7 +97,8 @@
 			  :ATTRIBUTES '([HTTP-REQUEST-ID]
 					[SESSION-ID]
 					[DIFF-TREE])
-			  :VALUES (list request-db-id (php-session:session-id (car diff-entry)) (FORMAT nil "~a" diff-entry))
+			  :VALUES (list request-db-id (php-session:session-id (car diff-entry)) 
+                                        (base64:string-to-base64-string (FORMAT nil "~a" diff-entry)))
 			  :database database)))
 				      
 
@@ -139,7 +152,8 @@
          (get-xdebug-blob entry))
         nil)))
 
-(defconstant +query-result-buffer+ "/tmp/analysis-query-result-buffer")
+
+(defparameter +query-result-buffer+ "/tmp/analysis-query-result-buffer")
 
 (defun create-query (id)
   (with-open-file (stream +query-buffer+ :direction :output :if-exists :supersede :if-does-not-exist :create)
@@ -149,8 +163,8 @@
 #|this is everything but same or smart - do not use in parallel
 do not expect great performance|#
 (defun get-xdebug-entry-as-file-path (id db-connection)
-  (let ((command (FORMAT nil "echo ~a | sqlite3 ~a | base64 -d | gunzip >> ~a"
-                         (FORMAT nil "SELECT dump_content WHERE http_request_id = ~a;"  id)
+  (let ((command (FORMAT nil "echo '~a' | sqlite3 ~a | base64 -d | gunzip > ~a"
+                         (FORMAT nil "SELECT dump_content FROM xdebug_dumps WHERE http_request_id = ~a;"  id)
                          (clsql:database-name db-connection)
                          +query-result-buffer+)))
     (FORMAT T "executing command ~a~%" command)
