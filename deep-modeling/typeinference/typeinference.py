@@ -1,3 +1,5 @@
+import types
+
 STRING_TYPE = 0 
 INT_TYPE = 1
 FLOAT_TYPE = 2
@@ -7,27 +9,27 @@ UUID_TYPE = 5
 URL_TYPE = 6
 
 def infer_syntactic_type(values):
-    instancesOfTypesFound = []
+    instancesOfTypesFound = [0]*7
 
     for value in values:
-        guessedType = _infer_basic_type()
+        assert type(value) == types.StringType, "All values have to be of type string!"
 
-        if basicType == STRING_TYPE:
+        guessedType = _infer_basic_type(value)
+
+        if guessedType == STRING_TYPE:
             guessedType = _infer_advanced_type(guessedType)
 
-        instancesOfTypesFound[guessedType]++
+        instancesOfTypesFound[guessedType] = instancesOfTypesFound[guessedType] + 1 
 
     for idx, counter in enumerate(instancesOfTypesFound):
         if counter == len(values):
             return idx
 
-    if len(instancesOfTypesFound[1]) + len(instancesOfTypesFound[2]) == len(values):
-        return "Float"
-    else
-        return "String"
+    if instancesOfTypesFound[1] + instancesOfTypesFound[2] == len(values):
+        return FLOAT_TYPE
+    else:
+        return STRING_TYPE
 
-
-def _infer_type(value):
 
 def _infer_basic_type(value):
     dea = BasicTypeDEA()
@@ -37,7 +39,9 @@ def _infer_basic_type(value):
 
     return dea.get_state()
 
+
 def _infer_advanced_type(value):
+    return 0
 
 
 class BasicTypeDEA:
@@ -54,19 +58,17 @@ class BasicTypeDEA:
     def __init__(self):
         self._current_state = 0
 
-    def digest(c):
+    def digest(self, c):
         ascii_pos = ord(c)
-        transittion
+        transition = self.ANYTHING_ELSE
 
         if ascii_pos >= 48 and ascii_pos<= 57:
-            transition = DIGIT
-        else if c == ".":
-            transition = DOT
-        else:
-            transition = ANYTHING_ELSE
+            transition = self.DIGIT
+        elif c == ".":
+            transition = self.DOT
         
-        self._current_state = DEA[self._current_state][transition]
+        self._current_state = self.DEA[self._current_state][transition]
 
-    def get_state():
+    def get_state(self):
         return self._current_state
     

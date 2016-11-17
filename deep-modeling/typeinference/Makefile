@@ -1,5 +1,5 @@
 init:
-  pip install -r requirements.txt
+	pip install -r requirements.txt
 
 test:
-  test_inference.py
+	./test_typeinference.py
