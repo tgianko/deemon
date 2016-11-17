@@ -152,6 +152,13 @@ using ssh connection with provided username host and password"
   (run-remote-shell-command (FORMAT nil "cp ~a ~a" file target-folder) user host pwd (discard-data-lambda) logger))
 
 
+(defun move-file (file target-folder user host pwd &optional (logger #'(lambda(string)
+                                                                           (FORMAT (make-broadcast-stream) "~a~%" string))))
+  (run-remote-shell-command (FORMAT nil "mkdir ~a" target-folder) user host pwd (discard-data-lambda) logger)
+  (run-remote-shell-command (FORMAT nil "mv ~a ~a" file target-folder) user host pwd (discard-data-lambda) logger))
+
+
+
 (defun delete-folder (folder user host pwd &optional (logger #'(lambda(string)
                                                                  (FORMAT (make-broadcast-stream) "~a~%" string))))
   (run-remote-shell-command (FORMAT nil "rm -rf ~a" folder) user host pwd (discard-data-lambda) logger))

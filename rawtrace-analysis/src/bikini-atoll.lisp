@@ -14,3 +14,6 @@
 
 (defparameter *test*
     (make-xdebug-trace-from-file "/home/simkoc/simple.xt"))
+
+
+(get-pdo-prepared-queries *test*)

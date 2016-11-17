@@ -91,7 +91,7 @@ waits/responds for commands and executes given commands
         (progn	
           (ssh-interface:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd #'(lambda(string)
                                                                                                                                        (print-threaded :mover string)))
-          (ssh-interface:backup-file xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd #'(lambda(string)
+          (ssh-interface:move-file xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd #'(lambda(string)
                                                                                                                             (print-threaded :mover string)))
           (print-threaded :mover (FORMAT nil "backed up ~a" php-session-folder))
           (print-threaded :mover (FORMAT nil "backed up ~a" xdebug-trace-file))

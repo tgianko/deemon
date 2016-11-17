@@ -23,7 +23,8 @@
 	   probe-machine
 	   get-all-contained-files-as-strings
 	   get-file-as-string
-           get-file-as-blob))
+           get-file-as-blob
+           move-file))
 
 
 (defpackage :de.uni-saarland.syssec.mosgi.communication
