@@ -9,3 +9,8 @@
 
 
 (analyzer:main)
+
+(in-package :xdebug)
+
+(defparameter *test*
+    (make-xdebug-trace-from-file "/home/simkoc/simple.xt"))

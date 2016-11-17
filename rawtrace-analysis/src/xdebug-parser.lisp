@@ -61,6 +61,13 @@ given trace and returns all parameters passed to those calls.
     :reader parameters)))
 
 
+(defmethod print-object ((record entry-record) stream)
+  (FORMAT stream "~a    ~a    ~{~a~^,~}"
+          (level record)
+          (function-name record)
+          (parameters record)))
+
+
 (defclass exit-record (record)
   ((time-index
     :initarg :time-index
@@ -81,7 +88,7 @@ given trace and returns all parameters passed to those calls.
       entries
     (declare (ignore always param-count))
     (make-instance 'entry-record
-		   :level level 
+		   :level (parse-integer level)
 		   :function-nr function-nr 
 		   :time-index time-index
 		   :memory-usage memory-usage
@@ -173,6 +180,7 @@ given trace and returns all parameters passed to those calls.
     (make-xdebug-trace stream)))
 
 
+
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
   (mapcar #'(lambda(fopen-call)
 	      (cl-ppcre:regex-replace-all "'" (car (parameters fopen-call)) ""))
@@ -198,13 +206,115 @@ given trace and returns all parameters passed to those calls.
                               " "))
 
 
+(defmethod get-all-pdo-calls ((xdebug-trace xdebug-trace))
+  (remove-if-not #'(lambda (record)
+                     (and (typep record 'entry-record)
+                          (or (string= (function-name record) "PDO->prepare")
+                              (string= (function-name record) "PDOStatement->bindValue")
+                              (string= (function-name record) "PDOStatement->execute"))))
+                 (trace-content xdebug-trace)))
+
+
+(defmacro while (condition &body body)
+  (let ((it (gensym)))
+    `(do ((,it ,condition
+               ,condition))
+         ((not ,it) nil)
+       ,@body)))
+
+
+(defun extract-argument (execute-parameter)
+  (cl-ppcre:regex-replace "[ 0-9]+ => "
+                          execute-parameter
+                          ""))
+
+(defun array->parameterlist (execute-parameter-array)
+  (if execute-parameter-array
+      (let ((array-content-bracketed
+             (cl-ppcre:regex-replace-all "array "
+                                         execute-parameter-array
+                                         "")))
+        (cl-ppcre:split ","
+                        (subseq array-content-bracketed
+                                1
+                                (- (length array-content-bracketed) 1))))
+      nil))
+                    
+
+(defun pdo-function-calls->query-string (records)
+  (assert (string= (function-name (car records)) "PDO->prepare")
+          ((car records)) "first pdo records has to be a preparation call")
+  (assert (string= (function-name (car (last records))) "PDOStatement->execute")
+          ((car (last records))) "last pdo record has to be an execution call")
+  (let ((prep-string (car (parameters (car records)))))
+    (dolist (item (subseq records 1 (- (length records) 1)))
+      (setf prep-string
+            (cl-ppcre:regex-replace-all (car (parameters item))
+                                        prep-string
+                                        (cadr (parameters item)))))
+    (dolist (item (array->parameterlist (car (parameters (car (last records))))))
+      (setf prep-string
+            (cl-ppcre:regex-replace "\\?"
+                                    prep-string
+                                    (extract-argument item))))
+    prep-string))
+
+
+(defmethod get-pdo-prepared-queries ((xdebug-trace xdebug-trace))
+  (let ((pdo-records (get-all-pdo-calls xdebug-trace))
+        (queries nil))
+    (labels ((get-preparation-set (start-record remaining-traces)
+               (if remaining-traces
+                   (if (= (level (car remaining-traces))
+                          (level start-record))
+                       (cond 
+                         ((string= (function-name (car remaining-traces)) "PDOStatement->bindValue")
+                          (multiple-value-bind (list remaining)
+                              (get-preparation-set start-record (cdr remaining-traces))
+                            (when (not list)
+                              (error "list of PDO must not be empty"))
+                            (values (cons (car remaining-traces)
+                                          list)
+                                    remaining)))
+                         ((string= (function-name (car remaining-traces)) "PDOStatement->execute")
+                          (values (cons (car remaining-traces) nil)
+                                  (cdr remaining-traces)))
+                         (t
+                          (error (FORMAT nil "unexpected trace element ~a" (car remaining-traces)))))
+                       (get-preparation-set start-record (cdr remaining-traces)))
+                   (values nil nil)))
+             (get-next-pdo-start (remaining-traces)
+               (if remaining-traces
+                   (if (string= (function-name (car remaining-traces)) "PDO->prepare")
+                       (values (car remaining-traces)
+                               (cdr remaining-traces)))
+                   nil)))
+      (while pdo-records
+        (multiple-value-bind (start-record remaining-records)
+            (get-next-pdo-start pdo-records)
+          (multiple-value-bind (records remaining-records)
+              (get-preparation-set start-record remaining-records)
+            (FORMAT T "START:~a~% REST:~a~%" start-record records)
+            (push (pdo-function-calls->query-string (cons start-record
+                                                          records))
+                  queries)
+            (setf pdo-records remaining-records)))))
+    queries))
+
+
+(defmethod get-regular-sql-queries ((xdebug-trace xdebug-trace))
+  (mapcar #'(lambda(mysqli-call)
+              (query-cleaner (car (parameters mysqli-call))))
+          (remove-if-not #'(lambda (record)
+                             (and (typep record 'entry-record)
+                                  (or (string= (function-name record) "mysqli->query")
+                                      (string= (function-name record) "mysql_query"))))
+                          (trace-content xdebug-trace))))
+
+
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace))
   (remove-non-state-changing-queries
-   (mapcar #'(lambda(mysqli-call)
-               (query-cleaner (car (parameters mysqli-call))))
-           (remove-if-not #'(lambda (record)
-                              (and (typep record 'entry-record)
-                                   (or (string= (function-name record) "mysqli->query")
-                                       (string= (function-name record) "mysql_query"))))
-                          (trace-content xdebug-trace)))))
-
+   (append 
+    (get-pdo-prepared-queries xdebug-trace)
+    (get-regular-sql-queries xdebug-trace))))
+    
