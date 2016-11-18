@@ -144,21 +144,23 @@ waits/responds for commands and executes given commands
                (print-threaded :saver string)))
 	  (ssh-interface:delete-folder php-session-folder user host pwd)
 	  (print-threaded :saver (FORMAT nil "copy xdebug dump for request ~a onto host" request-db-id))
-	  (let ((xdebug-file-path (ssh-interface:get-file-as-file 
-                                   xdebug-trace-file 
-                                   +local-xdebug-buffer+
-                                   #'(lambda(string)
-                                       (print-threaded :saver string)))))
-            (print-threaded :saver (FORMAT nil "CURRENT USAGE B4: ~a" (sb-kernel:dynamic-usage)))
-            (sb-ext:gc :full t)
-            (print-threaded :saver (FORMAT nil "CURRENT USAGE AT: ~a" (sb-kernel:dynamic-usage)))
-            (database:enter-xdebug-file-into-db xdebug-file-path
-                                                request-db-id
-                                                database-connection 
-                                                #'(lambda(string)
-                                                    (print-threaded :saver string)))
-            (sb-ext:gc :full t)
-            (ssh-interface:delete-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd)))
+          (if (= (length (ssh-interface:folder-content-guest (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id)
+                                                             user host pwd))
+                 0)
+              (print-threaded :saver (FORMAT nil "no xdebug dump found"))
+              (let ((xdebug-file-path (ssh-interface:get-file-as-file 
+                                       xdebug-trace-file 
+                                       +local-xdebug-buffer+
+                                       #'(lambda(string)
+                                           (print-threaded :saver string)))))
+                (sb-ext:gc :full t)
+                (database:enter-xdebug-file-into-db xdebug-file-path
+                                                    request-db-id
+                                                    database-connection 
+                                                    #'(lambda(string)
+                                                        (print-threaded :saver string)))
+                (sb-ext:gc :full t)))
+          (ssh-interface:delete-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd))
       (error (e)
 	(print-threaded :saver (FORMAT nil "ERROR ~a" e))))))
 
