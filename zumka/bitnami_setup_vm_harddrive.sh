@@ -80,6 +80,9 @@ echo "xdebug.collect_assignments=1"                                     >> "${mo
 echo "xdebug.trace_options=0"                                           >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_output_dir=/tmp/"                                    >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 echo "xdebug.trace_output_name=xdebug"                                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.var_display_max_depth=-1"                                  >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.var_display_max_children=-1"                               >> "${mount_point}/opt/bitnami/php/etc/php.ini"
+echo "xdebug.var_display_max_data=-1"                                   >> "${mount_point}/opt/bitnami/php/etc/php.ini"
 
 #disabling apache mod_pagespeed
 apache_config="${mount_point}/opt/bitnami/apache2/conf/httpd.conf"

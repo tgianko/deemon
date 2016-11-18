@@ -308,8 +308,10 @@ given trace and returns all parameters passed to those calls.
           (remove-if-not #'(lambda (record)
                              (and (typep record 'entry-record)
                                   (or (string= (function-name record) "mysqli->query")
+                                      (string= (function-name record) "PDO->query")
                                       (string= (function-name record) "mysql_query"))))
                           (trace-content xdebug-trace))))
+
 
 
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace))
