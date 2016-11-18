@@ -24,6 +24,7 @@
 	   get-all-contained-files-as-strings
 	   get-file-as-string
            get-file-as-blob
+           get-all-contained-files-as-base64-blob
            move-file))
 
 
