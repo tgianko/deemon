@@ -53,15 +53,16 @@ def _infer_advanced_type(value):
         return BOOL_TYPE
     
     # HEX Type
-    if re.match(r"^([0-9]|[a-f])+$", lowered):
+    if re.match(r"^([\d|[a-f])+$", lowered):
         return HEX_TYPE
+
+    # UUID Type
+    if re.match(r"^(\d|[a-f]){8}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){12}$", lowered):
+        return UUID_TYPE
 
     # URL type
     if re.match(url_regex.URL_REGEX, value):
-        return URL_TYPE
-
-
-    # UUID Type
+        return URL_TYPE    
 
     return STRING_TYPE
 

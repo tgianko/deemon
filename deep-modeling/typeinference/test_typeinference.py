@@ -17,11 +17,11 @@ class TestSyntacticInference(unittest.TestCase):
     ADVANCED_SAMPLES = [
         [["abc", "abc", "1..2"], typeinference.STRING_TYPE],
         [["true", "false"], typeinference.BOOL_TYPE],
-        # [["1", "2", "3"], typeinference.INT_TYPE], # TODO UUID
-        [["a872fcd", "a", "0", "123"], typeinference.HEX_TYPE], # TODO HEX
-        [["https://www.google.de", "http://heise.de"], typeinference.URL_TYPE], # URL
+        [["123e4567-e89b-12d3-a456-426655440000", "123e4567-e89b-12d3-a456-42665544abcd"], typeinference.UUID_TYPE], 
+        [["a872fcd", "a", "0", "123"], typeinference.HEX_TYPE],
+        [["https://www.google.de", "http://heise.de"], typeinference.URL_TYPE],
         [["www.google.de"], typeinference.STRING_TYPE], # An URL needs a protocol        
-        [[""], typeinference.STRING_TYPE]
+        [["", "123e4567-e89b-12d3-a456-42665544000"], typeinference.STRING_TYPE] # Last block is just 11 digits long
     ]
 
     def test_basic_inference(self):
