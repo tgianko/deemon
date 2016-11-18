@@ -81,6 +81,16 @@ in folder path using ssh connection with provided username host and password"
             folder-files)))
 
 
+(defun get-all-contained-files-as-base64-blob (folder-path username host password &optional (logger #'(lambda(string)
+                                                                                                          (FORMAT (make-broadcast-stream) "~a~%" string))))
+  (funcall logger (FORMAT nil "scanned folder ~a and found ~a files" folder-path (length folder-files)))
+  (let ((folder-files (folder-content-guest folder-path username host password)))
+    (mapcar #'(lambda(file-path)
+                (cons file-path (base64:usb8-array-to-base64-string 
+                                 (get-file-as-blob file-path username host password))))
+            folder-files)))
+
+
 (defun get-file-as-string (file-path username host password &optional (logger #'(lambda(string)
                                                                                   (FORMAT (make-broadcast-stream) "~a~%" string))))
   "returns the string that represents the contetn of the file specified as file-path
@@ -131,6 +141,7 @@ using ssh connection with provided username host and password"
       (let ((sequence (make-array (file-length tmp-stream) :element-type '(unsigned-byte 8) :adjustable nil)))
         (read-sequence sequence tmp-stream)
         sequence))))
+
 
 
 (defun discard-data-lambda ()

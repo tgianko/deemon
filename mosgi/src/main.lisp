@@ -136,8 +136,8 @@ waits/responds for commands and executes given commands
 	(clsql:with-database (database-connection (list database-path) :database-type :sqlite3)
 	  (print-threaded :saver (FORMAT nil "copy php sessions for request ~a onto host" request-db-id))	  
 	  (database:enter-sessions-raw-into-db 
-           (ssh-interface:get-all-contained-files-as-strings php-session-folder user host pwd #'(lambda(string)
-                                                                                                  (print-threaded :saver string)))
+           (ssh-interface:get-all-contained-files-as-base64-blob php-session-folder user host pwd #'(lambda(string)
+                                                                                                      (print-threaded :saver string)))
            request-db-id
            database-connection 
            #'(lambda(string)

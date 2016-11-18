@@ -314,7 +314,7 @@ given trace and returns all parameters passed to those calls.
 
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace))
   (remove-non-state-changing-queries
-   (append 
+   (append
     (get-pdo-prepared-queries xdebug-trace)
     (get-regular-sql-queries xdebug-trace))))
     
