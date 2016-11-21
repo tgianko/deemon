@@ -6,25 +6,25 @@ import typeinference
 
 class TestSyntacticInference(unittest.TestCase):
     BASIC_SAMPLES = [
-        [["abc", "123", "1.2"], typeinference.STRING_TYPE],
-        [["1", "2", "3"], typeinference.INT_TYPE],
-        [["1", "123", "1.2"], typeinference.FLOAT_TYPE],
-        [["123", "123", "1.2."], typeinference.STRING_TYPE],
-        [[""], typeinference.STRING_TYPE],
-        [[".123", "123", "1.2"], typeinference.FLOAT_TYPE],
-        [["0", "09"], typeinference.INT_TYPE],
+        [["abc", "123", "1.2"], typeinference.SYN_TYPE_STRING],
+        [["1", "2", "3"], typeinference.SYN_TYPE_INT],
+        [["1", "123", "1.2"], typeinference.SYN_TYPE_FLOAT],
+        [["123", "123", "1.2."], typeinference.SYN_TYPE_STRING],
+        [[""], typeinference.SYN_TYPE_STRING],
+        [[".123", "123", "1.2"], typeinference.SYN_TYPE_FLOAT],
+        [["0", "09"], typeinference.SYN_TYPE_INT],
     ]
 
     ADVANCED_SAMPLES = [
-        [["abc", "abc", "1..2"], typeinference.STRING_TYPE],
+        [["abc", "abc", "1..2"], typeinference.SYN_TYPE_STRING],
         [["true", "false"], typeinference.BOOL_TYPE],
         [["123e4567-e89b-12d3-a456-426655440000",
-            "123e4567-e89b-12d3-a456-42665544abcd"], typeinference.UUID_TYPE],
-        [["a872fcd", "a", "0", "123"], typeinference.HEX_TYPE],
-        [["https://www.google.de", "http://heise.de"], typeinference.URL_TYPE],
-        [["www.google.de"], typeinference.STRING_TYPE],  # An URL needs a protocol
+            "123e4567-e89b-12d3-a456-42665544abcd"], typeinference.SYN_TYPE_UUID],
+        [["a872fcd", "a", "0", "123"], typeinference.SYN_TYPE_HEX],
+        [["https://www.google.de", "http://heise.de"], typeinference.SYN_TYPE_URL],
+        [["www.google.de"], typeinference.SYN_TYPE_STRING],  # An URL needs a protocol
         # Last block is just 11 digits long
-        [["", "123e4567-e89b-12d3-a456-42665544000"], typeinference.STRING_TYPE]
+        [["", "123e4567-e89b-12d3-a456-42665544000"], typeinference.SYN_TYPE_STRING]
     ]
 
     def test_basic_inference(self):

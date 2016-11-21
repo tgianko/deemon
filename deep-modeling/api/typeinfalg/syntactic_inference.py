@@ -2,13 +2,13 @@ import types
 import url_regex
 import re
 
-STRING_TYPE = 0
-INT_TYPE = 1
-FLOAT_TYPE = 2
+SYN_TYPE_STRING = 0
+SYN_TYPE_INT = 1
+SYN_TYPE_FLOAT = 2
 BOOL_TYPE = 3
-HEX_TYPE = 4
-UUID_TYPE = 5
-URL_TYPE = 6
+SYN_TYPE_HEX = 4
+SYN_TYPE_UUID = 5
+SYN_TYPE_URL = 6
 
 
 def infer_syntactic_type(values):
@@ -20,7 +20,7 @@ def infer_syntactic_type(values):
 
         guessedType = _infer_basic_type(value)
 
-        if guessedType == STRING_TYPE:
+        if guessedType == SYN_TYPE_STRING:
             guessedType = _infer_advanced_type(value)
 
         instancesOfTypesFound[guessedType] += 1
@@ -30,14 +30,14 @@ def infer_syntactic_type(values):
         if counter == len(values):
             return idx
 
-    # If not, check for special case FLOAT_TYPE > INT_TYPE, else it has to be
+    # If not, check for special case SYN_TYPE_FLOAT > SYN_TYPE_INT, else it has to be
     # a STRING_TYPE
-    if instancesOfTypesFound[INT_TYPE] + instancesOfTypesFound[FLOAT_TYPE] == len(values):
-        return FLOAT_TYPE
-    elif instancesOfTypesFound[INT_TYPE] + instancesOfTypesFound[HEX_TYPE] == len(values):
-        return HEX_TYPE
+    if instancesOfTypesFound[SYN_TYPE_INT] + instancesOfTypesFound[SYN_TYPE_FLOAT] == len(values):
+        return SYN_TYPE_FLOAT
+    elif instancesOfTypesFound[SYN_TYPE_INT] + instancesOfTypesFound[SYN_TYPE_HEX] == len(values):
+        return SYN_TYPE_HEX
 
-    return STRING_TYPE
+    return SYN_TYPE_STRING
 
 
 def _infer_basic_type(value):
@@ -57,17 +57,17 @@ def _infer_advanced_type(value):
 
     # HEX Type
     if re.match(r"^([\d|[a-f])+$", lowered):
-        return HEX_TYPE
+        return SYN_TYPE_HEX
 
     # UUID Type
     if re.match(r"^(\d|[a-f]){8}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){12}$", lowered):
-        return UUID_TYPE
+        return SYN_TYPE_UUID
 
     # URL type
     if re.match(url_regex.URL_REGEX, value):
-        return URL_TYPE
+        return SYN_TYPE_URL
 
-    return STRING_TYPE
+    return SYN_TYPE_STRING
 
 
 class BasicTypeDEA:
