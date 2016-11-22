@@ -90,7 +90,7 @@ waits/responds for commands and executes given commands
                                 (error err))))
         (progn	
           (print-threaded :mover 
-                          (FORMAT nil "I found in /tmp/ ~{~a~^,~}"
+                          (FORMAT nil "I found in /tmp/: (~{~a~^,~})"
                                   (ssh-interface:folder-content-guest (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id)
                                                                       user host pwd)))
           (ssh-interface:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd #'(lambda(string)
