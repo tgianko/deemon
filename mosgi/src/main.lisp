@@ -89,6 +89,10 @@ waits/responds for commands and executes given commands
                                                                  (sb-debug:print-backtrace :stream stream))))
                                 (error err))))
         (progn	
+          (print-threaded :mover 
+                          (FORMAT nil "I found in /tmp/ ~{~a~^,~}"
+                                  (ssh-interface:folder-content-guest (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id)
+                                                                      user host pwd)))
           (ssh-interface:backup-all-files-from php-session-folder (FORMAT nil "/tmp/php-sessions-~a/" request-db-id) user host pwd #'(lambda(string)
                                                                                                                                        (print-threaded :mover string)))
           (ssh-interface:move-file xdebug-trace-file (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd #'(lambda(string)
