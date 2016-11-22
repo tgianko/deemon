@@ -1,7 +1,5 @@
 from type_enum import *
 
-TypeEnum.reset()
-
 # Always the same value for one user, so actually user constant
 SEM_TYPE_USER_UNIQUE = TypeEnum("user_unique")
 SEM_TYPE_SESSION_UNIQUE = TypeEnum("session_unique") # Value once per user
