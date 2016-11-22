@@ -3,8 +3,6 @@ import url_regex
 import re
 from type_enum import *
 
-TypeEnum.reset()
-
 SYN_TYPE_STRING = TypeEnum("str")
 SYN_TYPE_INT = TypeEnum("int")
 SYN_TYPE_FLOAT = TypeEnum("float")
@@ -70,6 +68,7 @@ def _infer_advanced_type(value):
     if re.match(url_regex.URL_REGEX, lowered):
         return SYN_TYPE_URL
 
+    # Path type
     if re.match(r"^((\S+/\S*)|(\S*/\S+))$", lowered):
         return SYN_TYPE_PATH    
 

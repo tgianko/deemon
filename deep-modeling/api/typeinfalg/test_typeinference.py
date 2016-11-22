@@ -30,6 +30,9 @@ class TestSyntacticInference(unittest.TestCase):
     def test_basic_inference(self):
         self._run_matrix_test(self.BASIC_SAMPLES)
 
+    def test_string_representation(self):
+        self.assertEqual(str(typeinference.infer_syntactic_type(["123"])), "int")
+
     def test_advanced_inference(self):
         self._run_matrix_test(self.ADVANCED_SAMPLES)
 
@@ -50,6 +53,9 @@ class TestSemanticInference(unittest.TestCase):
 
     def test_semantic_inference(self):
         self._run_matrix_test(self.SAMPLES)
+
+    def test_string_representation(self):
+        self.assertEqual(str(typeinference.infer_semantic_type([{"user": "user1", "value": "a"}])), "constant")
 
     def _run_matrix_test(self, matrix):
         for idx, test in enumerate(matrix):
