@@ -13,6 +13,7 @@ from api.datamodel.core import *
 from api.acquisition import *
 from api.dataflow import *
 from api.modelabs import *
+from api.typeinference import *
 
 from shared.config import *
 
@@ -163,7 +164,7 @@ def load_php_sessions(fname, logger=None):
     ids = []
     with con:
         cur = con.cursor()
-        rs = cur.execute("SELECT http_request_id,session_string FROM sessions")
+        rs = cur.execute("SELECT http_request_id, session_id, session_string FROM sessions")
         ids = list(rs)
     return ids
 
@@ -408,9 +409,12 @@ def analysis_dataflow(args, graph, logger=None):
     insert_backward_selenese_chains(graph, args.projname,
                                     args.session, args.user, logger)
 
-def analysis_data_type_inference(args, graph, logger=None):
+def analysis_user_generated_chains(args, graph, logger=None):
     insert_user_generated_chains(graph, args.projname,
                                     args.session, args.user, logger)
+    
+def analysis_synsem_types(args, graph, logger=None):
+    insert_synsem_type(graph, logger)
 
 def analysis_model_inference(args, graph, logger=None):
     magic_mike(graph, args.projname, args.session, args.user, logger)
@@ -420,7 +424,7 @@ def analysis_intracausality(args, graph, logger=None):
 
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
-    analysis_data_type_inference(args, graph, logger)
+    analysis_user_generated_chains(args, graph, logger)
     analysis_model_inference(args, graph, logger)
     analysis_intracausality(args, graph, logger)
 
@@ -473,14 +477,21 @@ def parse_args(args):
     an_df.set_defaults(func=analysis_dataflow)
 
     """
-    Data propagation type inference
+    User generate chains inference
     """
 
-    an_df = an_subp.add_parser("datatype", help="Infere data types (syn, sem, and prop)")
+    an_df = an_subp.add_parser("datatype", help="Infer user generated chains")
     an_df.add_argument("projname", help="Project name")
     an_df.add_argument("session",  help="Session identifier")
     an_df.add_argument("user",     help="User identifier")
-    an_df.set_defaults(func=analysis_data_type_inference)
+    an_df.set_defaults(func=analysis_user_generated_chains)
+
+    """
+    Infer syntactic/semantic types
+    """
+
+    an_df = an_subp.add_parser("synsem", help="Infer syntactic/semantic variable types")
+    an_df.set_defaults(func=analysis_synsem_types)
 
     """
     Model inference
@@ -598,9 +609,6 @@ def parse_args(args):
     imp_sel_p.add_argument("session",  help="Session identifier")
     imp_sel_p.add_argument("user",     help="User identifier")
     imp_sel_p.set_defaults(func=import_session)
-
-
-
 
     return p.parse_args(args)
 

@@ -1,6 +1,7 @@
 from parsers import *
 from datamodel.core import *
 from dm_types import *
+from base64 import b64decode
 
 
 def insert_selenese(graph, cmdlist, projname,
@@ -228,12 +229,23 @@ def insert_sessions(graph, sessions, projname, session, user, logger=None):
  with Sesssion Traces requests...".format(len(sessions)))
 
     i = 1
-    for evt_id, ses_string in sessions:
+    for evt_id, ses_id, ses_string in sessions:
         if logger is not None:
             logger.info("Processing session {}/{}"
                         .format(i, len(sessions)))
-              
-        pt_ses = parseSession(projname, ses_string)
+        
+        ses_string = b64decode(ses_string)
+        try:
+            ses_string = b64decode(ses_string) 
+        except:
+            logger.info("Second base64 decoding no longer needed")
+            pass
+
+        ses_id = ses_id.split("_")[-1] # ses_id can be /tmp/sess_
+
+        #print ses_id, ses_string
+
+        pt_ses = parse_session(projname, ses_id, ses_string)
 
         evt_ses = Event.select(graph).where(seq=evt_id,
                                             projname=projname,
