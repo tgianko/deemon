@@ -14,7 +14,6 @@ SYN_TYPE_UUID = TypeEnum("uuid")
 SYN_TYPE_URL = TypeEnum("url")
 SYN_TYPE_PATH = TypeEnum("path")
 
-print str(SYN_TYPE_PATH)
 
 def infer_syntactic_type(values):
     instancesOfTypesFound = [0] * TypeEnum.size()
