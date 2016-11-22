@@ -161,8 +161,8 @@ class Variable(BasicNode):
     seq          = Property()
     name         = Property()
     value        = Property()
-    symtype      = Property()
-    semvtype     = Property()
+    syntype      = Property()
+    semtype      = Property()
     proptype     = Property()
 
     PropagatesTo = RelatedTo(["Variable"]) # here we list all nodes that can be connected in chains
