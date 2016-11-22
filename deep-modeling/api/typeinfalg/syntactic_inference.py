@@ -5,14 +5,15 @@ import re
 SYN_TYPE_STRING = 0
 SYN_TYPE_INT = 1
 SYN_TYPE_FLOAT = 2
-BOOL_TYPE = 3
+SYN_TYPE_BOOL = 3
 SYN_TYPE_HEX = 4
 SYN_TYPE_UUID = 5
 SYN_TYPE_URL = 6
+SYN_TYPE_PATH = 7
 
 
 def infer_syntactic_type(values):
-    instancesOfTypesFound = [0] * 7
+    instancesOfTypesFound = [0] * 8
 
     for value in values:
         assert type(
@@ -53,7 +54,7 @@ def _infer_advanced_type(value):
     lowered = value.lower()
     # Bool type
     if lowered in ["true", "false"]:
-        return BOOL_TYPE
+        return SYN_TYPE_BOOL
 
     # HEX Type
     if re.match(r"^([\d|[a-f])+$", lowered):
@@ -64,8 +65,11 @@ def _infer_advanced_type(value):
         return SYN_TYPE_UUID
 
     # URL type
-    if re.match(url_regex.URL_REGEX, value):
+    if re.match(url_regex.URL_REGEX, lowered):
         return SYN_TYPE_URL
+
+    if re.match(r"^((\S+/\S*)|(\S*/\S+))$", lowered):
+        return SYN_TYPE_PATH    
 
     return SYN_TYPE_STRING
 

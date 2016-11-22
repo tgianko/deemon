@@ -17,14 +17,14 @@ class TestSyntacticInference(unittest.TestCase):
 
     ADVANCED_SAMPLES = [
         [["abc", "abc", "1..2"], typeinference.SYN_TYPE_STRING],
-        [["true", "false"], typeinference.BOOL_TYPE],
+        [["true", "false"], typeinference.SYN_TYPE_BOOL],
         [["123e4567-e89b-12d3-a456-426655440000",
             "123e4567-e89b-12d3-a456-42665544abcd"], typeinference.SYN_TYPE_UUID],
         [["a872fcd", "a", "0", "123"], typeinference.SYN_TYPE_HEX],
         [["https://www.google.de", "http://heise.de"], typeinference.SYN_TYPE_URL],
         [["www.google.de"], typeinference.SYN_TYPE_STRING],  # An URL needs a protocol
-        # Last block is just 11 digits long
-        [["", "123e4567-e89b-12d3-a456-42665544000"], typeinference.SYN_TYPE_STRING]
+        [["", "123e4567-e89b-12d3-a456-42665544000"], typeinference.SYN_TYPE_STRING], # Last block is just 11 digits long
+        [["../", "test/a.html"], typeinference.SYN_TYPE_PATH]
     ]
 
     def test_basic_inference(self):
