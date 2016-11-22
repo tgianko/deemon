@@ -1,41 +1,44 @@
 import types
 import url_regex
 import re
+from type_enum import *
 
-SYN_TYPE_STRING = 0
-SYN_TYPE_INT = 1
-SYN_TYPE_FLOAT = 2
-SYN_TYPE_BOOL = 3
-SYN_TYPE_HEX = 4
-SYN_TYPE_UUID = 5
-SYN_TYPE_URL = 6
-SYN_TYPE_PATH = 7
+TypeEnum.reset()
 
+SYN_TYPE_STRING = TypeEnum("str")
+SYN_TYPE_INT = TypeEnum("int")
+SYN_TYPE_FLOAT = TypeEnum("float")
+SYN_TYPE_BOOL = TypeEnum("bool")
+SYN_TYPE_HEX = TypeEnum("hex")
+SYN_TYPE_UUID = TypeEnum("uuid")
+SYN_TYPE_URL = TypeEnum("url")
+SYN_TYPE_PATH = TypeEnum("path")
+
+print str(SYN_TYPE_PATH)
 
 def infer_syntactic_type(values):
-    instancesOfTypesFound = [0] * 8
+    instancesOfTypesFound = [0] * TypeEnum.size()
 
     for value in values:
-        assert type(
-            value) == types.StringType, "All values have to be of type 'String'!"
+        assert type(value) == types.StringType, "All values have to be of type 'String'!"
 
-        guessedType = _infer_basic_type(value)
+        guessedType = TypeEnum.get_by_id(_infer_basic_type(value))
 
         if guessedType == SYN_TYPE_STRING:
             guessedType = _infer_advanced_type(value)
 
-        instancesOfTypesFound[guessedType] += 1
+        instancesOfTypesFound[int(guessedType)] += 1
 
     # Check whether all values share the same type
     for idx, counter in enumerate(instancesOfTypesFound):
         if counter == len(values):
-            return idx
+            return TypeEnum.get_by_id(idx)
 
     # If not, check for special case SYN_TYPE_FLOAT > SYN_TYPE_INT, else it has to be
     # a STRING_TYPE
-    if instancesOfTypesFound[SYN_TYPE_INT] + instancesOfTypesFound[SYN_TYPE_FLOAT] == len(values):
+    if instancesOfTypesFound[int(SYN_TYPE_INT)] + instancesOfTypesFound[int(SYN_TYPE_FLOAT)] == len(values):
         return SYN_TYPE_FLOAT
-    elif instancesOfTypesFound[SYN_TYPE_INT] + instancesOfTypesFound[SYN_TYPE_HEX] == len(values):
+    elif instancesOfTypesFound[int(SYN_TYPE_INT)] + instancesOfTypesFound[int(SYN_TYPE_HEX)] == len(values):
         return SYN_TYPE_HEX
 
     return SYN_TYPE_STRING
@@ -102,7 +105,9 @@ class BasicTypeDEA:
         self._current_state = self.DEA[self._current_state][transition]
 
     def get_state(self):
-        if self._current_state == self.START_STATE:
-            return self.STRING_STATE
+        return_state = self._current_state
 
-        return self._current_state
+        if self._current_state == self.START_STATE:
+            return_state = self.STRING_STATE
+
+        return return_state

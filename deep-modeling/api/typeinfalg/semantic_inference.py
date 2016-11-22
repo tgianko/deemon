@@ -1,8 +1,12 @@
+from type_enum import *
+
+TypeEnum.reset()
+
 # Always the same value for one user, so actually user constant
-SEM_TYPE_USER_UNIQUE = 0
-SEM_TYPE_SESSION_UNIQUE = 1  # Value once per user
-SEM_TYPE_CONSTANT = 2  # All values are equal, for all users
-SEM_TYPE_UNCERTAIN = 3  # Anything else
+SEM_TYPE_USER_UNIQUE = TypeEnum("user_unique")
+SEM_TYPE_SESSION_UNIQUE = TypeEnum("session_unique") # Value once per user
+SEM_TYPE_CONSTANT = TypeEnum("constant") # All values are equal, for all users
+SEM_TYPE_UNCERTAIN = TypeEnum("uncertain")  # Anything else
 
 # Gets a list containing an arbitrary amount of tupels, each holding "user" and "value"
 def infer_semantic_type(tuples):
