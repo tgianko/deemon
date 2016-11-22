@@ -20,7 +20,7 @@ def infer_syntactic_type(values):
     instancesOfTypesFound = [0] * TypeEnum.size()
 
     for value in values:
-        assert type(value) == types.StringType, "All values have to be of type 'String'!"
+        value = unicode(value)
 
         guessedType = TypeEnum.get_by_id(_infer_basic_type(value))
 
@@ -94,10 +94,10 @@ class BasicTypeDEA:
         self._current_state = 3
 
     def digest(self, c):
-        ascii_pos = ord(c)
+        codepoint = ord(c)
         transition = self.ANYTHING_ELSE  # default case, gets overriden otherwise
 
-        if ascii_pos >= 48 and ascii_pos <= 57:
+        if codepoint >= 48 and codepoint <= 57:
             transition = self.DIGIT
         elif c == ".":
             transition = self.DOT
