@@ -203,6 +203,10 @@ class VilanooProxyRequestHandler(BaseHTTPRequestHandler, ProxyRequestHandler):
         #self.log_message("Closing TCP connection w/ browser")
         #self.connection.close()
 
+    do_HEAD = do_GET
+    do_POST = do_GET
+    do_OPTIONS = do_GET
+
     def request_handler(self, req, req_body):
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
         if VERBOSITY > 2:
