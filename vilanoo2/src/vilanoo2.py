@@ -158,8 +158,15 @@ def update_httpreq_status(db_request_id,status_code):
         cur.execute("UPDATE http_requests SET status_code=? WHERE id=? ORDER BY id desc LIMIT 1",(status_code,db_request_id))
 
 def external_request(req):
-    u = urlparse.urlsplit(req.path)
+
+    # We adjust the path because when SSL is used, we get path as relative.
+    path = req.path
+    if path[0] == '/':
+        path = "whatever://%s%s" % (req.headers['Host'], path)
+        
+    u = urlparse.urlsplit(path)
     ip = netaddr.IPAddress(socket.gethostbyname(u.netloc))
+    #v_logger.info("Requested IP is: {}".format(ip))
     if ip.is_private():
         return False
 
@@ -181,7 +188,7 @@ def request_relevant_p(req):
     
     return True
 
-class VilanooProxyRequestHandler(ProxyRequestHandler):
+class VilanooProxyRequestHandler(BaseHTTPRequestHandler, ProxyRequestHandler):
 
     timeout=120
 
@@ -190,6 +197,7 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
         if external_request(self):
             ProxyRequestHandler.do_GET(self)
         else:
+            v_logger.info("Waiting for lock {}".format(self.path))
             with lock:
                 ProxyRequestHandler.do_GET(self)
         #self.log_message("Closing TCP connection w/ browser")
