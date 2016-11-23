@@ -124,7 +124,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 other.sendall(data)
 
     def do_GET(self):
-        self.log_message("Processing incoming GET {}".format(self.path))
+        self.log_message("Processing incoming {} {}".format(self.command, self.path))
         if self.path == 'http://proxy2.test/':
             self.send_cacert()
             return
