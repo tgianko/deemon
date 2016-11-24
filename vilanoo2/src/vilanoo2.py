@@ -209,6 +209,12 @@ class VilanooProxyRequestHandler(BaseHTTPRequestHandler, ProxyRequestHandler):
 
     def request_handler(self, req, req_body):
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
+
+        # HTTPS connections toward external server passes from do_GET which fails if BR is used.
+        if "br" in req.headers.get("accept-encoding", ""):
+            req.headers["accept-encoding"] = ",".join(filter(lambda enc: enc.strip() != "br", req.headers["accept-encoding"].split(",")))
+
+
         if VERBOSITY > 2:
             v_logger.debug(with_color(32, req_header_text))
         #elif VERBOSITY == 1 and request_relevant_p(req):
