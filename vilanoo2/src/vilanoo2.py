@@ -273,7 +273,7 @@ class VilanooProxyRequestHandler(BaseHTTPRequestHandler, ProxyRequestHandler):
     		v_logger.info(http_to_logevt(req, res))
     
     def log_message(self, format, *args):
-        v_logger.info(format%args)
+        v_logger.info("{} {}".format(format, args))
 
 
 def start_proxy(address, port, HandlerClass=VilanooProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):
