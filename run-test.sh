@@ -76,11 +76,13 @@ cat ${db_dump_schema} | sqlite3 ${mosgi_db_path}
 echo "waiting for guest to finish starting up..."
 sleep 4
 
+tmux_session = `echo ${test_name} | sed 's/\.//g'`
+
 echo "command:"
-echo tmux new -s ${test_name} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} --port ${mosgi_port} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
+echo tmux new -s ${tmux_session} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} --port ${mosgi_port} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
                                  split-window -h "sleep 8 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w $tout -p ${vilanoo_listen_port} -P ${mosgi_port} -s ${vilanoo_db_path} -S ${selenese_test_file} -l ${selense_log_path} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 2048\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
 echo "..."
-tmux new -s ${test_name} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} --port ${mosgi_port} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
+tmux new -s ${tmus_session} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} --port ${mosgi_port} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
                                  split-window -h "sleep 10 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w $tout -p ${vilanoo_listen_port} -P ${mosgi_port} -s ${vilanoo_db_path} -S ${selenese_test_file} -l ${selense_log_path} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 2048 -S ${screenshot_path}\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
 
 
