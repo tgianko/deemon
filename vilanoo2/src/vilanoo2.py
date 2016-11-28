@@ -158,8 +158,15 @@ def update_httpreq_status(db_request_id,status_code):
         cur.execute("UPDATE http_requests SET status_code=? WHERE id=? ORDER BY id desc LIMIT 1",(status_code,db_request_id))
 
 def external_request(req):
-    u = urlparse.urlsplit(req.path)
+
+    # We adjust the path because when SSL is used, we get path as relative.
+    path = req.path
+    if path[0] == '/':
+        path = "whatever://%s%s" % (req.headers['Host'], path)
+        
+    u = urlparse.urlsplit(path)
     ip = netaddr.IPAddress(socket.gethostbyname(u.netloc))
+    #v_logger.info("Requested IP is: {}".format(ip))
     if ip.is_private():
         return False
 
@@ -181,7 +188,7 @@ def request_relevant_p(req):
     
     return True
 
-class VilanooProxyRequestHandler(ProxyRequestHandler):
+class VilanooProxyRequestHandler(BaseHTTPRequestHandler, ProxyRequestHandler):
 
     timeout=120
 
@@ -190,13 +197,24 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
         if external_request(self):
             ProxyRequestHandler.do_GET(self)
         else:
+            v_logger.info("Waiting for lock {}".format(self.path))
             with lock:
                 ProxyRequestHandler.do_GET(self)
         #self.log_message("Closing TCP connection w/ browser")
         #self.connection.close()
 
+    do_HEAD = do_GET
+    do_POST = do_GET
+    do_OPTIONS = do_GET
+
     def request_handler(self, req, req_body):
         req_header_text = "%s %s %s\n%s" % (req.command, req.path, req.request_version, req.headers)
+
+        # HTTPS connections toward external server passes from do_GET which fails if BR is used.
+        if "br" in req.headers.get("accept-encoding", ""):
+            req.headers["accept-encoding"] = ",".join(filter(lambda enc: enc.strip() != "br", req.headers["accept-encoding"].split(",")))
+
+
         if VERBOSITY > 2:
             v_logger.debug(with_color(32, req_header_text))
         #elif VERBOSITY == 1 and request_relevant_p(req):
@@ -255,7 +273,7 @@ class VilanooProxyRequestHandler(ProxyRequestHandler):
     		v_logger.info(http_to_logevt(req, res))
     
     def log_message(self, format, *args):
-        v_logger.info(format%args)
+        v_logger.info("{} {}".format(format, args))
 
 
 def start_proxy(address, port, HandlerClass=VilanooProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):

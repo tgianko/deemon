@@ -10,7 +10,7 @@ import Cookie
 from string import lstrip
 from enum import Enum
 import json
-
+import phpserialize
 
 def parse_url(url, projname):
     scheme, netloc, path, params, query, fragment = urlparse(url)
@@ -291,7 +291,7 @@ def visit_sql_pt(pt, i, n):
             if el.ttype == sqlptokens.Token.Punctuation or\
                el.ttype == sqlptokens.Token.Text.Whitespace:
                 continue
-            value = str(el.value)
+            value = el.value
             if value[0] == "'" and value[-1] == "'":
                 value = value[1:-1]
             value = value.strip()
@@ -450,29 +450,99 @@ def parseSessionName(string):
     return string[1:string.index(' ')], string[string.index(' '):]
 
 
-def parseSession(projname, string):
-    name, rem = parseSessionName(string)
-    rem = skipLeadingBlank(rem)
-    contentList = list()
-    assert(rem[0] == '(')
+# def parseSession(projname, string):
+#     name, rem = parseSessionName(string)
+#     rem = skipLeadingBlank(rem)
+#     contentList = list()
+#     assert(rem[0] == '(')
     
-    rem = skipLeadingBlank(rem[1:])
-    assert(rem[0] == '(')
+#     rem = skipLeadingBlank(rem[1:])
+#     assert(rem[0] == '(')
     
-    pos = 0
-    while(rem[0] != ')'):
-        rem = skipLeadingBlank(rem)
-        content, rem = parseSessionContent(rem, projname, pos)
-        contentList.append(content)
-        rem = skipLeadingBlank(rem)
-        pos += 1
-    assert(rem[2:] == '')
+#     pos = 0
+#     while(rem[0] != ')'):
+#         rem = skipLeadingBlank(rem)
+#         content, rem = parseSessionContent(rem, projname, pos)
+#         contentList.append(content)
+#         rem = skipLeadingBlank(rem)
+#         pos += 1
+#     assert(rem[2:] == '')
 
+#     root = ParseTree(projname, PHPSESSION, string)
+
+#     name_n = PTTerminalNode(projname, PHPSESSION, name, "session-name", 0)
+#     root.HasChild.add(name_n)
+#     for cont in contentList:
+#         root.HasChild.add(cont)
+
+#     return root
+
+
+def visit_session(projname, sess_node):
+    if isinstance(sess_node, dict):
+        d = PTNonTerminalNode(projname, PHPSESSION, "session-hashmap", 0)
+        pos = 0
+        for k, item in sess_node.items():
+            kv_n = PTNonTerminalNode(projname, PHPSESSION, "session-key-values", pos)
+
+            k_n = visit_session(projname, k)
+            k_n.pos = 0
+            kv_n.HasChild.add(k_n)
+            
+            child = visit_session(projname, item)
+            child.pos = 1
+            kv_n.HasChild.add(child)
+            
+            d.HasChild.add(kv_n)
+
+            pos+=1
+        return d
+    elif isinstance(sess_node, phpserialize.phpobject):
+        o = PTNonTerminalNode(projname, PHPSESSION, "session-phpobject", 0)
+        
+        name = PTTerminalNode(projname, PHPSESSION, sess_node.__name__, "session-phpobject-name", 0)
+        o.HasChild.add(name)
+        
+        vars_n = visit_session(projname, sess_node.__php_vars__)
+
+        php_vars = PTNonTerminalNode(projname, PHPSESSION, "session-phpobject-phpvars", 1)
+        php_vars.HasChild.add(vars_n)
+
+        o.HasChild.add(php_vars)
+
+        return o
+    elif isinstance(sess_node, list):
+        raise Exception("There should not be a list while parsing a PHP Session")
+    elif isinstance(sess_node, basestring):
+        s = PTTerminalNode(projname, PHPSESSION, sess_node, "session-string", 0)
+        return s
+    elif isinstance(sess_node, int) or isinstance(sess_node, long):
+        i = PTTerminalNode(projname, PHPSESSION, sess_node, "session-number-int", 0)
+        return i
+    elif isinstance(sess_node, float):
+        f = PTTerminalNode(projname, PHPSESSION, sess_node, "session-number-real", 0)
+        return f
+    elif isinstance(sess_node, bool):
+        b = PTTerminalNode(projname, PHPSESSION, sess_node, "session-number-bool", 0)
+        return b
+    elif sess_node is None:
+        n = PTTerminalNode(projname, PHPSESSION, sess_node, "session-number-null", 0)
+        return n
+    else:
+        raise Exception("Unknown PHP Session data type")
+
+def parse_session(projname, ses_id, string):
     root = ParseTree(projname, PHPSESSION, string)
+    sess_name = PTTerminalNode(projname, PHPSESSION, ses_id, "session-name", 0)
+    sess_cnt  = PTNonTerminalNode(projname, PHPSESSION, "session-content", 1)
 
-    name_n = PTTerminalNode(projname, PHPSESSION, name, "session-name", 0)
-    root.HasChild.add(name_n)
-    for cont in contentList:
-        root.HasChild.add(cont)
+    root.HasChild.add(sess_name)
+    root.HasChild.add(sess_cnt)
 
+    if len(string) > 0:
+        #print string
+        p_sess = phpserialize.loads(string, object_hook=phpserialize.phpobject)
+        cnt_n = visit_session(projname, p_sess)
+        sess_cnt.HasChild.add(cnt_n)
+    
     return root

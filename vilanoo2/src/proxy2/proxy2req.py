@@ -21,6 +21,8 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+import traceback
+
 def with_color(c, s):
     return "\x1b[%dm%s\x1b[0m" % (c, s)
 
@@ -86,8 +88,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         self.log_message("SSL connection established")
         self.rfile = self.connection.makefile("rb", self.rbufsize)
         self.wfile = self.connection.makefile("wb", self.wbufsize)
-        print self.rfile
-        print self.wfile
+        #print self.rfile
+        #print self.wfile
 
         conntype = self.headers.get('Proxy-Connection', '')
         if conntype.lower() == 'close':
@@ -122,7 +124,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 other.sendall(data)
 
     def do_GET(self):
-        self.log_message("Processing incoming GET")
+        self.log_message("Processing incoming {} {}".format(self.command, self.path))
         if self.path == 'http://proxy2.test/':
             self.send_cacert()
             return
@@ -193,6 +195,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         with self.lock:
             self.save_handler(req, req_body, res, res_body_plain)
+        self.log_message("Processed  incoming GET {}".format(self.path))
 
     do_HEAD = do_GET
     do_POST = do_GET
