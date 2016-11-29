@@ -170,9 +170,54 @@ given trace and returns all parameters passed to those calls.
         
 	  
 
+
+
+(defun numeric-string-p (string)
+  (let ((*read-eval* nil))
+    (ignore-errors (numberp (read-from-string string)))))
+
+
+(defun valid-always (string)
+  (or (string= string "1")
+      (string= string "0")
+      (string= string "R")))
+
+
+(defun remove-bad-newlines (xdebug-istream xdebug-ostream)
+  (FORMAT xdebug-ostream "~a~%" (read-line xdebug-istream nil nil))
+  (FORMAT xdebug-ostream "~a~%" (read-line xdebug-istream nil nil))
+  (FORMAT xdebug-ostream "~a~%" (read-line xdebug-istream nil nil))
+  (do ((line (read-line xdebug-istream nil nil)
+             (read-line xdebug-istream nil nil))
+       (fixing t))
+      ((not line) nil)
+    (if (not fixing)
+        (FORMAT xdebug-ostream "~a~%"line)
+        (let ((split-line (cl-ppcre:split "\\t" line)))
+          (if (>= (length split-line) 3)
+              (if (and (string= (car split-line) "")
+                       (string= (cadr split-line) "")
+                       (string= (caddr split-line) ""))
+                  (progn 
+                    (setf fixing nil)
+                    (FORMAT xdebug-ostream "~%~a~%" line))
+                  (if (and (numeric-string-p (car split-line))
+                           (numeric-string-p (cadr split-line))
+                           (valid-always (caddr split-line)))
+                      (FORMAT xdebug-ostream "~&~a" line)
+                      (FORMAT xdebug-ostream "~a" line)))
+              (FORMAT xdebug-ostream "~a" line))))))
+
+
+
+
 (defun make-xdebug-trace (stream)
-  (make-instance 'xdebug-trace
-		 :trace-content (parse-xdebug-trace stream)))
+  (cl-fad:with-open-temporary-file (iostream :direction :io)
+    (remove-bad-newlines stream iostream)
+    (force-output iostream)
+    (file-position iostream 0)
+    (make-instance 'xdebug-trace
+                   :trace-content (parse-xdebug-trace iostream))))
 
 
 (defun make-xdebug-trace-from-file (file-path)
@@ -320,3 +365,4 @@ given trace and returns all parameters passed to those calls.
     (get-pdo-prepared-queries xdebug-trace)
     (get-regular-sql-queries xdebug-trace))))
     
+
