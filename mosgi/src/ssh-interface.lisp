@@ -11,8 +11,6 @@ handle all the nasty stuff we do not want/need to think about
 
 (defparameter *ssh-file-mutex* (sb-thread:make-mutex :name "ssh-mutex"))	    
 
-(defparameter +scp-buffer-file-path+ "/tmp/trival-ssh-buffer-file")
-
 (defparameter *global-ssh-connection* nil)
 
 (defmacro with-active-ssh-connection ((username host password) &body body)
@@ -97,11 +95,13 @@ in folder path using ssh connection with provided username host and password"
 using ssh connection with provided username host and password"
   (sb-thread:with-mutex (*ssh-file-mutex*)
     (sb-ext:gc :full t)
-    (scp file-path +scp-buffer-file-path+ username host password)
-    (let ((result (get-file-as-simple-string +scp-buffer-file-path+)))
-      (sleep 3)
-      (sb-ext:gc :full t)
-      result))) ;I MUST NOT DELETE SHIT FROM INSIDE A FILE
+    (cl-fad:with-open-temporary-file (stream :direction :io :element-type '(unsigned-byte 8))
+      (let ((local-file-path (FORMAT nil "~a" stream)))
+        (scp file-path local-file-path username host password logger)
+        (let ((result (get-file-as-simple-string local-file-path)))
+          (sleep 3)
+          (sb-ext:gc :full t)
+          result))))) ;I MUST NOT DELETE SHIT FROM INSIDE A FILE
 
 
 (defun get-file-as-file (remote-target local-target &optional (logger #'(lambda(string)
@@ -135,12 +135,14 @@ using ssh connection with provided username host and password"
   "returns the binary data that represents the content of the file specified as file-path
 using ssh connection with provided username host and password"
   (sb-thread:with-mutex (*ssh-file-mutex*)
-    (scp file-path +scp-buffer-file-path+ username host password)  
-    (with-open-file (tmp-stream +scp-buffer-file-path+ :element-type '(unsigned-byte 8))
-      (funcall logger (FORMAT nil "transfered ~a bytes from ~a" (file-length tmp-stream) file-path))
-      (let ((sequence (make-array (file-length tmp-stream) :element-type '(unsigned-byte 8) :adjustable nil)))
-        (read-sequence sequence tmp-stream)
-        sequence))))
+    (cl-fad:with-open-temporary-file (local-stream :direction :io :element-type '(unsigned-byte 8))
+      (let ((local-file-path (FORMAT nil "~a" (pathname local-stream))))
+        (scp file-path local-file-path username host password logger)  
+        (with-open-file (tmp-stream local-file-path :element-type '(unsigned-byte 8))
+          (funcall logger (FORMAT nil "transfered ~a bytes from ~a" (file-length tmp-stream) file-path))
+          (let ((sequence (make-array (file-length tmp-stream) :element-type '(unsigned-byte 8) :adjustable nil)))
+            (read-sequence sequence tmp-stream)
+            sequence))))))
 
 
 
