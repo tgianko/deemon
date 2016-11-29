@@ -151,7 +151,7 @@ waits/responds for commands and executes given commands
                                                              user host pwd))
                  0)
               (print-threaded :saver (FORMAT nil "no xdebug dump found"))
-              (cl-fad:with-open-temporary-file (tmp-stream :direction :io :format '(unsigned-byte 8))
+              (cl-fad:with-open-temporary-file (tmp-stream :direction :io :element-type '(unsigned-byte 8))
                 (let ((xdebug-file-path (ssh-interface:get-file-as-file 
                                          xdebug-trace-file 
                                          (Format nil "~a" (pathname tmp-stream))
