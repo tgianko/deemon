@@ -46,7 +46,7 @@ Additionally, our scripts require:
 
 We use python 2.7. We use proxy2 as our 
 current proxy (https://github.com/inaz2/proxy2) but we keep a version in this
-very repository.  
+very repository. Utilities needed are:
 
 * `virtualenv` 
 
