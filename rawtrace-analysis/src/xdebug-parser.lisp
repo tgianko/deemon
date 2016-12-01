@@ -358,11 +358,12 @@ given trace and returns all parameters passed to those calls.
                           (trace-content xdebug-trace))))
 
 
-
-(defmethod get-sql-queries ((xdebug-trace xdebug-trace))
-  (remove-non-state-changing-queries
-   (append
-    (get-pdo-prepared-queries xdebug-trace)
-    (get-regular-sql-queries xdebug-trace))))
+(defmethod get-sql-queries ((xdebug-trace xdebug-trace) keep-all-queries-p)
+  (let ((queries (append
+                  (get-pdo-prepared-queries xdebug-trace)
+                  (get-regular-sql-queries xdebug-trace))))
+    (if (not keep-all-queries-p)
+        (remove-non-state-changing-queries queries)
+        queries)))
     
 

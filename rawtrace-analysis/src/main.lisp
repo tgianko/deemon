@@ -31,7 +31,17 @@
 	 :description "the last id to process while analyzing the http requests"
 	 :short #\e 
 	 :long "end-id"
-	 :arg-parser #'parse-integer))
+	 :arg-parser #'parse-integer)
+  (:name :keep-all-queries-p
+         :description "all SQL queries are kept and non state-changing ones are not removed (y/N)"
+         :short #\k 
+         :long "keep-all-queries"
+         :arg-parser #'(lambda (string)
+                         (if (or (string= string "y")
+                                 (string= string "Y"))
+                             T
+                             NIL))))
+                             
 
 
 (defparameter *php-session-diff-state* nil)
@@ -40,7 +50,7 @@
 (defparameter *file-diff-state* nil) 
 
 
-(defun make-diff (id-list db-source-connection db-sink-connection)
+(defun make-diff (id-list db-source-connection db-sink-connection keep-all-queries-p)
   (database:copy-http-request-entries id-list db-source-connection db-sink-connection)
   (let ((*file-diff-state* (make-instance 'analysis:state-trace))
 	(*php-session-diff-state* (make-instance 'analysis:state-trace)))
@@ -59,7 +69,7 @@
 				   (analysis:make-file-history-state 
 				    (xdebug:get-changed-files-paths 
 				     xdebug)))
-	(database:commit-sql-queries db-sink-connection (car rem-ids) (xdebug:get-sql-queries xdebug))
+	(database:commit-sql-queries db-sink-connection (car rem-ids) (xdebug:get-sql-queries xdebug keep-all-queries-p))
 	;(database:commit-latest-diff db-sink-connection (car rem-ids) *php-session-diff-state*)
 	;(database:commit-full-sessions db-sink-connection (car rem-ids) (analysis:php-sessions (analysis:current-state *php-session-diff-state*)))
 	(database:commit-latest-diff db-sink-connection (car rem-ids) *file-diff-state*)))))
@@ -81,7 +91,8 @@
 	      (source-database-path-mosgi (aif (getf options :source-database-mosgi) it (error "source database path mosgi has to be provided")))
 	      (sink-database-path (aif (getf options :sink-database) it (error "sink database path has to be provided")))
 	      (sink-database-schema (aif (getf options :sink-database-schema) it (error "sink database schema has to be provided")))
-	      (start-id (aif (getf options :start-id) it 0)))
+	      (start-id (aif (getf options :start-id) it 0))
+              (keep-all-queries-p (aif (getf options :keep-all-queries-p) it NIL)))
 	  (FORMAT T "~a~%~a~%~a~%~a~%" source-database-path-mosgi source-database-path-vilanoo sink-database-path sink-database-schema)
 	  (clsql:with-database (source-db-mosgi (list source-database-path-mosgi) :database-type :sqlite3)
 	    (clsql:with-database (sink-db (list sink-database-path) :database-type :sqlite3)
@@ -89,7 +100,7 @@
 	      (clsql:with-database (source-db-vilanoo (list source-database-path-vilanoo) :database-type :sqlite3) ;;this is needed as vilanoo and mosgi use split db due to 
 		(database:merge-databases source-db-vilanoo source-db-mosgi)) ;;stupid datarace problems of sqlite3
 	      (let ((end-id (aif (getf options :end-id) it (+ (database:get-highest-http-request-id-entry source-db-mosgi) 1))))	    
-		(make-diff (database:get-all-http-request-ids start-id end-id source-db-mosgi) source-db-mosgi sink-db))))))
+		(make-diff (database:get-all-http-request-ids start-id end-id source-db-mosgi) source-db-mosgi sink-db keep-all-queries-p))))))
   (unix-opts:unknown-option (err)
     (declare (ignore err))
     (opts:describe
