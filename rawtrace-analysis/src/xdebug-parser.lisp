@@ -290,8 +290,6 @@ given trace and returns all parameters passed to those calls.
       nil))
 
 
-(position #\1 '(#\1 #\1 #\3 #\2 #\1) :start -1)
-
 
 (defun find-nth-occurence (nth item list &key (start -1) (test #'equalp))
   (if (= nth 0)
@@ -324,9 +322,14 @@ given trace and returns all parameters passed to those calls.
                        query)))))
                        
 
-; in case programmer is really mean hand has a abitrary distribution
+(defun remove-first-and-last-char (string)
+  (subseq string 1 (- (length string) 1)))
+
+
+; in case the webapp programmer is really mean and has a abitrary distribution
 ; of the ? order we are royally screwed and I have to implement a better 
-; scheme
+; scheme but let this be for the moment as this will break in that case
+; anyhow
 (defun pdo-bind-values (prep-string prepare-statements) 
   (let ((prepare-statements (reverse prepare-statements)))
     (dolist (item prepare-statements)
@@ -335,7 +338,7 @@ given trace and returns all parameters passed to those calls.
                                                    (cadr (parameters item))
                                                    prep-string))
           (setf prep-string
-                (cl-ppcre:regex-replace-all (car (parameters item))
+                (cl-ppcre:regex-replace-all (remove-first-and-last-char (car (parameters item)))
                                             prep-string
                                             (cadr (parameters item))))))
     (coerce prep-string 'string)))
@@ -390,7 +393,7 @@ given trace and returns all parameters passed to those calls.
             (get-next-pdo-start pdo-records)
           (multiple-value-bind (records remaining-records)
               (get-preparation-set start-record remaining-records)
-            (FORMAT T "START:~a~% REST:~a~%" start-record records)
+            ;(FORMAT T "START:~a~% REST:~a~%" start-record records)
             (let ((query (pdo-function-calls->query-string (cons start-record
                                                                  records))))
               (when query
@@ -415,8 +418,14 @@ given trace and returns all parameters passed to those calls.
   (let ((queries (append
                   (get-pdo-prepared-queries xdebug-trace)
                   (get-regular-sql-queries xdebug-trace))))
-    (if (not keep-all-queries-p)
-        (remove-non-state-changing-queries queries)
-        queries)))
+    (mapcar #'query-cleaner
+            (if (not keep-all-queries-p)
+                (remove-non-state-changing-queries queries)
+                queries))))
     
 
+
+#|
+(get-sql-queries
+ (make-xdebug-trace-from-file "/home/simkoc/tmp/simpleinvoice/xdebug.xt") NIL)
+  |#                                         

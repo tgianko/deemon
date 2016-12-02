@@ -26,35 +26,35 @@
 
 (defun merge-databases (source-db-vilanoo source-db-mosgi)
   (clsql:execute-command "DELETE FROM HTTP_REQUESTS WHERE 1 = 1;" :database source-db-mosgi) 
-  (copy-http-request-entries (get-all-http-request-ids 0 (get-highest-http-request-id-entry source-db-vilanoo) source-db-vilanoo)
+  (copy-http-request-entries (get-all-http-request-ids source-db-vilanoo)
 			     source-db-vilanoo
 			     source-db-mosgi))
 
 
 (defun copy-http-request-entries (id-list db-source-connection-vilanoo db-sink-connection)
-  (dolist (id id-list)
-    (destructuring-bind (id time request-url request-body header method-type cookies status-code)
-	(car (clsql:select [ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE]
-			   :FROM [HTTP-REQUESTS]
-			   :WHERE [= [ID] id]
-			   :database db-source-connection-vilanoo))
-      (clsql:insert-records :INTO [HTTP-REQUESTS]
-			    :ATTRIBUTES '([ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE])
-			    :VALUES (list id time request-url request-body header method-type cookies status-code)
-			    :database db-sink-connection))))
+  (mapcar #'(lambda(id)
+              (FORMAT T "Copying for request ~a from vilanoo.db to mosgi.db~%" id)
+              (destructuring-bind (id time request-url request-body header method-type cookies status-code)
+                  (car (clsql:select [ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE]
+                                     :FROM [HTTP-REQUESTS]
+                                     :WHERE [= [ID] id]
+                                     :database db-source-connection-vilanoo))
+                (clsql:insert-records :INTO [HTTP-REQUESTS]
+                                      :ATTRIBUTES '([ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE])
+                                      :VALUES (list id time request-url request-body header method-type cookies status-code)
+                                      :database db-sink-connection)))
+          id-list))
 
 
-(defun get-highest-http-request-id-entry (source-db-connection)
+#|(defun get-highest-http-request-id-entry (source-db-connection)
   (let ((numbers (clsql:select [ID] :FROM  [HTTP-REQUESTS] :database source-db-connection :flatp T)))
-    (apply #'max (car numbers) (cdr numbers))))
+    (apply #'max (car numbers) (cdr numbers))))|#
 
 
-(defun get-all-http-request-ids (start end source-db-connection)
-  (sort (remove-if-not #'(lambda (id)
-			   (and (>= id start)
-				(< id end)))
-		       (clsql:select [ID] :FROM  [HTTP-REQUESTS] :database source-db-connection :flatp T))
-	#'<=))
+(defun get-all-http-request-ids (source-db-connection)
+  (sort (clsql:select [ID] :FROM  [HTTP-REQUESTS] :database source-db-connection :flatp T)
+        #'<=))	
+
 
 
 (defmethod commit-full-sessions (database request-db-id php-session-list)
