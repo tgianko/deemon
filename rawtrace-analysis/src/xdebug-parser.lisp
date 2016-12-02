@@ -288,7 +288,58 @@ given trace and returns all parameters passed to those calls.
                                 1
                                 (- (length array-content-bracketed) 1))))
       nil))
-                    
+
+
+(position #\1 '(#\1 #\1 #\3 #\2 #\1) :start -1)
+
+
+(defun find-nth-occurence (nth item list &key (start -1) (test #'equalp))
+  (if (= nth 0)
+      (if (= start -1)
+          nil
+          start)
+      (let ((pos (position item list :test test :start (+ start 1))))
+        (find-nth-occurence (- nth 1) item list :start pos :test test))))
+
+
+(defun inject-and-replace-nth (nth inject-list list)
+  (if (= nth 0)
+      (append inject-list
+              (cdr list))
+      (cons (car list)
+            (inject-and-replace-nth (- nth 1)
+                                    inject-list
+                                    (cdr list)))))
+
+
+(defun replace-?-with-string (nth string query)
+  (let ((exploded-query (coerce query 'list)))
+    (if (find-nth-occurence nth #\? exploded-query :test #'char=)
+        (inject-and-replace-nth (find-nth-occurence nth #\? exploded-query)
+                                (coerce string 'list)
+                                exploded-query)
+        (error (FORMAT nil "replacing #~a ? with ~a in query ~a failed"
+                       nth
+                       string
+                       query)))))
+                       
+
+; in case programmer is really mean hand has a abitrary distribution
+; of the ? order we are royally screwed and I have to implement a better 
+; scheme
+(defun pdo-bind-values (prep-string prepare-statements) 
+  (let ((prepare-statements (reverse prepare-statements)))
+    (dolist (item prepare-statements)
+      (if (numeric-string-p (car (parameters item)))
+          (setf prep-string (replace-?-with-string (read-from-string (car (parameters item)))
+                                                   (cadr (parameters item))
+                                                   prep-string))
+          (setf prep-string
+                (cl-ppcre:regex-replace-all (car (parameters item))
+                                            prep-string
+                                            (cadr (parameters item))))))
+    (coerce prep-string 'string)))
+  
 
 (defun pdo-function-calls->query-string (records)
   (assert (string= (function-name (car records)) "PDO->prepare")
@@ -298,11 +349,7 @@ given trace and returns all parameters passed to those calls.
   (if (or (string= (function-name (car (last records))) "PDOStatement->execute")
           (not *drop-nonexecuted-queries-p*))
       (let ((prep-string (car (parameters (car records)))))
-        (dolist (item (subseq records 1 (- (length records) 1)))
-          (setf prep-string
-                (cl-ppcre:regex-replace-all (car (parameters item))
-                                            prep-string
-                                            (cadr (parameters item)))))
+        (setf prep-string (pdo-bind-values prep-string (subseq records 1 (- (length records) 1))))
         (dolist (item (array->parameterlist (car (parameters (car (last records))))))
           (setf prep-string
                 (cl-ppcre:regex-replace "\\?"
@@ -343,7 +390,7 @@ given trace and returns all parameters passed to those calls.
             (get-next-pdo-start pdo-records)
           (multiple-value-bind (records remaining-records)
               (get-preparation-set start-record remaining-records)
-            ;(FORMAT T "START:~a~% REST:~a~%" start-record records)
+            (FORMAT T "START:~a~% REST:~a~%" start-record records)
             (let ((query (pdo-function-calls->query-string (cons start-record
                                                                  records))))
               (when query
@@ -351,6 +398,7 @@ given trace and returns all parameters passed to those calls.
             (setf pdo-records remaining-records)))))
     queries))
 
+               
 
 (defmethod get-regular-sql-queries ((xdebug-trace xdebug-trace))
   (mapcar #'(lambda(mysqli-call)
