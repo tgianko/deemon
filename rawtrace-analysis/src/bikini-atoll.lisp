@@ -1,8 +1,8 @@
 (setf sb-ext:*posix-argv* 
       '("/useless/exec/path"
-        "-v" "/home/simkoc/hiwi/csrf/poc-smf-admin-user-201611251425-vilanoo.db"
-        "-m" "/home/simkoc/hiwi/csrf/poc-smf-admin-user-201611251425-mosgi.db"
-        "-d" "/home/simkoc/hiwi/csrf/poc-smf-admin-user-201611251425-analyzed.db"
+        "-v" "/home/simkoc/tmp/mautic/mautic-admin_kasperle-change_landing_page_S1-201612011814-vilanoo.db"
+        "-m" "/home/simkoc/tmp/mautic/mautic-admin_kasperle-change_landing_page_S1-201612011814-mosgi.db"
+        "-d" "/home/simkoc/tmp/mautic/mautic-admin_kasperle-change_landing_page_S1-201612011814-analyzed.db"
         "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
 
 

@@ -8,6 +8,8 @@ given trace and returns all parameters passed to those calls.
 (in-package :de.uni-saarland.syssec.analyzer.xdebug)
 
 
+(defparameter *drop-nonexecuted-queries-p* T)
+
 (defun get-xdebug-trace-file (folder-files)
   (let ((rel-files (remove-if-not #'(lambda (file-path)
 				      (cl-ppcre:scan ".*/xdebug.xt" file-path))
@@ -238,6 +240,8 @@ given trace and returns all parameters passed to those calls.
 (defun remove-non-state-changing-queries(query-list)
   (remove-if #'(lambda(query)
                  (or 
+                  (cl-ppcre:scan "SHOW" query)
+                  (cl-ppcre:scan "show" query)
                   (cl-ppcre:scan "SELECT" query)
                   (cl-ppcre:scan "select" query)))
              query-list))
@@ -289,20 +293,23 @@ given trace and returns all parameters passed to those calls.
 (defun pdo-function-calls->query-string (records)
   (assert (string= (function-name (car records)) "PDO->prepare")
           ((car records)) "first pdo records has to be a preparation call")
-  (assert (string= (function-name (car (last records))) "PDOStatement->execute")
-          ((car (last records))) "last pdo record has to be an execution call")
-  (let ((prep-string (car (parameters (car records)))))
-    (dolist (item (subseq records 1 (- (length records) 1)))
-      (setf prep-string
-            (cl-ppcre:regex-replace-all (car (parameters item))
+  (when (not (string= (function-name (car (last records))) "PDOStatement->execute"))
+    (warn "last given record NOT PDOStatement->execute"))
+  (if (or (string= (function-name (car (last records))) "PDOStatement->execute")
+          (not *drop-nonexecuted-queries-p*))
+      (let ((prep-string (car (parameters (car records)))))
+        (dolist (item (subseq records 1 (- (length records) 1)))
+          (setf prep-string
+                (cl-ppcre:regex-replace-all (car (parameters item))
+                                            prep-string
+                                            (cadr (parameters item)))))
+        (dolist (item (array->parameterlist (car (parameters (car (last records))))))
+          (setf prep-string
+                (cl-ppcre:regex-replace "\\?"
                                         prep-string
-                                        (cadr (parameters item)))))
-    (dolist (item (array->parameterlist (car (parameters (car (last records))))))
-      (setf prep-string
-            (cl-ppcre:regex-replace "\\?"
-                                    prep-string
-                                    (extract-argument item))))
-    prep-string))
+                                        (extract-argument item))))
+        prep-string)
+      nil))
 
 
 (defmethod get-pdo-prepared-queries ((xdebug-trace xdebug-trace))
@@ -310,24 +317,21 @@ given trace and returns all parameters passed to those calls.
         (queries nil))
     (labels ((get-preparation-set (start-record remaining-traces)
                (if remaining-traces
-                   (if (= (level (car remaining-traces))
-                          (level start-record))
-                       (cond 
-                         ((string= (function-name (car remaining-traces)) "PDOStatement->bindValue")
-                          (multiple-value-bind (list remaining)
-                              (get-preparation-set start-record (cdr remaining-traces))
-                            (when (not list)
-                              (error "list of PDO must not be empty"))
-                            (values (cons (car remaining-traces)
-                                          list)
-                                    remaining)))
-                         ((string= (function-name (car remaining-traces)) "PDOStatement->execute")
-                          (values (cons (car remaining-traces) nil)
-                                  (cdr remaining-traces)))
-                         (t
-                          (error (FORMAT nil "unexpected trace element ~a" (car remaining-traces)))))
-                       (get-preparation-set start-record (cdr remaining-traces)))
-                   (values nil nil)))
+                   (cond 
+                     ((string= (function-name (car remaining-traces)) "PDOStatement->bindValue")
+                      (multiple-value-bind (list remaining)
+                          (get-preparation-set start-record (cdr remaining-traces))
+                        (when (not list)
+                          (error "list of PDO must not be empty"))
+                        (values (cons (car remaining-traces)
+                                      list)
+                                remaining)))
+                     ((string= (function-name (car remaining-traces)) "PDOStatement->execute")
+                      (values (cons (car remaining-traces) nil)
+                              (cdr remaining-traces)))
+                     (t
+                      (error (FORMAT nil "unexpected trace element ~a" (car remaining-traces)))))
+                   (values (list start-record) nil)))
              (get-next-pdo-start (remaining-traces)
                (if remaining-traces
                    (if (string= (function-name (car remaining-traces)) "PDO->prepare")
@@ -339,10 +343,11 @@ given trace and returns all parameters passed to those calls.
             (get-next-pdo-start pdo-records)
           (multiple-value-bind (records remaining-records)
               (get-preparation-set start-record remaining-records)
-            (FORMAT T "START:~a~% REST:~a~%" start-record records)
-            (push (pdo-function-calls->query-string (cons start-record
-                                                          records))
-                  queries)
+            ;(FORMAT T "START:~a~% REST:~a~%" start-record records)
+            (let ((query (pdo-function-calls->query-string (cons start-record
+                                                                 records))))
+              (when query
+                (push query queries)))
             (setf pdo-records remaining-records)))))
     queries))
 
