@@ -2,7 +2,7 @@
 FROM docker.wdf.sap.corp:50000/ubuntu:wily
 MAINTAINER Florian Loch <florian.loch@sap.com>
 
-#
+# Set proxy for usage in SAP_CORPORATE
 ENV http_proxy=http://147.204.6.136:8080
 ENV https_proxy=http://147.204.6.136:8080
 ENV no_proxy=sap.corp,no_proxy=sap.corp,localhost,127.0.0.1
@@ -17,9 +17,7 @@ RUN wget -O - https://debian.neo4j.org/neotechnology.gpg.key | apt-key add -
 RUN echo 'deb http://debian.neo4j.org/repo stable/' | tee /etc/apt/sources.list.d/neo4j.list
 
 RUN apt-get update
-RUN apt-get install -y --force-yes openjdk-8-jre-headless git python
-RUN yes | apt-get install -y --force-yes virtualbox-5.1 sqlite3 libsqlite3-dev qemu-utils netcat-openbsd sbcl neo4j=3.0.6
-RUN yes | apt-get install -y --force-yes sqlite3 libsqlite3-dev qemu-utils netcat-openbsd sbcl neo4j=3.0.6
+RUN apt-get install -y --force-yes openjdk-8-jre-headless git python virtualbox-5.1 sqlite3 libsqlite3-dev qemu-utils netcat-openbsd sbcl
 
 RUN wget https://beta.quicklisp.org/quicklisp.lisp
 
@@ -38,15 +36,21 @@ RUN pip install git+https://github.com/tgianko/py2neo.git#egg=py2neo
 
 RUN rm -rf /usr/src/app
 
+RUN echo "================================= \nDO NOT FORGET TO RUN THE MANUAL STEPS!\n ================================="
+
 WORKDIR /usr/src/app
 # CMD 
 
 # Run the following steps by hand:
 # 1. Run container
-# docker run -it vilanoo /bin/bash
+# docker run -it vilanoo:latest /bin/bash
 # 2. Install Quicklisp
 # sbcl --load /quicklisp.lisp
 # 3. In the REPL enter the following commands
 # (quicklisp-quickstart:install :proxy "http://147.204.6.136:8080")
 # (ql:add-to-init-file)
 # 4. Commit the changes as new image
+# docker commit <id> vilanoo:latest
+
+# Run with docker-compose and interactive shell:
+# dc run vilanoo /bin/bash

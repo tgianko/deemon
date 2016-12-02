@@ -4,4 +4,4 @@ deep-modeling/shared/config.py
 vilanoo2/src/certs/
 vilanoo2/src/selenese.log
 .DS_Store
-./neo4j-persistence
+neo4j-persistence/

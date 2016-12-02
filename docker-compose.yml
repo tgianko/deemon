@@ -1,0 +1,15 @@
+neo4j:
+  image: docker.wdf.sap.corp:50000/neo4j
+  ports:
+    - "7474:7474"
+    - "7687:7687"
+  volumes:
+    - "./neo4j-persistence:/data"
+
+vilanoo:
+  image: vilanoo
+  volumes:
+    - ".:/usr/src/app"
+    - "../selenese-testcases:/testcases"
+  links:
+    - neo4j
