@@ -33,7 +33,6 @@
 
 (defun copy-http-request-entries (id-list db-source-connection-vilanoo db-sink-connection)
   (mapcar #'(lambda(id)
-              (FORMAT T "Copying for request ~a from vilanoo.db to mosgi.db~%" id)
               (destructuring-bind (id time request-url request-body header method-type cookies status-code)
                   (car (clsql:select [ID] [TIME] [REQUEST-URL] [REQUEST-BODY] [HEADERS] [METHOD-TYPE] [COOKIES] [STATUS-CODE]
                                      :FROM [HTTP-REQUESTS]
@@ -46,9 +45,9 @@
           id-list))
 
 
-#|(defun get-highest-http-request-id-entry (source-db-connection)
+(defun get-highest-http-request-id-entry (source-db-connection)
   (let ((numbers (clsql:select [ID] :FROM  [HTTP-REQUESTS] :database source-db-connection :flatp T)))
-    (apply #'max (car numbers) (cdr numbers))))|#
+    (apply #'max (car numbers) (cdr numbers))))
 
 
 (defun get-all-http-request-ids (source-db-connection)
