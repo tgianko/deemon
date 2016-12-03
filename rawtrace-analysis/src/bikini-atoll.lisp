@@ -1,8 +1,8 @@
 (setf sb-ext:*posix-argv* 
       '("/useless/exec/path"
-        "-v" "/home/simkoc/tmp/simpleinvoice/simpleinvoice-admin-login_and_add_second_admin_S1-201611301819-vilanoo.db"
-        "-m" "/home/simkoc/tmp/simpleinvoice/simpleinvoice-admin-login_and_add_second_admin_S1-201611301819-mosgi.db"
-        "-d" "/home/simkoc/tmp/simpleinvoice/simpleinvoice-admin-login_and_add_second_admin_S1-201611301819-analyzed.db"
+        "-v" "/home/simkoc/tmp/simpleinvoice/simpleinvoice-admin_login_and_new_product-_S1-201611301801-vilanoo.db"                                                       
+        "-m" "/home/simkoc/tmp/simpleinvoice/simpleinvoice-admin_login_and_new_product-_S1-201611301801-mosgi.db"                                                       
+        "-d" "/home/simkoc/tmp/simpleinvoice/simpleinvoice-admin_login_and_new_product-_S1-201611301801-analyzed.db"                                                       
         "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
 
 

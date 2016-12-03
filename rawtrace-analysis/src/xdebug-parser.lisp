@@ -7,7 +7,7 @@ given trace and returns all parameters passed to those calls.
 |#
 (in-package :de.uni-saarland.syssec.analyzer.xdebug)
 
-
+(defparameter *giancarlo-change-this-to-T* nil)
 (defparameter *drop-nonexecuted-queries-p* T)
 
 (defun get-xdebug-trace-file (folder-files)
@@ -238,13 +238,17 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun remove-non-state-changing-queries(query-list)
-  (remove-if #'(lambda(query)
-                 (or 
-                  (cl-ppcre:scan "SHOW" query)
-                  (cl-ppcre:scan "show" query)
-                  (cl-ppcre:scan "SELECT" query)
-                  (cl-ppcre:scan "select" query)))
-             query-list))
+  (if *giancarlo-change-this-to-T*
+      query-list
+      (remove-if #'(lambda(query)
+                     (let ((substr (subseq query 0 10)))
+                       (or 
+                        (cl-ppcre:scan "SHOW" substr)
+                        (cl-ppcre:scan "show" substr)
+                        (cl-ppcre:scan "SELECT" substr)
+                        (cl-ppcre:scan "select" substr))))
+                 query-list)))
+
 
 
 (defun query-cleaner (query-string)
@@ -415,10 +419,13 @@ given trace and returns all parameters passed to those calls.
 
 
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace) keep-all-queries-p)
-  (let ((queries (append
-                  (get-pdo-prepared-queries xdebug-trace)
-                  (get-regular-sql-queries xdebug-trace))))
-    (mapcar #'query-cleaner
+  (let ((queries (mapcar #'query-cleaner
+                         (append
+                          (get-pdo-prepared-queries xdebug-trace)
+                          (get-regular-sql-queries xdebug-trace)))))
+    (mapcar #'(lambda(printor)
+                (FORMAT T "Q:~a~%" printor)
+                printor)
             (if (not keep-all-queries-p)
                 (remove-non-state-changing-queries queries)
                 queries))))
