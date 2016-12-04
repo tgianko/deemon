@@ -170,9 +170,6 @@ given trace and returns all parameters passed to those calls.
         (error (e)
           (FORMAT T "ERROR WHILE PARSING XDEBUG~% LINE: ~a~% ERROR:~%~a~%" line e))))))
         
-	  
-
-
 
 (defun numeric-string-p (string)
   (let ((*read-eval* nil))
@@ -211,8 +208,6 @@ given trace and returns all parameters passed to those calls.
               (FORMAT xdebug-ostream "~a" line))))))
 
 
-
-
 (defun make-xdebug-trace (stream)
   (cl-fad:with-open-temporary-file (iostream :direction :io)
     (remove-bad-newlines stream iostream)
@@ -225,7 +220,6 @@ given trace and returns all parameters passed to those calls.
 (defun make-xdebug-trace-from-file (file-path)
   (with-open-file (stream file-path :external-format :latin1)
     (make-xdebug-trace stream)))
-
 
 
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
@@ -248,7 +242,6 @@ given trace and returns all parameters passed to those calls.
                         (cl-ppcre:scan "SELECT" substr)
                         (cl-ppcre:scan "select" substr))))
                  query-list)))
-
 
 
 (defun query-cleaner (query-string)
@@ -292,7 +285,6 @@ given trace and returns all parameters passed to those calls.
                                 1
                                 (- (length array-content-bracketed) 1))))
       nil))
-
 
 
 (defun find-nth-occurence (nth item list &key (start -1) (test #'equalp))
@@ -418,9 +410,21 @@ given trace and returns all parameters passed to those calls.
                           (trace-content xdebug-trace))))
 
 
+(defmethod get-mysqli-queries ((xdebug-trace xdebug-trace))
+  (mapcar #'(lambda(mysqli_query-record)
+              (let ((query (cadr (parameters mysqli_query-record))))
+                (FORMAT T "extrace mysqli query: ~a~%" query)
+                query))
+          (remove-if-not #'(lambda (record)
+                             (and (typep record 'entry-record)
+                                  (or (string= (function-name record) "mysqli_query"))))
+                         (trace-content xdebug-trace))))
+
+
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace) keep-all-queries-p)
   (let ((queries (mapcar #'query-cleaner
                          (append
+                          (get-mysqli-queries xdebug-trace)
                           (get-pdo-prepared-queries xdebug-trace)
                           (get-regular-sql-queries xdebug-trace)))))
     (mapcar #'(lambda(printor)
