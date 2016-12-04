@@ -97,7 +97,7 @@ TBD
 * joomla             3.5.1-1    working
 * magento            2.0.7-0    not working (zumka issue#107)
 * magento            1.9    working 
-* mautic             1.4.1-0    not working (vilanoo issue#64)
+* mautic             1.4.1-0    not working
 * modx           2.4.4pl-1  not working (vilanoo issue#65)
 * opencart       2.1.0.2-2  working
 * oxid           4.9.8-0    working
