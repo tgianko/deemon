@@ -1,5 +1,7 @@
 #!/bin/bash
 
+analyzed_db_path=$1
+
 amount_queries=`echo "SELECT count(*) FROM sql_queries;" | sqlite3 ${analyzed_db_path}`
 amount_queries_last=`echo "SELECT count(*) FROM sql_queries WHERE http_request_id = (SELECT max(id) FROM http_requests);" | sqlite3 ${analyzed_db_path}`
 amount_prop_queries=`grep "PDO->prepare" /tmp/analysis-query-result-buffer | grep -o "INSERT\|UPDATE\|DELETE\|SET" | wc -l`
