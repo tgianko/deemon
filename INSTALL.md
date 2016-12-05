@@ -118,3 +118,7 @@ Successfully installed py2neo-3.1.2
 ```
 
 This will install py2neo within the virtual environment. From this point on, when using any of the deep-modeling tools, please activate the virtual environment before running the script. If you do not do that, python will not use our version, but instead the system one.
+
+# Further dependencies
+
+One additionally needs `libssh2-1-dev` to be installed. Also `~/.ssh` has to be existent.

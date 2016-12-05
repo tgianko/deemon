@@ -90,8 +90,9 @@ To run mosgi, it is likely that you will use the following command line:
 
 ```
 $ cd mosgi/src
-$ ./vilanoo/mosgi/run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
+$ ./run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s $path_to_your_mosgi_sqlitedb
 ```
+(For information on the parameters run `./run.sh -h`, of course)
 
 After that, Mosgi is up and running waiting for incoming connections at 
 localhost port 9292. 
