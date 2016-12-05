@@ -17,7 +17,7 @@ RUN wget -O - https://debian.neo4j.org/neotechnology.gpg.key | apt-key add -
 RUN echo 'deb http://debian.neo4j.org/repo stable/' | tee /etc/apt/sources.list.d/neo4j.list
 
 RUN apt-get update
-RUN apt-get install -y --force-yes openjdk-8-jre-headless git python virtualbox-5.1 sqlite3 libsqlite3-dev qemu-utils netcat-openbsd sbcl
+RUN apt-get install -y --force-yes openjdk-8-jre-headless git python virtualbox-5.1 sqlite3 libsqlite3-dev qemu-utils netcat-openbsd sbcl libssh2-1-dev
 
 RUN wget https://beta.quicklisp.org/quicklisp.lisp
 
@@ -36,6 +36,12 @@ RUN pip install git+https://github.com/tgianko/py2neo.git#egg=py2neo
 
 RUN rm -rf /usr/src/app
 
+RUN mkdir ~/.ssh
+
+RUN echo "================================= \nSetting up zsh!\n ================================="
+RUN apt-get install -y zsh 
+RUN sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
 RUN echo "================================= \nDO NOT FORGET TO RUN THE MANUAL STEPS!\n ================================="
 
 WORKDIR /usr/src/app
@@ -53,4 +59,4 @@ WORKDIR /usr/src/app
 # docker commit <id> vilanoo:latest
 
 # Run with docker-compose and interactive shell:
-# dc run vilanoo /bin/bash
+# dc run vilanoo /bin/zsh
