@@ -235,7 +235,9 @@ given trace and returns all parameters passed to those calls.
   (if *giancarlo-change-this-to-T*
       query-list
       (remove-if #'(lambda(query)
-                     (let ((substr (subseq query 0 10)))
+                     (let ((substr (if (> (length query) 10)
+                                       (subseq query 0 10)
+                                       query)))
                        (or 
                         (cl-ppcre:scan "SHOW" substr)
                         (cl-ppcre:scan "show" substr)

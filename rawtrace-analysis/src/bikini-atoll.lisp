@@ -1,8 +1,8 @@
 (setf sb-ext:*posix-argv* 
       '("/useless/exec/path"
-        "-v" "/home/simkoc/tmp/mybb/mybb-admin_admin1-add_word_to_filter_S1-201612010021-vilanoo.db" 
-        "-m" "/home/simkoc/tmp/mybb/mybb-admin_admin1-add_word_to_filter_S1-201612010021-mosgi.db"
-        "-d" "/home/simkoc/tmp/mybb/mybb-admin_admin1-add_word_to_filter_S1-201612010021-analyzed.db"
+        "-v" "/home/simkoc/.vilanoo/oxid-traces/oxid-admin_user@example.com-create_category_S1-201611290649-vilanoo.db"
+        "-m" "/home/simkoc/.vilanoo/oxid-traces/oxid-admin_user@example.com-create_category_S1-201611290649-mosgi.db"
+        "-d" "/home/simkoc/.vilanoo/oxid-traces/oxid-admin_user@example.com-create_category_S1-201611290649-analyzed.db"
         "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
 
 
