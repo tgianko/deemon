@@ -6,7 +6,6 @@ waits/responds for commands and executes given commands
 |#
 (in-package :de.uni-saarland.syssec.mosgi)
 
-(defparameter +local-xdebug-buffer+ "/tmp/mosgi-xdebug-buffer")
 
 (opts:define-opts
   (:name :php-session-folder
@@ -152,17 +151,18 @@ waits/responds for commands and executes given commands
                                                              user host pwd))
                  0)
               (print-threaded :saver (FORMAT nil "no xdebug dump found"))
-              (let ((xdebug-file-path (ssh-interface:get-file-as-file 
-                                       xdebug-trace-file 
-                                       +local-xdebug-buffer+
-                                       #'(lambda(string)
-                                           (print-threaded :saver string)))))
-                (sb-ext:gc :full t)
-                (database:enter-xdebug-file-into-db xdebug-file-path
-                                                    request-db-id
-                                                    database-connection 
-                                                    #'(lambda(string)
-                                                        (print-threaded :saver string)))
+              (cl-fad:with-open-temporary-file (tmp-stream :direction :io :element-type '(unsigned-byte 8))
+                (let ((xdebug-file-path (ssh-interface:get-file-as-file 
+                                         xdebug-trace-file 
+                                         (Format nil "~a" (pathname tmp-stream))
+                                         #'(lambda(string)
+                                             (print-threaded :saver string)))))
+                  (sb-ext:gc :full t)
+                  (database:enter-xdebug-file-into-db xdebug-file-path
+                                                      request-db-id
+                                                      database-connection 
+                                                      #'(lambda(string)
+                                                          (print-threaded :saver string))))
                 (sb-ext:gc :full t)))
           (ssh-interface:delete-folder (FORMAT nil "/tmp/xdebug-trace-~a/" request-db-id) user host pwd))
       (error (e)

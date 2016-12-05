@@ -7,6 +7,8 @@ given trace and returns all parameters passed to those calls.
 |#
 (in-package :de.uni-saarland.syssec.analyzer.xdebug)
 
+(defparameter *giancarlo-change-this-to-T* nil)
+(defparameter *drop-nonexecuted-queries-p* T)
 
 (defun get-xdebug-trace-file (folder-files)
   (let ((rel-files (remove-if-not #'(lambda (file-path)
@@ -168,17 +170,56 @@ given trace and returns all parameters passed to those calls.
         (error (e)
           (FORMAT T "ERROR WHILE PARSING XDEBUG~% LINE: ~a~% ERROR:~%~a~%" line e))))))
         
-	  
+
+(defun numeric-string-p (string)
+  (let ((*read-eval* nil))
+    (ignore-errors (numberp (read-from-string string)))))
+
+
+(defun valid-always (string)
+  (or (string= string "1")
+      (string= string "0")
+      (string= string "R")))
+
+
+(defun remove-bad-newlines (xdebug-istream xdebug-ostream)
+  (FORMAT xdebug-ostream "~a~%" (read-line xdebug-istream nil nil))
+  (FORMAT xdebug-ostream "~a~%" (read-line xdebug-istream nil nil))
+  (FORMAT xdebug-ostream "~a~%" (read-line xdebug-istream nil nil))
+  (do ((line (read-line xdebug-istream nil nil)
+             (read-line xdebug-istream nil nil))
+       (fixing t))
+      ((not line) nil)
+    (if (not fixing)
+        (FORMAT xdebug-ostream "~a~%"line)
+        (let ((split-line (cl-ppcre:split "\\t" line)))
+          (if (>= (length split-line) 3)
+              (if (and (string= (car split-line) "")
+                       (string= (cadr split-line) "")
+                       (string= (caddr split-line) ""))
+                  (progn 
+                    (setf fixing nil)
+                    (FORMAT xdebug-ostream "~%~a~%" line))
+                  (if (and (numeric-string-p (car split-line))
+                           (numeric-string-p (cadr split-line))
+                           (valid-always (caddr split-line)))
+                      (FORMAT xdebug-ostream "~&~a" line)
+                      (FORMAT xdebug-ostream "~a" line)))
+              (FORMAT xdebug-ostream "~a" line))))))
+
 
 (defun make-xdebug-trace (stream)
-  (make-instance 'xdebug-trace
-		 :trace-content (parse-xdebug-trace stream)))
+  (cl-fad:with-open-temporary-file (iostream :direction :io)
+    (remove-bad-newlines stream iostream)
+    (force-output iostream)
+    (file-position iostream 0)
+    (make-instance 'xdebug-trace
+                   :trace-content (parse-xdebug-trace iostream))))
 
 
 (defun make-xdebug-trace-from-file (file-path)
   (with-open-file (stream file-path :external-format :latin1)
     (make-xdebug-trace stream)))
-
 
 
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
@@ -191,11 +232,16 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun remove-non-state-changing-queries(query-list)
-  (remove-if #'(lambda(query)
-                 (or 
-                  (cl-ppcre:scan "SELECT" query)
-                  (cl-ppcre:scan "select" query)))
-             query-list))
+  (if *giancarlo-change-this-to-T*
+      query-list
+      (remove-if #'(lambda(query)
+                     (let ((substr (subseq query 0 10)))
+                       (or 
+                        (cl-ppcre:scan "SHOW" substr)
+                        (cl-ppcre:scan "show" substr)
+                        (cl-ppcre:scan "SELECT" substr)
+                        (cl-ppcre:scan "select" substr))))
+                 query-list)))
 
 
 (defun query-cleaner (query-string)
@@ -239,25 +285,77 @@ given trace and returns all parameters passed to those calls.
                                 1
                                 (- (length array-content-bracketed) 1))))
       nil))
-                    
+
+
+(defun find-nth-occurence (nth item list &key (start -1) (test #'equalp))
+  (if (= nth 0)
+      (if (= start -1)
+          nil
+          start)
+      (let ((pos (position item list :test test :start (+ start 1))))
+        (find-nth-occurence (- nth 1) item list :start pos :test test))))
+
+
+(defun inject-and-replace-nth (nth inject-list list)
+  (if (= nth 0)
+      (append inject-list
+              (cdr list))
+      (cons (car list)
+            (inject-and-replace-nth (- nth 1)
+                                    inject-list
+                                    (cdr list)))))
+
+
+(defun replace-?-with-string (nth string query)
+  (let ((exploded-query (coerce query 'list)))
+    (if (find-nth-occurence nth #\? exploded-query :test #'char=)
+        (inject-and-replace-nth (find-nth-occurence nth #\? exploded-query)
+                                (coerce string 'list)
+                                exploded-query)
+        (error (FORMAT nil "replacing #~a ? with ~a in query ~a failed"
+                       nth
+                       string
+                       query)))))
+                       
+
+(defun remove-first-and-last-char (string)
+  (subseq string 1 (- (length string) 1)))
+
+
+; in case the webapp programmer is really mean and has a abitrary distribution
+; of the ? order we are royally screwed and I have to implement a better 
+; scheme but let this be for the moment as this will break in that case
+; anyhow
+(defun pdo-bind-values (prep-string prepare-statements) 
+  (let ((prepare-statements (reverse prepare-statements)))
+    (dolist (item prepare-statements)
+      (if (numeric-string-p (car (parameters item)))
+          (setf prep-string (replace-?-with-string (read-from-string (car (parameters item)))
+                                                   (cadr (parameters item))
+                                                   prep-string))
+          (setf prep-string
+                (cl-ppcre:regex-replace-all (remove-first-and-last-char (car (parameters item)))
+                                            prep-string
+                                            (cadr (parameters item))))))
+    (coerce prep-string 'string)))
+  
 
 (defun pdo-function-calls->query-string (records)
   (assert (string= (function-name (car records)) "PDO->prepare")
           ((car records)) "first pdo records has to be a preparation call")
-  (assert (string= (function-name (car (last records))) "PDOStatement->execute")
-          ((car (last records))) "last pdo record has to be an execution call")
-  (let ((prep-string (car (parameters (car records)))))
-    (dolist (item (subseq records 1 (- (length records) 1)))
-      (setf prep-string
-            (cl-ppcre:regex-replace-all (car (parameters item))
+  (when (not (string= (function-name (car (last records))) "PDOStatement->execute"))
+    (warn "last given record NOT PDOStatement->execute"))
+  (if (or (string= (function-name (car (last records))) "PDOStatement->execute")
+          (not *drop-nonexecuted-queries-p*))
+      (let ((prep-string (car (parameters (car records)))))
+        (setf prep-string (pdo-bind-values prep-string (subseq records 1 (- (length records) 1))))
+        (dolist (item (array->parameterlist (car (parameters (car (last records))))))
+          (setf prep-string
+                (cl-ppcre:regex-replace "\\?"
                                         prep-string
-                                        (cadr (parameters item)))))
-    (dolist (item (array->parameterlist (car (parameters (car (last records))))))
-      (setf prep-string
-            (cl-ppcre:regex-replace "\\?"
-                                    prep-string
-                                    (extract-argument item))))
-    prep-string))
+                                        (extract-argument item))))
+        prep-string)
+      nil))
 
 
 (defmethod get-pdo-prepared-queries ((xdebug-trace xdebug-trace))
@@ -265,24 +363,21 @@ given trace and returns all parameters passed to those calls.
         (queries nil))
     (labels ((get-preparation-set (start-record remaining-traces)
                (if remaining-traces
-                   (if (= (level (car remaining-traces))
-                          (level start-record))
-                       (cond 
-                         ((string= (function-name (car remaining-traces)) "PDOStatement->bindValue")
-                          (multiple-value-bind (list remaining)
-                              (get-preparation-set start-record (cdr remaining-traces))
-                            (when (not list)
-                              (error "list of PDO must not be empty"))
-                            (values (cons (car remaining-traces)
-                                          list)
-                                    remaining)))
-                         ((string= (function-name (car remaining-traces)) "PDOStatement->execute")
-                          (values (cons (car remaining-traces) nil)
-                                  (cdr remaining-traces)))
-                         (t
-                          (error (FORMAT nil "unexpected trace element ~a" (car remaining-traces)))))
-                       (get-preparation-set start-record (cdr remaining-traces)))
-                   (values nil nil)))
+                   (cond 
+                     ((string= (function-name (car remaining-traces)) "PDOStatement->bindValue")
+                      (multiple-value-bind (list remaining)
+                          (get-preparation-set start-record (cdr remaining-traces))
+                        (when (not list)
+                          (error "list of PDO must not be empty"))
+                        (values (cons (car remaining-traces)
+                                      list)
+                                remaining)))
+                     ((string= (function-name (car remaining-traces)) "PDOStatement->execute")
+                      (values (cons (car remaining-traces) nil)
+                              (cdr remaining-traces)))
+                     (t
+                      (error (FORMAT nil "unexpected trace element ~a" (car remaining-traces)))))
+                   (values (list start-record) nil)))
              (get-next-pdo-start (remaining-traces)
                (if remaining-traces
                    (if (string= (function-name (car remaining-traces)) "PDO->prepare")
@@ -294,13 +389,15 @@ given trace and returns all parameters passed to those calls.
             (get-next-pdo-start pdo-records)
           (multiple-value-bind (records remaining-records)
               (get-preparation-set start-record remaining-records)
-            (FORMAT T "START:~a~% REST:~a~%" start-record records)
-            (push (pdo-function-calls->query-string (cons start-record
-                                                          records))
-                  queries)
+            ;(FORMAT T "START:~a~% REST:~a~%" start-record records)
+            (let ((query (pdo-function-calls->query-string (cons start-record
+                                                                 records))))
+              (when query
+                (push query queries)))
             (setf pdo-records remaining-records)))))
     queries))
 
+               
 
 (defmethod get-regular-sql-queries ((xdebug-trace xdebug-trace))
   (mapcar #'(lambda(mysqli-call)
@@ -313,10 +410,31 @@ given trace and returns all parameters passed to those calls.
                           (trace-content xdebug-trace))))
 
 
+(defmethod get-mysqli-queries ((xdebug-trace xdebug-trace))
+  (mapcar #'(lambda(mysqli_query-record)
+              (let ((query (cadr (parameters mysqli_query-record))))
+                query))
+          (remove-if-not #'(lambda (record)
+                             (and (typep record 'entry-record)
+                                  (or (string= (function-name record) "mysqli_query"))))
+                         (trace-content xdebug-trace))))
 
-(defmethod get-sql-queries ((xdebug-trace xdebug-trace))
-  (remove-non-state-changing-queries
-   (append
-    (get-pdo-prepared-queries xdebug-trace)
-    (get-regular-sql-queries xdebug-trace))))
+
+(defmethod get-sql-queries ((xdebug-trace xdebug-trace) keep-all-queries-p)
+  (let ((queries (mapcar #'query-cleaner
+                         (append
+                          (get-mysqli-queries xdebug-trace)
+                          (get-pdo-prepared-queries xdebug-trace)
+                          (get-regular-sql-queries xdebug-trace)))))
+    (mapcar #'(lambda(printor)
+                printor)
+            (if (not keep-all-queries-p)
+                (remove-non-state-changing-queries queries)
+                queries))))
     
+
+
+#|
+(get-sql-queries
+ (make-xdebug-trace-from-file "/home/simkoc/tmp/simpleinvoice/xdebug.xt") NIL)
+  |#                                         

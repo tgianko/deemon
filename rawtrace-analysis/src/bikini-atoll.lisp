@@ -1,8 +1,8 @@
 (setf sb-ext:*posix-argv* 
       '("/useless/exec/path"
-        "-v" "/home/simkoc/prestashop-test-201611171610-vilanoo.db"
-        "-m" "/home/simkoc/prestashop-test-201611171610-mosgi.db"
-        "-d" "/home/simkoc/prestashop-test-201611171610-analyzed.db"
+        "-v" "/home/simkoc/tmp/mybb/mybb-admin_admin1-add_word_to_filter_S1-201612010021-vilanoo.db" 
+        "-m" "/home/simkoc/tmp/mybb/mybb-admin_admin1-add_word_to_filter_S1-201612010021-mosgi.db"
+        "-d" "/home/simkoc/tmp/mybb/mybb-admin_admin1-add_word_to_filter_S1-201612010021-analyzed.db"
         "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
 
 
@@ -17,3 +17,10 @@
 
 
 (get-pdo-prepared-queries *test*)
+
+
+#|
+(with-open-file (istream "/tmp/analysis-query-result-buffer" :external-format :latin1)
+  (with-open-file (ostream "~/test-dump.xt" :direction :output :if-does-not-exist :create :if-exists :supersede)
+    (remove-bad-newlines istream ostream)))
+|#
