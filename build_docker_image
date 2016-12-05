@@ -1,1 +1,1 @@
-docker build . -t vilanoo "$@"
+docker build . -t vilanoo:latest "$@"
