@@ -87,6 +87,25 @@ class Event(BasicNode):
         self.uuid = "{} - {}.{}.{}.{}.{}".format(dm_type, projname, session,
                                                  user, seq, ts)
 
+class AbstractEvent(BasicNode):
+    """ Describe an abstract observation of a dynamic trace
+    """
+
+    operation = Property()
+    seq       = Property()
+    message   = Property()
+
+    IsFollowedBy  = RelatedTo("AbstractEvent")
+    Caused        = RelatedTo("AbstractEvent") # for cross-tiers causality
+    IsGeneratedBy = RelatedTo("AbstractEvent") # for intra-tier  causality
+    Abstracts     = RelatedTo("Event")
+
+    def __init__(self, projname, dm_type, operation, seq, message):
+        super(AbstractEvent, self).__init__(projname ,dm_type)
+        self.operation = operation
+        self.seq     = seq
+        self.message = message
+        self.uuid = "{} - {}.{}.{}".format(dm_type, projname, operation, seq)
 
 """
 **************************

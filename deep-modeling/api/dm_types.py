@@ -14,6 +14,7 @@ HTTP-related
 
 URL        = "URL"
 HTTPREQ    = "HttpRequest"
+ABSHTTPREQ = "AbsHttpRequest"
 HTTPRESP   = "HttpResponse"
 COOKIE     = "Cookie"
 SETCOOKIE  = "SetCookie"

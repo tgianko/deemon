@@ -8,7 +8,27 @@ httpRequestIdent = "HttpRequest"
 SQLQueryIdent = "SQLQuery"
 
 
-def get_all_sql_queries_of(xdebug_event, graph, logger=None):
+def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
+    query = """MATCH (q:ParseTree {dm_type: {sqltype}})-[:PARSES]->(e:Event {dm_type: {xdebug}, uuid:{uuid}})
+               RETURN DISTINCT q.uuid AS uuid"""
+
+    data = {
+        "sqltype": SQL,
+        "xdebug" : XDEBUG,
+        "uuid"   : xdebug_event.uuid
+    }
+
+    rs = graph.run(query, data)
+
+    rs = list(rs)
+
+    final_list = list()
+    for q in rs:
+        query = ParseTree.select(graph).where(uuid=q["uuid"]).first()
+        final_list.append(query)
+    return final_list
+
+def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
     sqlQueries = ParseTree.select(graph).where("_.dm_type='{}'"
                                                .format(SQLQueryIdent))
     final_list = list()

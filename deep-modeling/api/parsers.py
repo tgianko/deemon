@@ -133,6 +133,16 @@ def content_type(hdrs):
             return v
     return None
 
+def content_len(hdrs):
+    hdrs = headers_to_list(hdrs)
+    for k, v in hdrs:
+        if k.lower() == "content-length":
+            try:
+                clen = int(v)
+                return clen
+            except:
+                return 0
+    return 0
 
 def parse_body(body, ctype, projname, dm_type):
     body_n = None
@@ -238,7 +248,7 @@ def parse_httpreq(method, url, hdrs, body, seq, ts, projname, session, user):
     hreq_n.HasChild.add(hdrs_n)
 
     ctype = content_type(hdrs)
-    if ctype:
+    if ctype and content_len(hdrs) > 0:
         body_n = parse_body(body, ctype, projname, HTTPREQ)
         body_n.pos = 3
         hreq_n.HasChild.add(body_n)
@@ -256,7 +266,7 @@ def parse_httpres(status, hdrs, body, seq, ts, projname, session, user):
     hres_n.HasChild.add(hdrs_n)
 
     ctype = content_type(hdrs)
-    if ctype:
+    if ctype and content_len(hdrs) > 0:
         body_n = parse_body(body, ctype, projname, HTTPRESP)
         body_n.pos = 2
         hres_n.HasChild.add(body_n)
