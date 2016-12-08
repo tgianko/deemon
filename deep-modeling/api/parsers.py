@@ -185,7 +185,7 @@ def parse_body(body, ctype, projname, dm_type):
         body_n.HasChild.add(cnt)
 
     else:
-        body_n = ParseTree(projname, ctype, body[0:128])
+        body_n = ParseTree(projname, ctype, "{} file, we ignore this content".format(ctype))
         s_n = PTTerminalNode(projname, dm_type, "{} file, we ignore this content".format(ctype), "plaintext-body", 0)
         body_n.HasChild.add(s_n)
     
