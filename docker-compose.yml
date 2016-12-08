@@ -12,6 +12,7 @@ vilanoo:
     - ".:/usr/src/app"
     - "../selenese-testcases:/testcases"
     - "../vbox-images:/vbox-images"
+    - "/dev:/devk "
   links:
     - neo4j
   command: /bin/zsh

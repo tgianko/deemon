@@ -8,7 +8,6 @@ ENV https_proxy=http://147.204.6.136:8080
 ENV no_proxy=sap.corp,no_proxy=sap.corp,localhost,127.0.0.1
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN echo "deb http://download.virtualbox.org/virtualbox/debian wily contrib" >> /etc/apt/sources.list
 
 RUN apt-get update
 RUN apt-get -y install wget
@@ -28,7 +27,6 @@ ADD . /usr/src/app
 
 RUN mkdir -p ~/quicklisp/local-projects
 RUN cd ~/quicklisp/local-projects && ln -s /usr/src/app/mosgi/src/ mosgi && ln -s /usr/src/app/rawtrace-analysis/src/ analyzer
-RUN cd /usr/src/app
 RUN git clone https://github.com/simkoc/cl-libssh2.git ~/quicklisp/local-projects/cl-libssh2
 
 RUN apt-get install python-pip -y
