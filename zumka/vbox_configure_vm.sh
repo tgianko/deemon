@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 if [ `vboxmanage list vms | grep $2 | wc -l` -gt 0 ]; then
     echo "ERROR: there exists already vm $2"

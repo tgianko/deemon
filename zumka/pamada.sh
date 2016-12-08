@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ $# -ne 2 ]; then
     echo "usage: ./pamada </full/path/vm.vdmk> <vm-name>" 
     exit 1

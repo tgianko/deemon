@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 if [ $# -ne 2 ]; then
     echo "usage: ./polesno.sh </full/path/to/vm.vdi> <vm-name>"
