@@ -71,6 +71,6 @@ echo "guest system name is : $vm_name"
 echo "guest IP             : $guest_ip"
 echo "outgoing port        : $outgoing_port"
 echo "incoming port        : $incoming_port"
-echo "virgin snapshot      : viring-state"
+echo "virgin snapshot      : virgin-state"
 
 exit 0
