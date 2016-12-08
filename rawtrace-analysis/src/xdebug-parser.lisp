@@ -7,7 +7,7 @@ given trace and returns all parameters passed to those calls.
 |#
 (in-package :de.uni-saarland.syssec.analyzer.xdebug)
 
-
+(defparameter *giancarlo-change-this-to-T* nil)
 (defparameter *drop-nonexecuted-queries-p* T)
 
 (defun get-xdebug-trace-file (folder-files)
@@ -170,9 +170,6 @@ given trace and returns all parameters passed to those calls.
         (error (e)
           (FORMAT T "ERROR WHILE PARSING XDEBUG~% LINE: ~a~% ERROR:~%~a~%" line e))))))
         
-	  
-
-
 
 (defun numeric-string-p (string)
   (let ((*read-eval* nil))
@@ -211,8 +208,6 @@ given trace and returns all parameters passed to those calls.
               (FORMAT xdebug-ostream "~a" line))))))
 
 
-
-
 (defun make-xdebug-trace (stream)
   (cl-fad:with-open-temporary-file (iostream :direction :io)
     (remove-bad-newlines stream iostream)
@@ -227,7 +222,6 @@ given trace and returns all parameters passed to those calls.
     (make-xdebug-trace stream)))
 
 
-
 (defmethod get-changed-files-paths ((xdebug-trace xdebug-trace))
   (mapcar #'(lambda(fopen-call)
 	      (cl-ppcre:regex-replace-all "'" (car (parameters fopen-call)) ""))
@@ -238,13 +232,18 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun remove-non-state-changing-queries(query-list)
-  (remove-if #'(lambda(query)
-                 (or 
-                  (cl-ppcre:scan "SHOW" query)
-                  (cl-ppcre:scan "show" query)
-                  (cl-ppcre:scan "SELECT" query)
-                  (cl-ppcre:scan "select" query)))
-             query-list))
+  (if *giancarlo-change-this-to-T*
+      query-list
+      (remove-if #'(lambda(query)
+                     (let ((substr (if (> (length query) 10)
+                                       (subseq query 0 10)
+                                       query)))
+                       (or 
+                        (cl-ppcre:scan "SHOW" substr)
+                        (cl-ppcre:scan "show" substr)
+                        (cl-ppcre:scan "SELECT" substr)
+                        (cl-ppcre:scan "select" substr))))
+                 query-list)))
 
 
 (defun query-cleaner (query-string)
@@ -288,7 +287,6 @@ given trace and returns all parameters passed to those calls.
                                 1
                                 (- (length array-content-bracketed) 1))))
       nil))
-
 
 
 (defun find-nth-occurence (nth item list &key (start -1) (test #'equalp))
@@ -414,11 +412,24 @@ given trace and returns all parameters passed to those calls.
                           (trace-content xdebug-trace))))
 
 
+(defmethod get-mysqli-queries ((xdebug-trace xdebug-trace))
+  (mapcar #'(lambda(mysqli_query-record)
+              (let ((query (cadr (parameters mysqli_query-record))))
+                query))
+          (remove-if-not #'(lambda (record)
+                             (and (typep record 'entry-record)
+                                  (or (string= (function-name record) "mysqli_query"))))
+                         (trace-content xdebug-trace))))
+
+
 (defmethod get-sql-queries ((xdebug-trace xdebug-trace) keep-all-queries-p)
-  (let ((queries (append
-                  (get-pdo-prepared-queries xdebug-trace)
-                  (get-regular-sql-queries xdebug-trace))))
-    (mapcar #'query-cleaner
+  (let ((queries (mapcar #'query-cleaner
+                         (append
+                          (get-mysqli-queries xdebug-trace)
+                          (get-pdo-prepared-queries xdebug-trace)
+                          (get-regular-sql-queries xdebug-trace)))))
+    (mapcar #'(lambda(printor)
+                printor)
             (if (not keep-all-queries-p)
                 (remove-non-state-changing-queries queries)
                 queries))))
