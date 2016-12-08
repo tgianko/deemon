@@ -101,6 +101,7 @@ def load_hres_sqlite(fname, logger=None):
     resplist = []
     with con:
         cur = con.cursor()
+        con.text_factory = bytearray
         rs = cur.execute("SELECT * FROM http_responses ORDER BY id")
         resplist = list(rs)
     return resplist
