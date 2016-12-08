@@ -148,6 +148,7 @@ def parse_body(body, ctype, projname, dm_type):
     body_n = None
 
     if "multipart/form-data" in ctype:
+        body = str(body)
         # parse multipart/form-data body
         body_n = ParseTree(projname, MULTIPART, body)
         s_obj = StringIO(body.encode("utf-8"))
@@ -166,6 +167,7 @@ def parse_body(body, ctype, projname, dm_type):
             pos+=1
 
     elif "application/x-www-form-urlencoded" in ctype:
+        body = str(body)
         body_n = ParseTree(projname, FORMURLENC, body)
         pos = 0 
         for k, vs in parse_qs(body).iteritems():
@@ -177,13 +179,14 @@ def parse_body(body, ctype, projname, dm_type):
                 pos+=1
 
     elif "json" in ctype:
+        body = str(body)
         body_n = ParseTree(projname, JSON, body)
         cnt = visit_json(projname, json.loads(body))
         body_n.HasChild.add(cnt)
 
     else:
         body_n = ParseTree(projname, ctype, body[0:128])
-        s_n = PTTerminalNode(projname, dm_type, body, "plaintext-body", 0)
+        s_n = PTTerminalNode(projname, dm_type, "{} file, we ignore this content".format(ctype), "plaintext-body", 0)
         body_n.HasChild.add(s_n)
     
     return body_n
