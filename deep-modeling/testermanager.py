@@ -16,6 +16,7 @@ import api.dm_types as dm_types
 import utils.log as log
 from shared.config import *
 from api.datamodel.core import *
+from api.dm_types import *
 from api.multipart import Multipart
 import string
 
@@ -434,7 +435,7 @@ def store_httpreq(seq_id, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, me
     return req_id
 
 
-def test_br_pchain(args, graph, logger=None):
+def test_pchain_su_p(args, graph, logger=None):
     sqlitedb_init(args.database)
 
     data = {"len": args.len, "projname": args.projname, "session": args.session}
@@ -460,30 +461,41 @@ def test_br_pchain(args, graph, logger=None):
 
         i+=1
 
-def test_sessuniq_brchain(args, graph, logger=None):
+def test_su_var(args, graph, logger=None):
     sqlitedb_init(args.database)
 
-   
-    data = {"len": args.len, "projname": args.projname, "session": args.session}
-    uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
-                                df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e1), 
-                                pt=(p1:ParseTree)-[:PARSES]->(e1), injpt=(p1)-[:HAS_CHILD*]->(tn1:PTTerminalNode)<-[:HAS_VALUE]-(v1) 
-                         WHERE size(v1.value) > {len}
-                 WITH DISTINCT sym, e1, p1, v1, v2, collect(v2) AS dests, tn1 
-                        RETURN sym.uuid, e1.uuid, e1.dm_type, p1.uuid, v1.uuid, v2.uuid, dests, tn1.uuid
-                      ORDER BY e1.symbol""", data)
+    query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+               WHERE "session_unique" IN v.semtype 
+                WITH DISTINCT ae, 
+                              v.name AS var_name, 
+                              collect([pt, tn, v]) AS candidates 
+              RETURN ae,
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(candidates)[0] AS pt, 
+                     head(candidates)[1] AS tn,
+                     head(candidates)[2] AS v"""
+
+    data = {
+            "projname": args.projname,
+            "operation": args.operation,
+            "dm_type"  : ABSHTTPREQ
+            }
+
+    uuids = graph.run(query, data)
     uuids = list(uuids)
     print "Total number of test cases to generate: {}".format(len(uuids))
-    i = 1
-    for res in uuids:
+    for i, res in enumerate(uuids):
        
-        pt = ParseTree.select(graph).where(uuid=res["p1.uuid"]).first()
-        tn = PTTerminalNode.select(graph).where(uuid=res["tn1.uuid"]).first()
+        pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
+        tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
     
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
-        store_httpreq(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
+        store_httpreq(i, res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
 
         i+=1
     
@@ -504,12 +516,21 @@ def parse_args(args):
 
     tests_p = subp.add_parser("tgen", help="Test case generator functions") 
     tests_subp = tests_p.add_subparsers()
-    negltok_p = tests_subp.add_parser("br_pchain", help="Generate a test by breaking a propagation chain") 
-    negltok_p.add_argument("len",      help="Minimum value length", type=int)
-    negltok_p.add_argument("projname", help="Project name")
-    negltok_p.add_argument("session",  help="Session")
-    negltok_p.add_argument("database",  help="Database where to store HTTP requests")
-    negltok_p.set_defaults(func=test_br_pchain) 
+    
+    pchain_su_p = tests_subp.add_parser("pchain_su", help="Generate a test by breaking a session unique propagation chain") 
+    pchain_su_p.add_argument("len",      help="Minimum value length", type=int)
+    pchain_su_p.add_argument("projname", help="Project name")
+    pchain_su_p.add_argument("session",  help="Session")
+    pchain_su_p.add_argument("database",  help="Database where to store HTTP requests")
+    pchain_su_p.set_defaults(func=test_pchain_su_p) 
+
+    su_var_p = tests_subp.add_parser("su_var", help="Generate a test by neglecting session unique HTTP request variables")
+    su_var_p.add_argument("projname", help="Project name")
+    su_var_p.add_argument("operation",  help="Operation")    
+    su_var_p.add_argument("database",  help="Database where to store HTTP requests")
+    su_var_p.set_defaults(func=test_su_var) 
+
+
     return p.parse_args(args)
 
 def main(args):
