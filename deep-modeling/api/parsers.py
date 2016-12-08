@@ -292,7 +292,7 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
 
 def visit_sql_pt(pt, i, n):
     for el in pt.tokens:
-        if el.is_group():
+        if el.is_group:
             child = PTNonTerminalNode(n.projname, SQL, "token-list", i)
             n.HasChild.add(child)
             # print "SQLTokenList"
