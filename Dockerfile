@@ -36,6 +36,8 @@ RUN rm -rf /usr/src/app
 
 RUN mkdir ~/.ssh
 
+RUN pip install requests lxml netaddr sqlparse enum
+
 RUN echo "================================= \nSetting up zsh and some tools for more efficient working!\n ================================="
 RUN apt-get install -y zsh screen vim tmux
 RUN echo 'shell "/usr/bin/zsh"' > ~/.screenrc 
