@@ -545,6 +545,7 @@ def visit_session(projname, sess_node):
         raise Exception("Unknown PHP Session data type")
 
 def parse_session(projname, ses_id, string):
+    string = string.decude('utf-8', 'replace').encode('utf-8')
     root = ParseTree(projname, PHPSESSION, string)
     sess_name = PTTerminalNode(projname, PHPSESSION, ses_id, "session-name", 0)
     sess_cnt  = PTNonTerminalNode(projname, PHPSESSION, "session-content", 1)
