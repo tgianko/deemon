@@ -6,6 +6,7 @@ from urlparse import urlunparse, urlparse
 import sqlite3 as lite
 import json
 import datetime
+import time
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -15,6 +16,7 @@ import socket
 
 DEBUG = False
 TIMEOUT = 120
+MAX_RETRY = 3
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
@@ -34,11 +36,23 @@ mosgi_start_command_byte=0
 mosgi_finish_response_byte=2    
 
 def connect_to_mosgi(address, port):
-    m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
     global mosgi_connection
-    mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    mosgi_connection.connect((address, port))
-    m_logger.info("Connected to MOSGI")
+    m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
+    for i in range(0, MAX_RETRY):
+        try:
+            mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            mosgi_connection.connect((address, port))
+            m_logger.info("Connected to MOSGI")
+            return
+        except Exception as e:
+            m_logger.warning("Connection to MOSGI failed (attempt {} of {}): {} {}".format(i+1, MAX_RETRY+1, type(e), e))
+            if i == MAX_RETRY - 1:
+                m_logger.fatal("Unable to connect to MOSGI")
+                raise e
+
+            time.sleep(1)
+
+
 
 
 def send_start_to_mosgi(db_id):
@@ -172,6 +186,9 @@ def main(args):
     # global args_obj # global variables are the devils tool
     
     args_obj = parse_args(args)
+
+    if args_obj.database:
+        logger.info("Using input database {}".format(args_obj.database))
 
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)

@@ -527,7 +527,7 @@ def visit_session(projname, sess_node):
     elif isinstance(sess_node, list):
         raise Exception("There should not be a list while parsing a PHP Session")
     elif isinstance(sess_node, basestring):
-        s = PTTerminalNode(projname, PHPSESSION, sess_node, "session-string", 0)
+        s = PTTerminalNode(projname, PHPSESSION, sess_node.decode('utf-8', 'replace').encode('utf-8'), "session-string", 0)
         return s
     elif isinstance(sess_node, int) or isinstance(sess_node, long):
         i = PTTerminalNode(projname, PHPSESSION, sess_node, "session-number-int", 0)
@@ -545,7 +545,7 @@ def visit_session(projname, sess_node):
         raise Exception("Unknown PHP Session data type")
 
 def parse_session(projname, ses_id, string):
-    root = ParseTree(projname, PHPSESSION, string)
+    root = ParseTree(projname, PHPSESSION, string.decode('utf-8', 'replace').encode('utf-8'))
     sess_name = PTTerminalNode(projname, PHPSESSION, ses_id, "session-name", 0)
     sess_cnt  = PTNonTerminalNode(projname, PHPSESSION, "session-content", 1)
 
