@@ -71,7 +71,7 @@ def test_stats(args, graph, logger=None):
                ORDER BY projname, 
                         operation;"""
 
-    max_reqs = graph.run(query)
+    max_reqs = list(graph.run(query))
 
     logger.info("Retrieving max_stchreqs")
     query = """MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
@@ -87,7 +87,7 @@ def test_stats(args, graph, logger=None):
                ORDER BY projname, 
                         operation;"""
 
-    max_stchreqs = graph.run(query)
+    max_stchreqs = list(graph.run(query))
 
     logger.info("Retrieving max_su_vars")
     query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
@@ -105,7 +105,7 @@ def test_stats(args, graph, logger=None):
                ORDER BY projname, 
                         operation;"""
 
-    max_su_vars = graph.run(query)
+    max_su_vars = list(graph.run(query))
 
 
     logger.info("Retrieving max_pchains")
@@ -123,7 +123,7 @@ def test_stats(args, graph, logger=None):
                ORDER BY projname, 
                         operation;"""
 
-    max_pchains = graph.run(query)
+    max_pchains = list(graph.run(query))
 
     logger.info("Retrieving max_pchains_su")
     query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
@@ -141,53 +141,35 @@ def test_stats(args, graph, logger=None):
                ORDER BY projname, 
                         operation;"""
 
-    max_pchains_su = graph.run(query)
+    max_pchains_su = list(graph.run(query))
 
-
+    """
+    Group by projname and operation
+    """
+    merge = {}
+    for rs in [max_reqs, max_stchreqs, max_su_vars, max_pchains, max_pchains_su]:
+        for e in list(rs):
+            d = dict(e)
+            proj_k = e["projname"]
+            op_k   = e["operation"]
+            merge.setdefault(proj_k, {}).setdefault(op_k, {}).update(d)
 
     out = []
-    for els in map(None, max_reqs, max_stchreqs, max_su_vars, max_pchains, max_pchains_su):
-        aux = dict()
-        for e in els:
-            if e is not None:
-                aux.update(dict(e))
-            else:
-                aux.update({})
-        out.append(aux)
+    for proj, ops in merge.iteritems():
+        for op, el in ops.iteritems():
+            out.append(el)   
+
+    out = sorted(out, key=lambda e: e["operation"])
+    out = sorted(out, key=lambda e: e["projname"])
 
     fmt=PartialFormatter()
 
-    col_names = ("PROJECT", "SESSION", "Max Reqs.", "Max St.Ch. Reqs", "Max SU Vars", "Max PChains", "Max SU PChains")
-    hdr = "| {:^14} | {:^60} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
+    col_names = ("PROJECT", "OPERATION", "Max Reqs.", "Max St.Ch. Reqs", "Max SU Vars", "Max PChains", "Max SU PChains")
+    hdr = "| {:^24} | {:^60} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
     print hdr
     print "=" * len(hdr)
     for s in out:
-        print fmt.format("| {projname:<14} | {operation:<60} | {max_reqs:>18} | {max_stchreqs:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
-    print "\r\n\r\n"
-
-
-    # rs = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}), 
-    #                          df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e), 
-    #                          pt=(p:ParseTree)-[:PARSES]->(e) 
-    #           WITH DISTINCT sym.uuid AS uuid, 
-    #                         sym.projname AS projname, 
-    #                         e.session AS session, 
-    #                         e, 
-    #                         p 
-    #                  RETURN projname, 
-    #                         session, 
-    #                         uuid, 
-    #                         count(e) as reqs
-    #                ORDER BY projname, 
-    #                         session, 
-    #                         reqs""")
-
-    # print ""
-    # hdr = "| {:^14} | {:^60} | {:^36} | {:^14} |".format("PROJECT", "SESSION", "State Ch. OP UUID", "# HTTP Reqs.")
-    # print hdr
-    # print "=" * len(hdr)
-    # for s in rs:
-    #     print "| {projname:<14} | {session:<60} | {uuid:<36} | {reqs:>14} |".format(**s)
+        print fmt.format("| {projname:<24} | {operation:<60} | {max_reqs:>18} | {max_stchreqs:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
     print "\r\n\r\n"
 
 def skip(n, ignore):
