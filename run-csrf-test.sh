@@ -91,7 +91,7 @@ cat ${DB_DUMP_SCHEMA} | sqlite3 ${MOSGI_DB_PATH}
 
 TOT_TESTS=`echo "SELECT count(*) FROM CSRF_tests;" | sqlite3 ${CSRF_TEST_FILE}`
 log "Total number of tests to run: ${TOT_TESTS}"
-for i in $(seq 1 $TOT_TESTS)
+for i in $(seq 0 `expr $TOT_TESTS - 1`)
 do
     echo $i
     #start vm"
