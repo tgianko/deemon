@@ -173,6 +173,9 @@ def main(args):
     
     args_obj = parse_args(args)
 
+    if args_obj.database:
+        logger.info("Using input database {}".format(args_obj.database))
+
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
 
