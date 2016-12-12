@@ -37,6 +37,3 @@
                             (trivial-shell:shell-command (FORMAT nil "`which cat` ~a | `which sqlite3` ~a"
                                                                  +inbetween-buffer-query+
                                                                  (clsql:database-name database-connection))))))
-
-
-
