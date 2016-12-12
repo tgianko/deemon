@@ -39,5 +39,4 @@
                                                                  (clsql:database-name database-connection))))))
 
 
-(with-open-file (test "/home/simkoc/xdebug.debug")
-  (FORMAT nil "~a" (pathname test)))
+
