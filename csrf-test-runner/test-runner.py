@@ -15,6 +15,7 @@ import socket
 
 DEBUG = False
 TIMEOUT = 120
+MAX_RETRY = 3
 
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
@@ -34,11 +35,19 @@ mosgi_start_command_byte=0
 mosgi_finish_response_byte=2    
 
 def connect_to_mosgi(address, port):
-    m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
     global mosgi_connection
-    mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    mosgi_connection.connect((address, port))
-    m_logger.info("Connected to MOSGI")
+    m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
+    for i in range(0, MAX_RETRY+1):
+        try:
+            mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            mosgi_connection.connect((address, port))
+            m_logger.info("Connected to MOSGI")
+            return
+        except Exception as e:
+            m_logger.warning("Connection to MOSGI failed (attempt {} of {}): {} {}".format(i+1, MAX_RETRY+1, type(e), e))
+    m_logger.fatal("Unable to connect to MOSGI")
+    
+
 
 
 def send_start_to_mosgi(db_id):
