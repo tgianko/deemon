@@ -417,7 +417,7 @@ def store_httpreq(seq_id, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, me
     return req_id
 
 
-def test_pchain_su_p(args, graph, logger=None):
+def tgen_pchain_su_p(args, graph, logger=None):
     sqlitedb_init(args.database)
 
     data = {"len": args.len, "projname": args.projname, "session": args.session}
@@ -443,7 +443,33 @@ def test_pchain_su_p(args, graph, logger=None):
 
         i+=1
 
-def test_su_var(args, graph, logger=None):
+def oracle(args, graph, logger=None):
+    sqlitedb_init(args.database)
+
+    data = {"len": args.len, "projname": args.projname, "session": args.session}
+    uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
+                                df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e1), 
+                                pt=(p1:ParseTree)-[:PARSES]->(e1), injpt=(p1)-[:HAS_CHILD*]->(tn1:PTTerminalNode)<-[:HAS_VALUE]-(v1) 
+                         WHERE size(v1.value) > {len}
+                 WITH DISTINCT sym, e1, p1, v1, v2, collect(v2) AS dests, tn1 
+                        RETURN sym.uuid, e1.uuid, e1.dm_type, p1.uuid, v1.uuid, v2.uuid, dests, tn1.uuid
+                      ORDER BY e1.symbol""", data)
+    uuids = list(uuids)
+    print "Total number of test cases to generate: {}".format(len(uuids))
+    i = 1
+    for res in uuids:
+       
+        pt = ParseTree.select(graph).where(uuid=res["p1.uuid"]).first()
+        tn = PTTerminalNode.select(graph).where(uuid=res["tn1.uuid"]).first()
+    
+        logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+
+        command, url, headers, body = pt_to_req(pt, tn)
+        store_httpreq(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
+
+        i+=1
+
+def tgen_su_var(args, graph, logger=None):
     sqlitedb_init(args.database)
 
     query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
@@ -491,9 +517,9 @@ def parse_args(args):
     stats_p.set_defaults(func=test_stats) 
 
     """
-    =====
-    TESTS
-    =====
+    ===============
+    TEST GENERATION
+    ===============
     """
 
     tests_p = subp.add_parser("tgen", help="Test case generator functions") 
@@ -504,14 +530,25 @@ def parse_args(args):
     pchain_su_p.add_argument("projname", help="Project name")
     pchain_su_p.add_argument("session",  help="Session")
     pchain_su_p.add_argument("database",  help="Database where to store HTTP requests")
-    pchain_su_p.set_defaults(func=test_pchain_su_p) 
+    pchain_su_p.set_defaults(func=tgen_pchain_su_p) 
 
     su_var_p = tests_subp.add_parser("su_var", help="Generate a test by neglecting session unique HTTP request variables")
     su_var_p.add_argument("projname", help="Project name")
     su_var_p.add_argument("operation",  help="Operation")    
     su_var_p.add_argument("database",  help="Database where to store HTTP requests")
-    su_var_p.set_defaults(func=test_su_var) 
+    su_var_p.set_defaults(func=tgen_su_var) 
 
+    """
+    ===========
+    TEST ORACLE
+    ===========
+    """
+
+    oracle_p = subp.add_parser("oracle", help="Test case oracle") 
+    oracle_p = oracle_p.add_subparsers()
+    oracle_p.add_argument("testcases"  , help="Database with test cases")
+    oracle_p.add_argument("mosgi"      , help="MOSGI database")
+    oracle_p.set_defaults(func=oracle) 
 
     return p.parse_args(args)
 
