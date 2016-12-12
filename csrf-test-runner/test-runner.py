@@ -6,6 +6,7 @@ from urlparse import urlunparse, urlparse
 import sqlite3 as lite
 import json
 import datetime
+import time
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -37,7 +38,7 @@ mosgi_finish_response_byte=2
 def connect_to_mosgi(address, port):
     global mosgi_connection
     m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
-    for i in range(0, MAX_RETRY+1):
+    for i in range(0, MAX_RETRY):
         try:
             mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             mosgi_connection.connect((address, port))
@@ -45,8 +46,12 @@ def connect_to_mosgi(address, port):
             return
         except Exception as e:
             m_logger.warning("Connection to MOSGI failed (attempt {} of {}): {} {}".format(i+1, MAX_RETRY+1, type(e), e))
-    m_logger.fatal("Unable to connect to MOSGI")
-    
+            if i == MAX_RETRY - 1:
+                m_logger.fatal("Unable to connect to MOSGI")
+                raise e
+
+            time.sleep(1)
+
 
 
 
