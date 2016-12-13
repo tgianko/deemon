@@ -5,20 +5,27 @@ import json
 import urlparse
 import sqlite3 as lite
 import os
-import re
 import datetime
-from py2neo.database import Graph
-from py2neo import watch
+import string
+import hashlib
+
 from Cookie import SimpleCookie
 from urllib import urlencode
 
+from py2neo.database import Graph
+from py2neo import watch
+
 import api.dm_types as dm_types
 import utils.log as log
+from utils.sqlite import *
 from shared.config import *
+
 from api.datamodel.core import *
 from api.dm_types import *
 from api.multipart import Multipart
-import string
+import api.modelabs as modelabs
+import api.sqlnorm as sqlnorm
+
 
 DEBUG = False
 
@@ -30,6 +37,7 @@ else:
 
 logger        = log.getdebuglogger("tester")
 sqlite_schema = os.path.join(os.getcwd(), "../data/DBSchemaCSRFTests.sql")
+
 
 #
 # Credits http://stackoverflow.com/questions/20248355/how-to-get-python-to-gracefully-format-none-and-non-existing-fields
@@ -56,7 +64,6 @@ class PartialFormatter(string.Formatter):
         except ValueError:
             if self.bad_fmt is not None: return self.bad_fmt   
             else: raise
-
 
 def test_stats(args, graph, logger=None):
     logger.info("Retrieving max_reqs")
@@ -401,7 +408,7 @@ def sqlitedb_init(filename):
                 cur.executescript(schema)
         logger.info("SQLite DB file {0} created.".format(filename))
 
-def store_httpreq(seq_id, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, dbname):
+def store_httpreq(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, dbname):
     headers = json.dumps(headers)
               
     con = lite.connect(dbname) 
@@ -409,8 +416,8 @@ def store_httpreq(seq_id, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, me
     with con:            
         cur = con.cursor()            
         ##inserting the http_request that triggered the sql_queries            
-        data = (seq_id, datetime.datetime.now(), uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body)
-        cur.execute("INSERT INTO CSRF_tests (seq_id, time, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body) VALUES(?,?,?,?,?,?,?,?,?,?)",
+        data = (seq_id, datetime.datetime.now(), projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body)
+        cur.execute("INSERT INTO CSRF_tests (seq_id, time, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     data)
         req_id = cur.lastrowid
 
@@ -443,31 +450,8 @@ def tgen_pchain_su_p(args, graph, logger=None):
 
         i+=1
 
-def oracle(args, graph, logger=None):
-    sqlitedb_init(args.database)
 
-    data = {"len": args.len, "projname": args.projname, "session": args.session}
-    uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
-                                df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e1), 
-                                pt=(p1:ParseTree)-[:PARSES]->(e1), injpt=(p1)-[:HAS_CHILD*]->(tn1:PTTerminalNode)<-[:HAS_VALUE]-(v1) 
-                         WHERE size(v1.value) > {len}
-                 WITH DISTINCT sym, e1, p1, v1, v2, collect(v2) AS dests, tn1 
-                        RETURN sym.uuid, e1.uuid, e1.dm_type, p1.uuid, v1.uuid, v2.uuid, dests, tn1.uuid
-                      ORDER BY e1.symbol""", data)
-    uuids = list(uuids)
-    print "Total number of test cases to generate: {}".format(len(uuids))
-    i = 1
-    for res in uuids:
-       
-        pt = ParseTree.select(graph).where(uuid=res["p1.uuid"]).first()
-        tn = PTTerminalNode.select(graph).where(uuid=res["tn1.uuid"]).first()
-    
-        logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
-        command, url, headers, body = pt_to_req(pt, tn)
-        store_httpreq(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
-
-        i+=1
 
 def tgen_su_var(args, graph, logger=None):
     sqlitedb_init(args.database)
@@ -478,13 +462,15 @@ def tgen_su_var(args, graph, logger=None):
                WHERE "session_unique" IN v.semtype 
                 WITH DISTINCT ae, 
                               v.name AS var_name, 
-                              collect([pt, tn, v]) AS candidates 
+                              collect([pt, tn, v, e]) AS candidates 
               RETURN ae,
                      ae.projname AS projname, 
                      ae.operation AS operation, 
                      head(candidates)[0] AS pt, 
                      head(candidates)[1] AS tn,
-                     head(candidates)[2] AS v"""
+                     head(candidates)[2] AS v,
+                     head(candidates)[3].session AS session,
+                     head(candidates)[3].user AS user"""
 
     data = {
             "projname": args.projname,
@@ -503,10 +489,56 @@ def tgen_su_var(args, graph, logger=None):
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
-        store_httpreq(i, res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+        store_httpreq(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
 
         i+=1
+
+
+
+def _hash(Q):
+    H = []
+    for q in Q:
+        if q.startswith("'"):
+            q = q[1:-1]
+        H.append(sqlnorm.generate_normalized_query_hash(q))
+        H.sort()
+    return hashlib.md5("".join(H)).hexdigest()
     
+
+def oracle(args, graph, logger=None):
+    csrftests = load_csrftests_sqlite(args.testcases, logger)
+
+    for t in csrftests:
+        cypher = """MATCH abs=(ae:AbstractEvent {uuid:{ae_uuid}})-[:ABSTRACTS]->(e:Event),
+                              (e)<-[:PARSES]-(pt:ParseTree)-[:HAS_CHILD*..5]->(tn:PTTerminalNode {uuid:{tn_uuid}}),
+                              (e)-[:CAUSED]->(xd:Event)<-[:PARSES]-(q:ParseTree {dm_type:{q_type}})
+                    RETURN e.uuid AS uuid, collect(q) AS Q"""
+        
+        data = {
+            "ae_uuid"  : t[3],
+            "tn_uuid"  : t[4],
+            "q_type"   : SQL,
+        }
+        
+        e_uuids = graph.run(cypher, data)
+
+        e = list(e_uuids)[0]
+        hreq = Event.select(graph).where(uuid=e["uuid"]).first()
+        Q1 = e["Q"]
+        h1 = modelabs.get_http_abstraction_hash(hreq, graph, logger)
+
+        Q2 = load_queries_by_id_sqlite(args.analyzed, t[0], logger)
+        Q2 = map(lambda e: e[2], Q2) # e[2] is the SQL query
+        h2 = _hash(Q2)
+
+        print h1==h2, h1, h2, t[7], t[8]
+        #for q1, q2 in zip(Q1, Q2):
+            #print "{:20} | {:20} ".format(q1["message"], q2)
+
+
+    
+    
+
 def parse_args(args):
     p = argparse.ArgumentParser(description='tester parameters')
     subp = p.add_subparsers()
@@ -545,9 +577,9 @@ def parse_args(args):
     """
 
     oracle_p = subp.add_parser("oracle", help="Test case oracle") 
-    oracle_p = oracle_p.add_subparsers()
+    oracle_p.add_argument("projname"   , help="Project name")
     oracle_p.add_argument("testcases"  , help="Database with test cases")
-    oracle_p.add_argument("mosgi"      , help="MOSGI database")
+    oracle_p.add_argument("analyzed"   , help="Rawtrace-analysis database")
     oracle_p.set_defaults(func=oracle) 
 
     return p.parse_args(args)

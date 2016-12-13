@@ -20,7 +20,7 @@ MOSGI_ROOT_PWD="bitnami"
 
 
 if [ $# -ne 6 ]; then
-    echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> "
+    echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <selenese-tc>"
     exit 1
 fi
 
@@ -31,12 +31,14 @@ TEST_NAME=$3
 START_STATE_NAME=$4
 CSRF_TEST_FILE=$5
 MOSGI_PORT=$6
+SELENESE_TC=$7
 
 BASE_URL="http://${GUEST_IP}"
 
 MOSGI_DB_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-mosgi${DB_POSTFIX}"
 MOSGI_LOG_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-mosgi${LOG_POSTFIX}"
 CSRFRUNNER_LOG_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-csrf_test_runner${LOG_POSTFIX}"
+SELENESE_LOG_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-selenese${LOG_POSTFIX}"
 DB_DUMP_SCHEMA="./data/DBSchemaDump.sql"
 
 TOUT=10
@@ -79,7 +81,7 @@ function start_mosgi {
 
 function start_csrf_test_runner {
     (cd ${CSRF_RUNNER_FOLDER}; \
-    ${BIN_PY} test-runner.py -r ${1} -b ${GUEST_IP} -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} &>>  ${CSRFRUNNER_LOG_PATH})
+    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox /opt/firefox/firefox/firefox" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
     # add marker in log file
     echo "====================================== MARKER ======================================" &>>  ${CSRFRUNNER_LOG_PATH}
     
@@ -115,9 +117,6 @@ do
 
     log "Halting VM..."
     stop_vm
-    #echo "Command:"
-    #tmux new -s ${TEST_NAME} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${MOSGI_RUN} --port ${MOSGI_PORT} -P ${MOSGI_PHP_SESSION_FOLDER} -x ${MOSGI_XDEBUG_TRACE_FILE} -i ${MOSGI_LISTEN_INTERFACE} -t ${GUEST_IP} -r ${MOSGI_ROOT_USER}  -c ${mosgi_root_pwd} -s ${MOSGI_DB_PATH} > >(tee ${MOSGI_LOG_PATH}) 2> >(tee ${MOSGI_LOG_PATH}); sleep 10" \; \
-    #                                 split-window -h "sleep 10 ; cd ${CSRF_RUNNER_FOLDER}; ${BIN_PY} test-runner.py -b ${GUEST_IP} -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} > >(tee ${CSRFRUNNER_LOG_PATH}) 2> >(tee ${CSRFRUNNER_LOG_PATH}); sleep 30" \; attach \;
 
 done
 
