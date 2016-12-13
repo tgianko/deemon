@@ -19,7 +19,7 @@ MOSGI_ROOT_USER="root"
 MOSGI_ROOT_PWD="bitnami"
 
 
-if [ $# -ne 6 ]; then
+if [ $# -ne 7 ]; then
     echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <selenese-tc>"
     exit 1
 fi
@@ -35,10 +35,13 @@ SELENESE_TC=$7
 
 BASE_URL="http://${GUEST_IP}"
 
-MOSGI_DB_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-mosgi${DB_POSTFIX}"
 MOSGI_LOG_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-mosgi${LOG_POSTFIX}"
 CSRFRUNNER_LOG_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-csrf_test_runner${LOG_POSTFIX}"
 SELENESE_LOG_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-selenese${LOG_POSTFIX}"
+
+MOSGI_DB_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-csrftests-mosgi${DB_POSTFIX}"
+SCREENSHOT_PATH="${VILANOO_FOLDER}${TEST_NAME}-${TIMESTAMP}-screenshot/"
+
 DB_DUMP_SCHEMA="./data/DBSchemaDump.sql"
 
 TOUT=10
@@ -81,21 +84,29 @@ function start_mosgi {
 
 function start_csrf_test_runner {
     (cd ${CSRF_RUNNER_FOLDER}; \
-    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox /opt/firefox/firefox/firefox" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
+    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox /opt/firefox/firefox/firefox --height 2048 --width 2048 -S ${SCREENSHOT_PATH}" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
     # add marker in log file
     echo "====================================== MARKER ======================================" &>>  ${CSRFRUNNER_LOG_PATH}
     
 
 }
 
+log "Creating screnshot folder ${SCREENSHOT_PATH}..."
+mkdir -p ${SCREENSHOT_PATH}
+
 #setup MOSGI_DB_PATH
+log "Initializing MOSGI DB file ${MOSGI_DB_PATH} with ${DB_DUMP_SCHEMA}..."
 cat ${DB_DUMP_SCHEMA} | sqlite3 ${MOSGI_DB_PATH}
 
+
 TOT_TESTS=`echo "SELECT count(*) FROM CSRF_tests;" | sqlite3 ${CSRF_TEST_FILE}`
+TOT_TESTS="4"
 log "Total number of tests to run: ${TOT_TESTS}"
 for i in $(seq 0 `expr $TOT_TESTS - 1`)
 do
-    echo $i
+    log "Executing test number" $i ${SELENESE_TC}
+    
+
     #start vm"
     log "Starting VM..."
     start_vm
