@@ -312,7 +312,7 @@ def _selout_to_cookie(buf):
     cookie = Cookie.SimpleCookie()
     for line in aux:
         if line[0:5] in ["[add]", "[del]", "[mod]"]:
-            key, value, domain, path, expires = _parse_cookie(line[5:])
+            key, value, domain, path, expires = _parse_cookie(line[6:])
         else:
             key, value, domain, path, expires = _parse_cookie(line)
 
