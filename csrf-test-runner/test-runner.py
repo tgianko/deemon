@@ -175,7 +175,7 @@ class SeleneseRunnerThread(threading.Thread):
         proc = subprocess.Popen(cmdline, bufsize=0, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         time.sleep(0.5)
 
-        with open(args_obj.selenese_log, "w") as f:
+        with open(args_obj.selenese_log, "a") as f:
             """
             Read stdout
             """            
