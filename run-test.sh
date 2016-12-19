@@ -78,8 +78,6 @@ cat ${db_dump_schema} | sqlite3 ${mosgi_db_path}
 echo "waiting for guest to finish starting up..."
 sleep 4
 
-tmux_session = `echo ${test_name} | sed 's/\.//g'`
-
 echo "command:"
 TMUX_SESSION=`echo ${test_name} | tr . _dot_`
 echo tmux new -s ${TMUX_SESSION} "sbcl --dynamic-space-size 10000 --noinform --non-interactive --load ${mosgi_start_relative} --port ${mosgi_port} -P ${mosgi_php_session_folder} -x ${mosgi_xdebug_trace_file} -i ${mosgi_listen_interface} -t ${guest_ip} -r ${mosgi_root_user}  -c ${mosgi_root_pwd} -s ${mosgi_db_path} > >(tee ${mosgi_log_path}) 2> >(tee ${mosgi_log_path}); sleep 10" \; \
