@@ -327,6 +327,7 @@ def _selout_to_cookie(buf):
 
     return cookie
     
+
 def login_and_get_cookie():
     logger.info("Running selenese-runner.jar")
     selrun_thr = SeleneseRunnerThread() # install a global thread
