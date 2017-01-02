@@ -84,7 +84,7 @@ function start_mosgi {
 
 function start_csrf_test_runner {
     (cd ${CSRF_RUNNER_FOLDER}; \
-    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox /opt/firefox/firefox/firefox --height 2048 --width 2048 -S ${SCREENSHOT_PATH}" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
+    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox /home/seasurf/firefox/firefox --height 2048 --width 2048 -S ${SCREENSHOT_PATH}" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
     # add marker in log file
     echo "====================================== MARKER ======================================" &>>  ${CSRFRUNNER_LOG_PATH}
     
@@ -100,7 +100,6 @@ cat ${DB_DUMP_SCHEMA} | sqlite3 ${MOSGI_DB_PATH}
 
 
 TOT_TESTS=`echo "SELECT count(*) FROM CSRF_tests;" | sqlite3 ${CSRF_TEST_FILE}`
-TOT_TESTS="4"
 log "Total number of tests to run: ${TOT_TESTS}"
 for i in $(seq 0 `expr $TOT_TESTS - 1`)
 do
