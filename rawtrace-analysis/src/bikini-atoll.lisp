@@ -1,11 +1,10 @@
 (setf sb-ext:*posix-argv* 
-      '("/useless/exec/path"
-        "-v" "/home/simkoc/.vilanoo/oxid-traces/oxid-admin_user@example.com-create_category_S1-201611290649-vilanoo.db"
-        "-m" "/home/simkoc/.vilanoo/oxid-traces/oxid-admin_user@example.com-create_category_S1-201611290649-mosgi.db"
-        "-d" "/home/simkoc/.vilanoo/oxid-traces/oxid-admin_user@example.com-create_category_S1-201611290649-analyzed.db"
-        "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
-
-
+      '("/useless/exec/path"        
+        "-m" "/home/simkoc/hiwi/csrf/tmp/abantecart-login_and_change_email-201612121442-csrftests-mosgi.db"
+        "-d" "/home/simkoc/hiwi/csrf/tmp/abantecart-login_and_change_email-analyzed.db"
+        "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"
+        "-f" "1"
+        "-e" "1"))
 
 
 (analyzer:main)

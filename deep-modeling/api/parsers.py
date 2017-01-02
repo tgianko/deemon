@@ -133,11 +133,22 @@ def content_type(hdrs):
             return v
     return None
 
+def content_len(hdrs):
+    hdrs = headers_to_list(hdrs)
+    for k, v in hdrs:
+        if k.lower() == "content-length":
+            try:
+                clen = int(v)
+                return clen
+            except:
+                return 0
+    return 0
 
 def parse_body(body, ctype, projname, dm_type):
     body_n = None
 
     if "multipart/form-data" in ctype:
+        body = str(body)
         # parse multipart/form-data body
         body_n = ParseTree(projname, MULTIPART, body)
         s_obj = StringIO(body.encode("utf-8"))
@@ -156,6 +167,7 @@ def parse_body(body, ctype, projname, dm_type):
             pos+=1
 
     elif "application/x-www-form-urlencoded" in ctype:
+        body = str(body)
         body_n = ParseTree(projname, FORMURLENC, body)
         pos = 0 
         for k, vs in parse_qs(body).iteritems():
@@ -167,13 +179,14 @@ def parse_body(body, ctype, projname, dm_type):
                 pos+=1
 
     elif "json" in ctype:
+        body = str(body)
         body_n = ParseTree(projname, JSON, body)
         cnt = visit_json(projname, json.loads(body))
         body_n.HasChild.add(cnt)
 
     else:
-        body_n = ParseTree(projname, ctype, body[0:128])
-        s_n = PTTerminalNode(projname, dm_type, body, "plaintext-body", 0)
+        body_n = ParseTree(projname, ctype, "{} file, we ignore this content".format(ctype))
+        s_n = PTTerminalNode(projname, dm_type, "{} file, we ignore this content".format(ctype), "plaintext-body", 0)
         body_n.HasChild.add(s_n)
     
     return body_n
@@ -238,7 +251,7 @@ def parse_httpreq(method, url, hdrs, body, seq, ts, projname, session, user):
     hreq_n.HasChild.add(hdrs_n)
 
     ctype = content_type(hdrs)
-    if ctype:
+    if ctype and content_len(hdrs) > 0:
         body_n = parse_body(body, ctype, projname, HTTPREQ)
         body_n.pos = 3
         hreq_n.HasChild.add(body_n)
@@ -256,7 +269,7 @@ def parse_httpres(status, hdrs, body, seq, ts, projname, session, user):
     hres_n.HasChild.add(hdrs_n)
 
     ctype = content_type(hdrs)
-    if ctype:
+    if ctype and content_len(hdrs) > 0:
         body_n = parse_body(body, ctype, projname, HTTPRESP)
         body_n.pos = 2
         hres_n.HasChild.add(body_n)
@@ -282,7 +295,7 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
 
 def visit_sql_pt(pt, i, n):
     for el in pt.tokens:
-        if el.is_group():
+        if el.is_group:
             child = PTNonTerminalNode(n.projname, SQL, "token-list", i)
             n.HasChild.add(child)
             # print "SQLTokenList"
@@ -514,7 +527,7 @@ def visit_session(projname, sess_node):
     elif isinstance(sess_node, list):
         raise Exception("There should not be a list while parsing a PHP Session")
     elif isinstance(sess_node, basestring):
-        s = PTTerminalNode(projname, PHPSESSION, sess_node, "session-string", 0)
+        s = PTTerminalNode(projname, PHPSESSION, sess_node.decode('utf-8', 'replace').encode('utf-8'), "session-string", 0)
         return s
     elif isinstance(sess_node, int) or isinstance(sess_node, long):
         i = PTTerminalNode(projname, PHPSESSION, sess_node, "session-number-int", 0)
@@ -532,7 +545,7 @@ def visit_session(projname, sess_node):
         raise Exception("Unknown PHP Session data type")
 
 def parse_session(projname, ses_id, string):
-    root = ParseTree(projname, PHPSESSION, string)
+    root = ParseTree(projname, PHPSESSION, string.decode('utf-8', 'replace').encode('utf-8'))
     sess_name = PTTerminalNode(projname, PHPSESSION, ses_id, "session-name", 0)
     sess_cnt  = PTNonTerminalNode(projname, PHPSESSION, "session-content", 1)
 

@@ -2,12 +2,11 @@
 import sys
 import argparse
 
-import sqlite3 as lite
-
 from py2neo.database import Graph
 from py2neo import watch
 
 import utils.log as log
+from utils.sqlite import *
 
 from api.datamodel.core import *
 from api.acquisition import *
@@ -67,106 +66,7 @@ INDEX = [
          ]
 
 
-def load_selcmd_sqlite(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading Selense commands from vilanoo2/mosgi SQLite db")
 
-    con = lite.connect(fname)
-    cmdlist = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT * FROM selenese_commands ORDER BY id")
-        cmdlist = list(rs)
-    return cmdlist
-
-    
-def load_hreqs_sqlite(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading HTTP requests from vilanoo2/mosgi SQLite db")
-
-    con = lite.connect(fname)
-    reqlist = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT * FROM http_requests ORDER BY id")
-        reqlist = list(rs)
-    return reqlist
-
-
-def load_hres_sqlite(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading HTTP responses from vilanoo2/mosgi SQLite db")
-
-    con = lite.connect(fname)
-    resplist = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT * FROM http_responses ORDER BY id")
-        resplist = list(rs)
-    return resplist
-
-
-def load_cmd2http_sqlite(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading Selenese command to HTTP requests\
- relationships from vilanoo2/mosgi SQLite db")
-
-    con = lite.connect(fname)
-    ids = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT id, command_id FROM http_requests")
-        ids = list(rs)
-    return ids
-
-def load_xdebug_sqlite(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading XDEBUG traces from Mosgi SQLite db")
-
-    con = lite.connect(fname)
-    ids = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT DISTINCT  http_request_id FROM xdebug_dumps ORDER BY 1 ASC")
-        ids = list(rs)
-    return ids
-
-
-def load_queries_sqlite(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading SQL queries from  Analyzer SQLite db")
-
-    con = lite.connect(fname)
-    ids = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT * FROM sql_queries")
-        ids = list(rs)
-    return ids
-
-def load_php_sessions_dumps(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading PHP Session dumps from Analyzer SQLite db")
-
-    con = lite.connect(fname)
-    ids = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT http_request_id, count(*) FROM sessions GROUP BY 1 ORDER BY 1 ASC")
-        ids = list(rs)
-    return ids
-
-def load_php_sessions(fname, logger=None):
-    if logger is not None:
-        logger.info("Loading PHP Sessions from Analyzer SQLite db")
-
-    con = lite.connect(fname)
-    ids = []
-    with con:
-        cur = con.cursor()
-        rs = cur.execute("SELECT http_request_id, session_id, session_string FROM sessions")
-        ids = list(rs)
-    return ids
 
 def init_database(args, graph, logger=None):
     if logger is not None:
@@ -215,13 +115,25 @@ def show_stats_database(args, graph, logger=None):
     if logger is not None:
         logger.info("Database statistics")
 
-    stats = graph.run("MATCH (n:Event) RETURN DISTINCT n.projname AS projname, n.session AS session, n.user AS user")
+    #stats = graph.run("MATCH (n:Event) RETURN DISTINCT n.projname AS projname, n.session AS session, n.user AS user ORDER BY projname, session, user")
+    stats = graph.run("""MATCH (n:Event) 
+                 WITH DISTINCT n.projname AS projname, 
+                               n.session  AS session, 
+                               n.user     AS user 
+                         MATCH (ht:Event {dm_type:"HttpRequest"}) 
+                         WHERE ht.projname=projname 
+                               AND ht.session=session 
+                               AND ht.user=user 
+                          WITH projname, session, user, count(ht) AS tot_httpreqs 
+                        RETURN projname, session, user, tot_httpreqs 
+                      ORDER BY projname, session, user;
+      """)
     stats = list(stats)
     print ""
-    print "| {:^20} | {:^60} | {:^20} |".format("PROJECT", "SESSION", "USER")
-    print "=" * 110
+    print "| {:^20} | {:^60} | {:^30} | {:^10} |".format("PROJECT", "SESSION", "USER", "HTTP_REQs")
+    print "=" * 133
     for s in stats:
-        print "| {projname:<20} | {session:<60} | {user:<20} |".format(**s)
+        print "| {projname:<20} | {session:<60} | {user:<30} | {tot_httpreqs:>10} |".format(**s)
     print "\r\n\r\n"
 
 
@@ -414,7 +326,8 @@ def analysis_user_generated_chains(args, graph, logger=None):
                                     args.session, args.user, logger)
     
 def analysis_synsem_types(args, graph, logger=None):
-    insert_synsem_type(graph, logger)
+    insert_abstract_events(graph, logger, args.operation, args.projname)
+    insert_synsem_type_by_op(graph, logger, args.operation, args.projname)
 
 def analysis_model_inference(args, graph, logger=None):
     magic_mike(graph, args.projname, args.session, args.user, logger)
@@ -425,8 +338,11 @@ def analysis_intracausality(args, graph, logger=None):
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
     analysis_user_generated_chains(args, graph, logger)
-    analysis_model_inference(args, graph, logger)
+    #analysis_model_inference(args, graph, logger)
     analysis_intracausality(args, graph, logger)
+
+def typeinference_all(arg, graph, logger=None):
+    analysis_synsem_types(arg, graph, logger)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -487,13 +403,6 @@ def parse_args(args):
     an_df.set_defaults(func=analysis_user_generated_chains)
 
     """
-    Infer syntactic/semantic types
-    """
-
-    an_df = an_subp.add_parser("synsem", help="Infer syntactic/semantic variable types")
-    an_df.set_defaults(func=analysis_synsem_types)
-
-    """
     Model inference
     """
     an_inference = an_subp.add_parser("inference", help="Infer DFA/NFA models")
@@ -511,6 +420,18 @@ def parse_args(args):
     an_inference.add_argument("user",     help="User identifier")
     an_inference.set_defaults(func=analysis_intracausality)
 
+    """
+    ==============
+    TYPE INFERENCE
+    ==============
+    """
+    ti_p = subp.add_parser("type", help="Data type inference (Semantic and Syntactic)")
+    ti_subp = ti_p.add_subparsers()
+
+    ti_subp = ti_subp.add_parser("all", help="Type inference")
+    ti_subp.add_argument("projname", help="Project name")
+    ti_subp.add_argument("operation",  help="Operation")
+    ti_subp.set_defaults(func=typeinference_all)
     
 
     """

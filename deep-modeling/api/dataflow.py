@@ -73,7 +73,7 @@ def insert_variables(graph, projname, session, user, logger):
                      e 
               RETURN e.dm_type AS dm_type,
                      e.seq AS seq,
-                     reduce(s="(" + e.seq + ")" + e.dm_type, t IN sli | s + ">" + "(" + t.pos + ")" + coalesce(t.s_type, t.dm_type)) AS name, 
+                     reduce(s="", t IN sli | s + ">" + "(" + t.pos + ")" + coalesce(t.s_type, t.dm_type)) AS name, 
                      d.symbol AS value,
                      d.uuid AS has_value_uuid,
                      e.uuid AS belongs_to_uuid,
