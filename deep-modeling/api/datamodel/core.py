@@ -130,6 +130,20 @@ class ParseTree(BasicNode):
         self.message = message
 
 
+class AbstractParseTree(BasicNode):
+    """ Root of a parse tree
+    """
+
+    dm_type   = Property()
+    message   = Property()
+
+    Abstracts = RelatedTo("ParseTree")
+
+    def __init__(self, projname, dm_type, message):
+        super(AbstractParseTree, self).__init__(projname, dm_type)
+        # self.uuid = "{}{}".format(projname, message)
+        self.message = message
+
 
 class PTTerminalNode(BasicNode):
     """ Terminal node of a parse tree

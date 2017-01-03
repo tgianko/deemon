@@ -1,4 +1,4 @@
-from datamodel.core import Event, ParseTree, DFAState, DFAStateTransition
+from datamodel.core import Event, ParseTree, DFAState, DFAStateTransition, AbstractParseTree
 from dm_types import *
 import sqlnorm
 import hashlib
@@ -190,3 +190,31 @@ def insert_intracausality(graph, projname, session, user, logger=None):
 
         graph.push(e1)
         i+=1
+
+
+def get_all_sql_queries_for_trace(graph, projname, session, user, logger=None):
+    query = """MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[PARSES]->\
+(:Event {dm_type:"Xdebug", projname:{projname}, session:{session}, user:{user}}) RETURN pt"""
+    return list(graph.run(query, projname=projname, session=session, user=user))
+
+
+def create_parse_tree_to_abstraction_dictionary(sql_parse_trees):
+    dictionary = dict()
+    for spt in sql_parse_trees:
+        hash = sqlnorm.generate_normalized_query_hash(spt['pt']['message'])
+        if hash in dictionary:
+            dictionary[hash].append(spt)
+        else:
+            dictionary[hash] = list()
+            dictionary[hash].append(spt)
+    return dictionary
+        
+
+def add_abstract_sql_queries_for_session_trace(graph, projname, session, user, logger=None):
+    sql_parse_trees = get_all_sql_queries_for_trace(graph, projname, session, user, logger)
+    dictionary = create_parse_tree_to_abstraction_dictionary(sql_parse_trees)
+    for key, value in dictionary.iteritems():
+        apt = AbstractParseTree(projname, "SQL", key)
+        for pt in value:
+            apt.Abstracts.add(pt)
+        graph.push(apt)
