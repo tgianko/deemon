@@ -13,6 +13,7 @@ from api.acquisition import *
 from api.dataflow import *
 from api.modelabs import *
 from api.typeinference import *
+from api.oppat import *
 
 from shared.config import *
 
@@ -329,6 +330,9 @@ def analysis_synsem_types(args, graph, logger=None):
     insert_abstract_events(graph, logger, args.operation, args.projname)
     insert_synsem_type_by_op(graph, logger, args.operation, args.projname)
 
+def analysis_add_abspt(args, graph, logger=None):
+    add_abstract_sql_queries_for_session_trace(graph, args.projname, args.session, args.user, logger)
+
 def analysis_model_inference(args, graph, logger=None):
     magic_mike(graph, args.projname, args.session, args.user, logger)
 
@@ -343,6 +347,9 @@ def analysis_all(args, graph, logger=None):
 
 def typeinference_all(arg, graph, logger=None):
     analysis_synsem_types(arg, graph, logger)
+
+def oppat_session(arg, graph, logger=None):
+    analysis_oppat_session(arg, graph, logger)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -403,6 +410,15 @@ def parse_args(args):
     an_df.set_defaults(func=analysis_user_generated_chains)
 
     """
+    Add Abstract Parse Trees
+    """
+    an_abspt = an_subp.add_parser("abssql", help="Add abstract parse trees for SQL queries")
+    an_abspt.add_argument("projname", help="Project name")
+    an_abspt.add_argument("session",  help="Session identifier")
+    an_abspt.add_argument("user",     help="User identifier")
+    an_abspt.set_defaults(func=analysis_add_abspt)
+
+    """
     Model inference
     """
     an_inference = an_subp.add_parser("inference", help="Infer DFA/NFA models")
@@ -414,11 +430,11 @@ def parse_args(args):
     """
     Intra-causality
     """
-    an_inference = an_subp.add_parser("intracaus", help="Adjust causality according to Referer")
-    an_inference.add_argument("projname", help="Project name")
-    an_inference.add_argument("session",  help="Session identifier")
-    an_inference.add_argument("user",     help="User identifier")
-    an_inference.set_defaults(func=analysis_intracausality)
+    an_incas = an_subp.add_parser("intracaus", help="Adjust causality according to Referer")
+    an_incas.add_argument("projname", help="Project name")
+    an_incas.add_argument("session",  help="Session identifier")
+    an_incas.add_argument("user",     help="User identifier")
+    an_incas.set_defaults(func=analysis_intracausality)
 
     """
     ==============
@@ -428,11 +444,25 @@ def parse_args(args):
     ti_p = subp.add_parser("type", help="Data type inference (Semantic and Syntactic)")
     ti_subp = ti_p.add_subparsers()
 
-    ti_subp = ti_subp.add_parser("all", help="Type inference")
-    ti_subp.add_argument("projname", help="Project name")
-    ti_subp.add_argument("operation",  help="Operation")
-    ti_subp.set_defaults(func=typeinference_all)
+    ti_all = ti_subp.add_parser("all", help="Type inference")
+    ti_all.add_argument("projname", help="Project name")
+    ti_all.add_argument("operation",  help="Operation")
+    ti_all.set_defaults(func=typeinference_all)
     
+    """
+    ==================
+    OPERATION PATTERNS
+    ==================
+    """
+    oppat_p = subp.add_parser("oppat", help="Operation patterns")
+    oppat_subp = oppat_p.add_subparsers()
+
+    oppat_sess = oppat_subp.add_parser("session", help="Per-session operation patterns")
+    oppat_sess.add_argument("projname", help="Project name")
+    oppat_sess.add_argument("session",  help="Session identifier")
+    oppat_sess.add_argument("user",     help="User identifier")
+    oppat_sess.set_defaults(func=oppat_session)
+
 
     """
     =============

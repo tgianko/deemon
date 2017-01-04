@@ -141,7 +141,6 @@ class AbstractParseTree(BasicNode):
 
     def __init__(self, projname, dm_type, message):
         super(AbstractParseTree, self).__init__(projname, dm_type)
-        # self.uuid = "{}{}".format(projname, message)
         self.message = message
 
 

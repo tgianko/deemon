@@ -3,11 +3,6 @@ from dm_types import *
 import sqlnorm
 import hashlib
 
-seleneseIdent = "SeleneseCommand"
-httpRequestIdent = "HttpRequest"
-SQLQueryIdent = "SQLQuery"
-
-
 def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
     query = """MATCH (q:ParseTree {dm_type: {sqltype}})-[:PARSES]->(e:Event {dm_type: {xdebug}, uuid:{uuid}})
                RETURN DISTINCT q.uuid AS uuid"""
@@ -30,7 +25,7 @@ def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
 
 def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
     sqlQueries = ParseTree.select(graph).where("_.dm_type='{}'"
-                                               .format(SQLQueryIdent))
+                                               .format(ABSQUERY))
     final_list = list()
     for query in list(sqlQueries):
         if list(query.Parses)[0].uuid == xdebug_event.uuid:
@@ -62,7 +57,7 @@ def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
        - save in cons
     4. return cons list
     """
-    firstEvent = Event.select(graph).where("_.dm_type='{}'".format(seleneseIdent)).where("_.projname='{}' AND _.session='{}' AND _.user='{}'".format(projname, session, user)).where("_.seq=1").first()
+    firstEvent = Event.select(graph).where("_.dm_type='{}'".format(SELENESE)).where("_.projname='{}' AND _.session='{}' AND _.user='{}'".format(projname, session, user)).where("_.seq=1").first()
     #print "{}".format(firstEvent)
     firstHttpRequest = list(firstEvent.Caused)[0]
     #print "{}".format(firstHttpRequest)
@@ -92,12 +87,12 @@ def create_state_cluster_list(event_hash_list, projname):
         if cons[1] in buffer:
             clusterList.append(buffer[cons[1]])
         else:
-            buffer[cons[1]] = DFAState(projname, httpRequestIdent, counter)
+            buffer[cons[1]] = DFAState(projname, HTTPREQ, counter)
             clusterList.append(buffer[cons[1]])
         counter += 1
 
     clusterList.append(DFAState(projname,
-                                httpRequestIdent,
+                                HTTPREQ,
                                 counter + 1))  # end state
 
     return clusterList
@@ -110,7 +105,7 @@ def get_hash_to_transition(event_hash_list, projname):
             transition_node[cons[1]].Accepts.add(cons[0])
         else:
             transition_node[cons[1]] = DFAStateTransition(projname,
-                                                          httpRequestIdent,
+                                                          HTTPREQ,
                                                           cons[1])
             transition_node[cons[1]].Accepts.add(cons[0])
 
@@ -193,28 +188,32 @@ def insert_intracausality(graph, projname, session, user, logger=None):
 
 
 def get_all_sql_queries_for_trace(graph, projname, session, user, logger=None):
-    query = """MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[PARSES]->\
-(:Event {dm_type:"Xdebug", projname:{projname}, session:{session}, user:{user}}) RETURN pt"""
+    query = """MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[PARSES]->(:Event {dm_type:"Xdebug", projname:{projname}, session:{session}, user:{user}}) 
+              RETURN pt"""
     return list(graph.run(query, projname=projname, session=session, user=user))
 
 
 def create_parse_tree_to_abstraction_dictionary(sql_parse_trees):
     dictionary = dict()
     for spt in sql_parse_trees:
-        hash = sqlnorm.generate_normalized_query_hash(spt['pt']['message'])
-        if hash in dictionary:
-            dictionary[hash].append(spt)
-        else:
-            dictionary[hash] = list()
-            dictionary[hash].append(spt)
+        h = sqlnorm.generate_normalized_query_hash(spt['pt']['message'])
+        dictionary.setdefault(h,[]).append(spt['pt'])
     return dictionary
-        
 
 def add_abstract_sql_queries_for_session_trace(graph, projname, session, user, logger=None):
+    if logger is not None:
+        logger.info("Retrieving all SQL queries...")
     sql_parse_trees = get_all_sql_queries_for_trace(graph, projname, session, user, logger)
+    if logger is not None:
+        logger.info("Abstracting SQL queries...")
     dictionary = create_parse_tree_to_abstraction_dictionary(sql_parse_trees)
-    for key, value in dictionary.iteritems():
-        apt = AbstractParseTree(projname, "SQL", key)
+    for i, kv in enumerate(dictionary.iteritems()):
+        key, value = kv
+        if logger is not None:
+            logger.info("Adding abstract parse tree ({}/{})".format(i, len(dictionary)))
+
+        apt = AbstractParseTree(projname, ABSQUERY, key)
         for pt in value:
-            apt.Abstracts.add(pt)
+            pt_n = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
+            apt.Abstracts.add(pt_n)
         graph.push(apt)
