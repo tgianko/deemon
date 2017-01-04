@@ -17,7 +17,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 #from urlparse import urlunparse, urlparse
 
 import utils.log as log
-
+from utils.cookie import BetterCookie
 
 DEBUG = False
 TIMEOUT = 120
@@ -309,7 +309,7 @@ def _inline_cookie(cookie):
 def _selout_to_cookie(buf):
     aux = [line.split("Cookie: ")[1] for line in buf if "Cookie" in line]
     
-    cookie = Cookie.SimpleCookie()
+    cookie = BetterCookie() # this one can handle cookie names with "[]"
     for line in aux:
         if line[0:5] in ["[add]", "[del]", "[mod]"]:
             key, value, domain, path, expires = _parse_cookie(line[6:])
@@ -327,6 +327,7 @@ def _selout_to_cookie(buf):
 
     return cookie
     
+
 def login_and_get_cookie():
     logger.info("Running selenese-runner.jar")
     selrun_thr = SeleneseRunnerThread() # install a global thread
