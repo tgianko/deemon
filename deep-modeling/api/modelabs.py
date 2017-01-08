@@ -3,14 +3,15 @@ from dm_types import *
 import sqlnorm
 import hashlib
 
+
 def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
     query = """MATCH (q:ParseTree {dm_type: {sqltype}})-[:PARSES]->(e:Event {dm_type: {xdebug}, uuid:{uuid}})
                RETURN DISTINCT q.uuid AS uuid"""
 
     data = {
         "sqltype": SQL,
-        "xdebug" : XDEBUG,
-        "uuid"   : xdebug_event.uuid
+        "xdebug": XDEBUG,
+        "uuid": xdebug_event.uuid
     }
 
     rs = graph.run(query, data)
@@ -23,6 +24,8 @@ def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
         final_list.append(query)
     return final_list
 
+
+# TODO: If this function is still in use we should rename it
 def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
     sqlQueries = ParseTree.select(graph).where("_.dm_type='{}'"
                                                .format(ABSQUERY))
@@ -34,9 +37,14 @@ def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
     return final_list
 
 
-def get_http_abstraction_hash(httpRequestEvent, graph, logger=None):
+# TODO: This function is based on the model without AbstractSQLParseTrees, changing
+#  this would conform more closely to our chosen model. But for now 'Never touch
+#  a running system'
+"""
+def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=None):
     if list(httpRequestEvent.Caused) == []:
-        logger.info("{} has no xdebug".format(httpRequestEvent))
+        if logger is not None:
+            logger.info("{} has no xdebug".format(httpRequestEvent))
         return hashlib.md5("").hexdigest()
     else:
         xdebug = list(httpRequestEvent.Caused)[0]
@@ -46,6 +54,40 @@ def get_http_abstraction_hash(httpRequestEvent, graph, logger=None):
 
             query_hashes.sort()
         return hashlib.md5("".join(query_hashes)).hexdigest()
+"""
+
+
+def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=None):
+    # TODO: check this query I expect AbstrQ -> Q -> Xdebug -> Request
+    query = """MATCH (a:AbstractParseTree {dm_type='SqlQuery'})\
+-[]->()-[]->()-[]->(:Event {uuid:{uuid}}) RETURN a"""
+    rs = graph.run(query, uuid=httpRequestEvent.uuid)
+    query_hash_array = list()
+    for abstract_query in list(rs):
+        query_hash_array.append(abstract_query['a']['message'])
+    return hashlib.md5("".join(query_hash_array)).hexdigest()
+
+
+# TODO: check if url normalization in abstractEvent is proper
+def get_http_request_method_url_abstraction_hash(httpRequestEvent, graph, logger=None):
+    query = """MATCH (a:AbstractEvent)-[:ABSTRACTS]->(:Event {uuid:{uuid}}) RETURN a"""
+    rs = graph.run(query, uuid=httpRequestEvent.uuid)
+    rs = list(rs)
+    assert(len(rs) == 1)
+    return hashlib.md5(rs[0]['a']['message']).hexdigest()
+
+
+def get_http_abstraction_hash(httpRequestEvent, graph, logger=None):
+    query_abstraction_hash = get_summary_sql_queries_abstraction_hash(httpRequestEvent,
+                                                                      graph,
+                                                                      logger)
+    method_url_abstraction_hash = get_http_request_method_url_abstraction_hash(httpRequestEvent,
+                                                                               graph,
+                                                                               logger)
+    hash_collection = [query_abstraction_hash,
+                       method_url_abstraction_hash]
+    hash_collection.sort()
+    return hashlib.md5("".join(hash_collection)).hexdigest()
 
 
 def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
@@ -197,8 +239,9 @@ def create_parse_tree_to_abstraction_dictionary(sql_parse_trees):
     dictionary = dict()
     for spt in sql_parse_trees:
         h = sqlnorm.generate_normalized_query_hash(spt['pt']['message'])
-        dictionary.setdefault(h,[]).append(spt['pt'])
+        dictionary.setdefault(h, []).append(spt['pt'])
     return dictionary
+
 
 def add_abstract_sql_queries_for_session_trace(graph, projname, session, user, logger=None):
     if logger is not None:
