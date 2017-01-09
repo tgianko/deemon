@@ -27,8 +27,7 @@ def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
 
 # TODO: If this function is still in use we should rename it
 def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
-    sqlQueries = ParseTree.select(graph).where("_.dm_type='{}'"
-                                               .format(ABSQUERY))
+    sqlQueries = ParseTree.select(graph).where("_.dm_type='{}'".format(ABSQUERY))
     final_list = list()
     for query in list(sqlQueries):
         if list(query.Parses)[0].uuid == xdebug_event.uuid:
@@ -59,7 +58,7 @@ def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=Non
 
 def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=None):
     # TODO: check this query I expect AbstrQ -> Q -> Xdebug -> Request
-    query = """MATCH (a:AbstractParseTree {dm_type='SqlQuery'})\
+    query = """MATCH (a:AbstractParseTree {dm_type:'SqlQuery'})\
 -[]->()-[]->()-[]->(:Event {uuid:{uuid}}) RETURN a"""
     rs = graph.run(query, uuid=httpRequestEvent.uuid)
     query_hash_array = list()
