@@ -7,7 +7,6 @@ import sqlite3 as lite
 import os
 import datetime
 import string
-import hashlib
 
 from Cookie import SimpleCookie
 from urllib import urlencode
@@ -19,11 +18,11 @@ import api.dm_types as dm_types
 import utils.log as log
 from utils.sqlite import *
 from shared.config import *
+from api.oppat import *
 
 from api.datamodel.core import *
 from api.dm_types import *
 from api.multipart import Multipart
-import api.modelabs as modelabs
 import api.sqlnorm as sqlnorm
 
 
@@ -36,7 +35,8 @@ else:
     log.LEVEL = log.LEVELS[0]
 
 logger        = log.getdebuglogger("tester")
-sqlite_schema = os.path.join(os.getcwd(), "../data/DBSchemaCSRFTests.sql")
+sqlite_schema_tgen   = os.path.join(os.getcwd(), "../data/DBSchemaCSRFTests.sql")
+sqlite_schema_oracle = os.path.join(os.getcwd(), "../data/DBSchemaOracle.sql")
 
 
 #
@@ -96,6 +96,39 @@ def test_stats(args, graph, logger=None):
 
     max_stchreqs = list(graph.run(query))
 
+    logger.info("Retrieving max_vars")
+    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+                       (v1:Variable)-[:BELONGS_TO]->(e)
+                WITH DISTINCT e.projname AS projname, 
+                              e.session AS session, 
+                              e.user AS user, 
+                              left(e.session, size(e.session)-3) AS operation, 
+                              count(v1) AS tot_vars 
+              RETURN projname, 
+                     operation, 
+                     max(tot_vars) AS max_vars
+               ORDER BY projname, 
+                        operation;"""
+
+    max_vars = list(graph.run(query))
+
+    logger.info("Retrieving max_su_uu_vars")
+    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+                       (v1:Variable)-[:BELONGS_TO]->(e)
+               WHERE "session_unique" IN v1.semtype OR "user_unique" IN v1.semtype
+                WITH DISTINCT e.projname AS projname, 
+                              e.session AS session, 
+                              e.user AS user, 
+                              left(e.session, size(e.session)-3) AS operation, 
+                              count(v1) AS tot_vars 
+              RETURN projname, 
+                     operation, 
+                     max(tot_vars) AS max_su_uu_vars
+               ORDER BY projname, 
+                        operation;"""
+
+    max_su_uu_vars = list(graph.run(query))
+
     logger.info("Retrieving max_su_vars")
     query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
                        (v1:Variable)-[:BELONGS_TO]->(e) 
@@ -154,7 +187,7 @@ def test_stats(args, graph, logger=None):
     Group by projname and operation
     """
     merge = {}
-    for rs in [max_reqs, max_stchreqs, max_su_vars, max_pchains, max_pchains_su]:
+    for rs in [max_reqs, max_stchreqs, max_vars, max_su_uu_vars, max_su_vars, max_pchains, max_pchains_su]:
         for e in list(rs):
             d = dict(e)
             proj_k = e["projname"]
@@ -171,12 +204,12 @@ def test_stats(args, graph, logger=None):
 
     fmt=PartialFormatter()
 
-    col_names = ("PROJECT", "OPERATION", "Max Reqs.", "Max St.Ch. Reqs", "Max SU Vars", "Max PChains", "Max SU PChains")
-    hdr = "| {:^24} | {:^60} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
+    col_names = ("PROJECT", "OPERATION", "Max Reqs.", "Max St.Ch. Reqs", "Max Vars",  "Max SU-UU Vars",  "Max SU Vars", "Max PChains", "Max SU PChains")
+    hdr = "| {:^24} | {:^60} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
     print hdr
     print "=" * len(hdr)
     for s in out:
-        print fmt.format("| {projname:<24} | {operation:<60} | {max_reqs:>18} | {max_stchreqs:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
+        print fmt.format("| {projname:<24} | {operation:<60} | {max_reqs:>18} | {max_stchreqs:>18} | {max_vars:>18} | {max_su_uu_vars:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
     print "\r\n\r\n"
 
 def skip(n, ignore):
@@ -384,7 +417,7 @@ def pt_to_req(pt, ignore=None):
     return command, url, headers, body
 
 
-def sqlitedb_init(filename):
+def sqlitedb_init(filename, sqlite_schema):
     # If the DB does not exist, lite.connect does not create a folder. 
     # Check folder first...
     dirname = os.path.dirname(filename)
@@ -408,7 +441,7 @@ def sqlitedb_init(filename):
                 cur.executescript(schema)
         logger.info("SQLite DB file {0} created.".format(filename))
 
-def store_httpreq(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, dbname):
+def store_tgen(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, dbname):
     headers = json.dumps(headers)
               
     con = lite.connect(dbname) 
@@ -425,7 +458,7 @@ def store_httpreq(seq_id, projname, session, operation, user, uuid_request, uuid
 
 
 def tgen_pchain_su_p(args, graph, logger=None):
-    sqlitedb_init(args.database)
+    sqlitedb_init(args.database, sqlite_schema_tgen)
 
     data = {"len": args.len, "projname": args.projname, "session": args.session}
     uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
@@ -446,7 +479,7 @@ def tgen_pchain_su_p(args, graph, logger=None):
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
-        store_httpreq(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
+        store_tgen(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
 
         i+=1
 
@@ -454,7 +487,7 @@ def tgen_pchain_su_p(args, graph, logger=None):
 
 
 def tgen_su_var(args, graph, logger=None):
-    sqlitedb_init(args.database)
+    sqlitedb_init(args.database, sqlite_schema_tgen)
 
     query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
                      stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
@@ -489,51 +522,138 @@ def tgen_su_var(args, graph, logger=None):
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
-        store_httpreq(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+        store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
 
         i+=1
 
 
+def store_oracle_output(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern, dbname):
+    headers = json.dumps(headers)
+              
+    con = lite.connect(dbname) 
+    con.text_factory = str       
+    with con:            
+        cur = con.cursor()            
+        ##inserting the http_request that triggered the sql_queries            
+        data = (seq_id, datetime.datetime.now(), projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern)
+        cur.execute("INSERT INTO CSRF_tests_results (seq_id, time, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    data)
+        _id = cur.lastrowid
 
-def _hash(Q):
-    H = []
-    for q in Q:
-        if q.startswith("'"):
-            q = q[1:-1]
-        H.append(sqlnorm.generate_normalized_query_hash(q))
-        H.sort()
-    return hashlib.md5("".join(H)).hexdigest()
-    
+    return _id
+
+
+
+def _hash(q):
+    return sqlnorm.generate_normalized_query_hash(q)
+
+def _sanitize(q):
+    if q.startswith("'"):
+        q = q[1:-1] 
+    return q
+
+def _get_abs_query(graph, ae_uuid, tn_uuid, abs_message):
+    """
+    For each abstract query, we count the number of queries
+    """
+    cypher = """MATCH abs=(ae:AbstractEvent {uuid:{ae_uuid}})-[:ABSTRACTS]->(e:Event),
+                          (e)<-[:PARSES]-(pt:ParseTree)-[:HAS_CHILD*..5]->(tn:PTTerminalNode {uuid:{tn_uuid}}),
+                          (e)-[:CAUSED]->(xd:Event)<-[:PARSES]-(q:ParseTree {dm_type:{q_type}}),
+                      ptabs=(aq:AbstractParseTree {message:{abs_message}})-[:ABSTRACTS]->(q)
+                RETURN aq"""
+
+    data = {
+        "ae_uuid"  : ae_uuid,
+        "tn_uuid"  : tn_uuid,
+        "abs_message": abs_message,
+        "q_type"   : SQL
+    }
+
+    rs = graph.run(cypher, data)
+
+    return list(rs)
+
 
 def oracle(args, graph, logger=None):
+
+    sqlitedb_init(args.output, sqlite_schema_oracle)
+
     csrftests = load_csrftests_sqlite(args.testcases, logger)
 
+    con = lite.connect(args.output) 
+    con.text_factory = str
+
     for t in csrftests:
+        """
+        Queries and abstract queries in the model
+        """
         cypher = """MATCH abs=(ae:AbstractEvent {uuid:{ae_uuid}})-[:ABSTRACTS]->(e:Event),
                               (e)<-[:PARSES]-(pt:ParseTree)-[:HAS_CHILD*..5]->(tn:PTTerminalNode {uuid:{tn_uuid}}),
-                              (e)-[:CAUSED]->(xd:Event)<-[:PARSES]-(q:ParseTree {dm_type:{q_type}})
-                    RETURN e.uuid AS uuid, collect(q) AS Q"""
+                              (e)-[:CAUSED]->(xd:Event)<-[:PARSES]-(q:ParseTree {dm_type:{q_type}}),
+                          ptabs=(aq:AbstractParseTree)-[:ABSTRACTS]->(q)
+                    RETURN q, aq"""
         
         data = {
-            "ae_uuid"  : t[3],
-            "tn_uuid"  : t[4],
+            "ae_uuid"  : t[7],
+            "tn_uuid"  : t[8],
             "q_type"   : SQL,
         }
         
-        e_uuids = graph.run(cypher, data)
+        queries = graph.run(cypher, data)
 
-        e = list(e_uuids)[0]
-        hreq = Event.select(graph).where(uuid=e["uuid"]).first()
-        Q1 = e["Q"]
-        h1 = modelabs.get_http_abstraction_hash(hreq, graph, logger)
+        queries = list(queries)
+        queries = sorted(queries, key=lambda e:e["q"]["message"])
+        
+        Q1  = map(lambda e:e["q"]["message"], queries)
+        H1  = map(lambda e:e["aq"]["message"], queries)
+        h1  = "-".join(H1)
 
-        Q2 = load_queries_by_id_sqlite(args.analyzed, t[0], logger)
-        Q2 = map(lambda e: e[2], Q2) # e[2] is the SQL query
-        h2 = _hash(Q2)
+        """
+        Patterns of abstract queries
+        """
+        def _extend_with_patterns(e):
+            p = infer_trace_patterns(graph, e["aq"]["uuid"], t[3], t[4], t[6], logger)
+            return (e["aq"]["message"], (e["aq"], p))
 
-        print h1==h2, h1, h2, t[7], t[8]
-        #for q1, q2 in zip(Q1, Q2):
-            #print "{:20} | {:20} ".format(q1["message"], q2)
+        Pts = dict(map(_extend_with_patterns, queries))
+        #print Pts
+        """
+        Queries and abstract observed while testing
+        """
+
+        Q2 = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
+        Q2 = sorted(map(lambda e: _sanitize(e[2]), Q2)) # e[2] is the SQL query
+        H2 = [_hash(q) for q in Q2]
+        h2 = "-".join(H2)
+
+
+
+        print ""
+        print t[1], t[11], t[12], t[9]
+        print "=" * 80
+        if h1 == h2:
+            print ""
+            print ">>> State changes match <<<"
+            print ""
+
+        for h, q in zip(H1, Q1):
+            print "     H1 = {:100} {}".format(q[:100], h)
+            #print "                  sbirulo {}".format(len(_get_abs_query(graph, t[7], t[8], h)))
+        print "      ------------"
+        for query_hash, query_message in zip(H2, Q2):
+            observed = "OBSERVED" if query_hash in H1 else "NEW"
+            
+            apt        = Pts.get(query_hash, (None, "NOT_FOUND"))[0]
+            apt_uuid   = None
+            if apt:
+                apt_uuid = apt["uuid"]
+
+            tr_pattern = Pts.get(query_hash, (None, "NOT_FOUND"))[1]
+            print "     H2 = {:100} {} {} {}".format(query_message[:100], query_hash, tr_pattern, observed)
+
+            store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t[12], t[13], t[14], query_message, query_hash, apt_uuid, observed, tr_pattern, args.output)
+
+
 
 
     
@@ -580,6 +700,7 @@ def parse_args(args):
     oracle_p.add_argument("projname"   , help="Project name")
     oracle_p.add_argument("testcases"  , help="Database with test cases")
     oracle_p.add_argument("analyzed"   , help="Rawtrace-analysis database")
+    oracle_p.add_argument("output"     , help="Output database")
     oracle_p.set_defaults(func=oracle) 
 
     return p.parse_args(args)
