@@ -49,6 +49,9 @@ current proxy (https://github.com/inaz2/proxy2) but we keep a version in this
 very repository. Utilities needed are:
 
 * `virtualenv` 
+* `requests`
+* `lxml`
+* `netaddr`
 
 # Sqlite3
 
