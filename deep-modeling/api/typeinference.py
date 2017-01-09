@@ -122,6 +122,7 @@ def get_users_sessions_from_operation(graph, operation, projname):
     rs = graph.run(query, projname=projname, operation=operation)
     return list(rs)
 
+
 def _abs_url(u):
     scheme, netloc, path, params, query, fragment = urlparse(u)
     query_p = parse_qs (query)
@@ -135,6 +136,7 @@ def _abs_url(u):
     new_u = urlunparse((scheme, netloc, path, params, query, fragment))
     #print u, new_u
     return new_u
+
 
 def _equal(r1, r2):
     if None in [r1, r2]:
