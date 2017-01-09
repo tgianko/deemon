@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ "$1" == "--help" ] || [ "$1" == "-h" ] || [ $# -ne 3 ]; then
     echo "This script does the configuration setup for bitnami machines"
     echo "it requires that a virtualbox host-only network is already"
@@ -21,7 +23,7 @@ if [ "$vm_file_extension" != "vdi" ]; then
     exit 1
 fi
 
-mount_point='/mnt/'
+mount_point='/mnt'
 setup_dir=`pwd`
 mysql_script='/databases/mysql.sh'
 bitnami_tool_dir='opt/cispa/'
@@ -45,17 +47,17 @@ if [ $? -ne 0 ]; then
 fi
 
 ##general startup configuration configuration
-echo '#!/bin/sh -e' > "${mount_point}${bitnami_startup_script}"
+echo '#!/bin/sh -e' > "${mount_point}/${bitnami_startup_script}"
 
-chmod +x $mount_point$bitnami_startup_script
+chmod +x "$mount_point/$bitnami_startup_script"
 
 #make iptables accept incoming connections
-#echo 'iptables -A INPUT -t filter -j ACCEPT' >> $mount_point$bitnami_startup_script
+#echo 'iptables -A INPUT -t filter -j ACCEPT' >> "$mount_point/$bitnami_startup_script"
 
 #reroute incoming traffic from $bitnami_incoming_port to bitnami_database_port
-#echo "/${bitnami_tool_dir}/redir --lport=${bitnami_incoming_port} --cport=${bitnami_database_port} &" >> $mount_point$bitnami_startup_script 
+#echo "/${bitnami_tool_dir}/redir --lport=${bitnami_incoming_port} --cport=${bitnami_database_port} &" >> "$mount_point/$bitnami_startup_script" 
 
-echo "ifconfig eth0 | grep 'inet addr' | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> $mount_point$bitnami_startup_script
+echo "ifconfig eth0 | grep 'inet addr' | sed 's/Bcast.*//' | sed 's/.*inet addr://' | nc $target_host_ip $send_ip_target_port" >> "$mount_point/$bitnami_startup_script"
 
 
 #enabling a root password

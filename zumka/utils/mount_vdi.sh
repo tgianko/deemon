@@ -1,7 +1,16 @@
+#!/bin/bash
+
 #This file mounts .vdi and dismounts them again
 #author: Simon Koch <s9sikoch@stud.uni-saarland.de>
 
-#!/bin/bash
+set -e
+
+function waitForNbd {
+	while [ ! -b /dev/nbd0p1 ]; do
+		echo "Waiting for /dev/nbd0p1 to appear..."
+		sleep 1
+	done
+}
 
 
 if [ "$(id -u)" != "0" ]; then
@@ -27,6 +36,7 @@ case $1 in
 	
 	modprobe nbd
 	qemu-nbd -c /dev/nbd0 $2
+	waitForNbd # We need this because the qemu-nbd command seems to return before the device is actually available
 	mount -o loop /dev/nbd0p1 $3
 
 	echo "mount success";;
@@ -35,9 +45,10 @@ case $1 in
 
 	#echo "dismounting $2"
 	
-	umount $2
+	umount $2 # --dismount is used in a different run where $2 should have the same value as $3 in --mount run
 	qemu-nbd -d /dev/nbd0
-	rmmod nbd;;
+	sleep 5
+	rmmod nbd
 
-	#echo "dismount successfull";;
+	echo "dismount successfull";;
 esac

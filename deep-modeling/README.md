@@ -41,7 +41,7 @@ To import dynamic traces into Neo4j, you will need the vilanoo2 SQLite database,
 To import all data type the following:
 
 ```bash
-$ ./dbmanager.py import all $path_to_vilanoo_sqlite $path_to_rawtrace_sqlite $projname $session $user
+$ ./dbmanager.py import all $path_to_vilanoo_sqlite $path_to_mosgi_sqlite $path_to_rawtrace_sqlite $projname $session $user
 ```
 
 You can import traces one by one. Have a look at the help page of dbmanager (`--help`).

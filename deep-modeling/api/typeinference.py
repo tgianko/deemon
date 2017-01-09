@@ -125,12 +125,13 @@ def get_users_sessions_from_operation(graph, operation, projname):
 
 def _abs_url(u):
     scheme, netloc, path, params, query, fragment = urlparse(u)
-    query_p = parse_qs (query)
+    query_p = parse_qs(query)
 
     """ remove qs values """
     for k in query_p:
         query_p[k] = ""
 
+    query_p = sorted(query_p.items(), key=lambda el:el[0]) # sort by key all queries.
     query = urlencode(query_p)
 
     new_u = urlunparse((scheme, netloc, path, params, query, fragment))

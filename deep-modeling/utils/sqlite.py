@@ -123,3 +123,15 @@ def load_csrftests_sqlite(fname, logger=None):
         rs = cur.execute("SELECT * FROM CSRF_tests")
         ids = list(rs)
     return ids
+
+def save_oracle_output(fname, logger=None):
+    if logger is not None:
+        logger.info("Loading SQL queries from  Analyzer SQLite db")
+
+    con = lite.connect(fname)
+    ids = []
+    with con:
+        cur = con.cursor()
+        rs = cur.execute("SELECT * FROM CSRF_tests")
+        ids = list(rs)
+    return ids
