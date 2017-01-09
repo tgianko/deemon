@@ -153,7 +153,7 @@ def get_hash_to_transition(event_hash_list, projname):
     return transition_node
 
 
-def create_dfa(projname, event_hash_list, logger=None):
+def create_dfa(projname, event_hash_list, logger):
     state_to_cluster = create_state_cluster_list(event_hash_list, projname)
     hash_to_transition = get_hash_to_transition(event_hash_list, projname)
         
@@ -161,11 +161,12 @@ def create_dfa(projname, event_hash_list, logger=None):
     start_state = state_to_cluster[state_counter]
     current_state = state_to_cluster[state_counter]
 
-    for cons in event_hash_list:
-        print "in state {}".format(current_state.uuid)
+    for i, cons in enumerate(event_hash_list):
+        logger.info("Processing {} / {}".format(i, len(event_hash_list)))
+        logger.info("In state {}".format(current_state.uuid))
         state_counter += 1
         transition_node = hash_to_transition[cons[1]]
-        print "using transition {}".format(transition_node)
+        logger.info("Using transition {}".format(transition_node))
         current_state.HasTransition.add(transition_node)
         transition_node.To.add(state_to_cluster[state_counter])
         current_state = state_to_cluster[state_counter]
