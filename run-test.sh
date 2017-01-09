@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ $# -ne 8 ]; then
     echo "usage: ./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <mosgi-port> <vilanoo-port>"
     exit 1
@@ -75,8 +77,6 @@ cat ${db_dump_schema} | sqlite3 ${mosgi_db_path}
 #start vm"
 echo "waiting for guest to finish starting up..."
 sleep 4
-
-tmux_session = `echo ${test_name} | sed 's/\.//g'`
 
 echo "command:"
 TMUX_SESSION=`echo ${test_name} | tr . _dot_`

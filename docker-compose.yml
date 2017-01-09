@@ -1,0 +1,21 @@
+neo4j:
+  image: docker.wdf.sap.corp:50000/neo4j
+  ports:
+    - "7474:7474"
+    - "7687:7687"
+  volumes:
+    - "./neo4j-persistence:/data"
+
+vilanoo:
+  image: vilanoo:latest
+  volumes:
+    - ".:/usr/src/app"
+    - "../selenese-testcases:/testcases"
+    - "../vbox-images:/vbox-images"
+    - "/dev:/devk "
+  links:
+    - neo4j
+  command: /bin/zsh
+
+# Command on might want to run:
+# cd mosgi/src/ && ./run.sh -x /tmp/ -P /opt/bitnami/php/tmp/ -p 9292 -i 127.0.0.1 -t 192.168.56.101 -r root -c bitnami -s ../../mosqi.sqlitedb

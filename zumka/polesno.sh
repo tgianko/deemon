@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 if [ $# -ne 2 ]; then
     echo "usage: ./polesno.sh </full/path/to/vm.vdi> <vm-name>"
@@ -70,6 +71,6 @@ echo "guest system name is : $vm_name"
 echo "guest IP             : $guest_ip"
 echo "outgoing port        : $outgoing_port"
 echo "incoming port        : $incoming_port"
-echo "virgin snapshot      : viring-state"
+echo "virgin snapshot      : virgin-state"
 
 exit 0
