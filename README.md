@@ -12,6 +12,23 @@ This project consists in a number of tools that are chained in a variety of ways
  * [vilanoo2](vilanoo2/src/README.md): HTTP/S proxy that intercepts browser requests.
  * [mosgi](mosgi/src/README.md): Server to collect Web Application *raw* execution traces, session data, and file I/O.
  * [rawtrace-analysis] (rawtrace-analysis/src/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo2.
+
+We implemented a wrapper that is able to run a single trace aquisition automated after the VM is set up: 
+
+`./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <mosgi-port> <vilanoo-port>`
+
+ * vm-name: the name of the vm that the trace shall be aquired from
+ * vm-ip: the ip under which to reach the VM
+ * test-name: how to name the testrun (may be chosen freely, though it is advisable that a sensible name is chosen)
+ * start-state-name: the snapshot name to restore before running the acquisition
+ * selenese-test-file: the file which contains the selenese file which defines the trace acquisition for selenese
+ * firefox-instance: the firefox instance to run selenese with
+ * mosgi-port: the port mosgi uses for communication (only used internally and has to be provided to allow for parallelism)
+ * vilanoo-port: the port vilanoo uses for communication (only used internally and has to be provided to allow for parallelism)
+
+When provided with the correct parameters `run-test.sh` runs the specified test automatically and creates the resulting raw databases
+in the `~/.vilanoo/` folder.
+
  
 ### The Deep Modeling Framework  (UNDER DEVELOPMENT)
 
