@@ -99,14 +99,21 @@ def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
     4. return cons list
     """
     firstEvent = Event.select(graph).where("_.dm_type='{}'".format(SELENESE)).where("_.projname='{}' AND _.session='{}' AND _.user='{}'".format(projname, session, user)).where("_.seq=1").first()
-    #print "{}".format(firstEvent)
-    firstHttpRequest = list(firstEvent.Caused)[0]
-    #print "{}".format(firstHttpRequest)
+    # print "{}".format(firstEvent)
+    # check whether it is possible that there are multiple caused
+    firstHttpRequest = None
+    for request in list(firstEvent.Caused):
+        if request.seq == 1:
+            firstHttpRequest = request
+            break
+    assert(firstHttpRequest is not None)
     retList = [[firstHttpRequest, get_http_abstraction_hash(firstHttpRequest,
                                                             graph,
                                                             logger)]]
     current = retList[-1][0]
     while list(current.IsFollowedBy) != []:
+        # either it ain't followed or the follower is unique
+        assert(len(list(current.IsFollowedBy)) <= 1)
         current = list(current.IsFollowedBy)[0]
         if current.dm_type == "HttpResponse":
             pass
