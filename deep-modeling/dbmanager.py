@@ -342,7 +342,7 @@ def analysis_intracausality(args, graph, logger=None):
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
     analysis_user_generated_chains(args, graph, logger)
-    #analysis_model_inference(args, graph, logger)
+    analysis_model_inference(args, graph, logger)
     analysis_intracausality(args, graph, logger)
 
 def typeinference_all(arg, graph, logger=None):
