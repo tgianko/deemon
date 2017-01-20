@@ -10,6 +10,12 @@
 #source create-shared.sh
 
 #CSRF_PATH="${DB_PATH}/csrf-test-runner/"
+if [ $# -ne 2 ]; then
+    echo "usage: ./create-dm-fsm.sh <csv-file-containing-projname-session-user-mappings> <vilanoo-virtenv>
+    exit 1
+fi
+
+
 PROJ_PATH=`pwd`
 SOURCE_PATH=${2}
 MAPPING_SOURCE_CSV=${1}
