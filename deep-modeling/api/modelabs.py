@@ -185,7 +185,7 @@ def magic_mike(graph, projname, session, user, logger=None):
     logger.info("Retrieveing HTTP requests and clustering by state-changing operations...")
     l_event_hash_tuple = get_l_http_event_hash_tuple(graph, projname, session, user, logger)
     logger.info("Creating DFA...")
-    dfa_start = create_dfa(projname, l_event_hash_tuple)
+    dfa_start = create_dfa(projname, l_event_hash_tuple, logger)
     graph.push(dfa_start)
 
 
