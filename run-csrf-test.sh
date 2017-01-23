@@ -20,7 +20,7 @@ MOSGI_ROOT_PWD="bitnami"
 
 
 if [ $# -ne 7 ]; then
-    echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <selenese-tc>"
+    echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <selenese-tc> <firefox-path>"
     exit 1
 fi
 
@@ -32,6 +32,7 @@ START_STATE_NAME=$4
 CSRF_TEST_FILE=$5
 MOSGI_PORT=$6
 SELENESE_TC=$7
+FIREFOX_PATH=$8
 
 BASE_URL="http://${GUEST_IP}"
 
@@ -84,7 +85,7 @@ function start_mosgi {
 
 function start_csrf_test_runner {
     (cd ${CSRF_RUNNER_FOLDER}; \
-    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox /home/seasurf/firefox/firefox --height 2048 --width 2048 -S ${SCREENSHOT_PATH}" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
+    ${BIN_PY} test-runner.py -t ${1} -b "http://${GUEST_IP}" -M ${MOSGI_LISTEN_INTERFACE} -P ${MOSGI_PORT} -d ${CSRF_TEST_FILE} -S ${SELENESE_TC} --selenese-args "--firefox ${FIREFOX_PATH} --height 2048 --width 2048 -S ${SCREENSHOT_PATH}" -w 4 -l ${SELENESE_LOG_PATH} &>>  ${CSRFRUNNER_LOG_PATH})
     # add marker in log file
     echo "====================================== MARKER ======================================" &>>  ${CSRFRUNNER_LOG_PATH}
     
