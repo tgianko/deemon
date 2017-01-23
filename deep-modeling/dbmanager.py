@@ -156,53 +156,117 @@ def show_stats_database(args, graph, logger=None):
 
 def show_csrf(args, graph, logger=None):
 
-    http_reqs   = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})
-                               RETURN e.projname AS projname, 
-                                      e.session AS session, 
-                                      e.user AS user, 
-                                      count(e) AS http_reqs
-                             ORDER BY projname,
-                                      session,
-                                      user,
-                                      http_reqs""")
-    http_reqs = list(http_reqs)
+    # """
+    # HTTP requests
+    # """
+    # http_reqs   = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})
+    #                            RETURN e.projname AS projname, 
+    #                                   e.session AS session, 
+    #                                   e.user AS user, 
+    #                                   count(e) AS http_reqs
+    #                          ORDER BY projname,
+    #                                   session,
+    #                                   user,
+    #                                   http_reqs""")
+    # http_reqs = list(http_reqs)
 
-    sql   = graph.run("""MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[:PARSES]->(e:Event)
-                          WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, pt 
-                        RETURN projname, 
-                               session, 
-                               user, 
-                               count(pt) AS sql
-                      ORDER BY projname,
-                               session,
-                               user,
-                               sql""")
-    sql = list(sql)
+    # """
+    # State-changing SQL queries
+    # """
+    # sql   = graph.run("""MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[:PARSES]->(e:Event)
+    #                       WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, pt 
+    #                     RETURN projname, 
+    #                            session, 
+    #                            user, 
+    #                            count(pt) AS sql
+    #                   ORDER BY projname,
+    #                            session,
+    #                            user,
+    #                            sql""")
+    # sql = list(sql)
 
-    http_stchng = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
-                                 WITH DISTINCT e
-                               RETURN e.projname AS projname, 
-                                      e.session AS session, 
-                                      e.user AS user, 
-                                      count(e) AS http_stchng
-                             ORDER BY projname,
-                                      session,
-                                      user,
-                                      http_stchng""")
-    http_stchng = list(http_stchng)
+    # """
+    # State-changing HTTP requests
+    # """
+    # http_stchng = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
+    #                              WITH DISTINCT e
+    #                            RETURN e.projname AS projname, 
+    #                                   e.session AS session, 
+    #                                   e.user AS user, 
+    #                                   count(e) AS http_stchng
+    #                          ORDER BY projname,
+    #                                   session,
+    #                                   user,
+    #                                   http_stchng""")
+    # http_stchng = list(http_stchng)
 
-    stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}) 
-                     WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, sym 
-                   RETURN projname, 
-                          session, 
-                          user, 
-                          count(sym) as stchng_op
-                 ORDER BY projname,
-                          session,
-                          user,
-                          stchng_op""")
+    """
+    State-changing Operations
+    """
+    # stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}) 
+    #                  WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, sym 
+    #                RETURN projname, 
+    #                       session, 
+    #                       user, 
+    #                       count(sym) as stchng_op
+    #              ORDER BY projname,
+    #                       session,
+    #                       user,
+    #                       stchng_op""")
+
+    stchang_op = graph.run("""MATCH p=(abshttp:AbstractEvent)-[:ABSTRACTS]->()<-[:ACCEPTS]-(tr:DFAStateTransition) 
+                      WITH DISTINCT p, 
+                                    abshttp, 
+                                    tr 
+                             RETURN abshttp.projname AS projname, 
+                                    abshttp.operation AS operation, 
+                                    count(DISTINCT tr) AS transitions 
+                           ORDER BY projname, 
+                                    operation""")
 
     stchang_op = list(stchang_op)
+
+    """
+    Operation Patterns: SINGLETON
+    """
+    op_singleton = graph.run("""MATCH (abssql:AbstractParseTree {dm_type:"AbsQuery"})-[:ABSTRACTS]->()-[:PARSES]->(evt) 
+                     WITH DISTINCT abssql.uuid AS abspt_uuid, 
+                                   evt.projname AS projname, 
+                                   evt.session AS session, 
+                                   evt.user AS user, 
+                                   count(evt) AS op_pattern 
+                             WHERE op_pattern = 1 
+                            RETURN projname, 
+                                   session, 
+                                   user, 
+                                   count(*) AS op_singleton 
+                          ORDER BY projname, 
+                                   session, 
+                                   user;""")
+
+    op_singleton = list(op_singleton)
+
+    """
+    Operation Patterns: REPEATABLE
+    """
+    op_singleton = graph.run("""MATCH (abssql:AbstractParseTree {dm_type:"AbsQuery"})-[:ABSTRACTS]->()-[:PARSES]->(evt) 
+                     WITH DISTINCT abssql.uuid AS abspt_uuid, 
+                                   evt.projname AS projname, 
+                                   evt.session AS session, 
+                                   evt.user AS user, 
+                                   count(evt) AS op_pattern 
+                             WHERE op_pattern = 1 
+                            RETURN projname, 
+                                   session, 
+                                   user, 
+                                   op_pattern, 
+                                   count(*) AS op_singleton 
+                          ORDER BY projname, 
+                                   session, 
+                                   user, 
+                                   op_pattern;""")
+
+    op_singleton = list(op_singleton)
 
     df_stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}), 
                                         df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
@@ -240,7 +304,7 @@ def show_csrf(args, graph, logger=None):
     df_big_stchang_op = list(df_big_stchang_op)
 
     out = []
-    for els in zip(http_reqs, sql, http_stchng, stchang_op, df_stchang_op, df_big_stchang_op):
+    for els in zip(http_reqs, sql, http_stchng, stchang_op, op_singleton, df_stchang_op, df_big_stchang_op):
         aux = dict()
         for e in els:
             aux.update(dict(e))
@@ -248,11 +312,11 @@ def show_csrf(args, graph, logger=None):
 
 
     print ""
-    hdr = "| {:^14} | {:^60} | {:^14} | {:^14} | {:^14} | {:^14} | {:^14} | {:^14} | {:^14}|".format("PROJECT", "SESSION", "USER", "HTTP Reqs.", "SQL Qs.", "HTTP ST.CNG", "ST.CNG OP", "DF ST.CNG OP", "DF ST.CNG OP>10")
+    hdr = "| {:^20} | {:^40} | {:^25} |{:^14} | {:^14} | {:^14} | {:^14} | {:^14}|".format("PROJECT", "SESSION", "USER", "ST.CNG OP", "OP_SINGLETON", "OP_REPEATED", "DF ST.CNG OP", "DF ST.CNG OP>10")
     print hdr
     print "=" * len(hdr)
     for s in out:
-        print "| {projname:<14} | {session:<60} | {user:<14} | {http_reqs:>14} | {sql:>14} | {http_stchng:>14} | {stchng_op:>14} | {df_stchng_op:>14} | {df_big_stchng_op:>14} |".format(**s)
+        print "| {projname:<20} | {session:<40} | {user:<25} | {stchng_op:>14} | {op_singleton:>14} | {op_repeatable:>14} | {df_stchng_op:>14} | {df_big_stchng_op:>14} |".format(**s)
     print "\r\n\r\n"
 
 
@@ -348,8 +412,8 @@ def analysis_all(args, graph, logger=None):
 def typeinference_all(arg, graph, logger=None):
     analysis_synsem_types(arg, graph, logger)
 
-def oppat_session(arg, graph, logger=None):
-    analysis_oppat_session(arg, graph, logger)
+def oppat_bulk(arg, graph, logger=None):
+    analysis_oppat_bulk(arg, graph, logger)
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -457,11 +521,8 @@ def parse_args(args):
     oppat_p = subp.add_parser("oppat", help="Operation patterns")
     oppat_subp = oppat_p.add_subparsers()
 
-    oppat_sess = oppat_subp.add_parser("session", help="Per-session operation patterns")
-    oppat_sess.add_argument("projname", help="Project name")
-    oppat_sess.add_argument("session",  help="Session identifier")
-    oppat_sess.add_argument("user",     help="User identifier")
-    oppat_sess.set_defaults(func=oppat_session)
+    pat_blk = oppat_subp.add_parser("bulk", help="Infer state-changing operation patterns on the entire graph")
+    pat_blk.set_defaults(func=oppat_bulk)
 
 
     """

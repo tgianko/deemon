@@ -1,5 +1,26 @@
 from dm_types import *
 
+def analysis_oppat_bulk(arg, graph, logger):
+    query = """MATCH init=(apt:AbstractParseTree)-[:ABSTRACTS]->(pt:ParseTree), 
+                    trace=(pt)-[:PARSES]->(e:Event) 
+     RETURN DISTINCT apt.uuid AS apt_uuid, e.projname AS projname, e.session AS session, e.user AS user"""
+
+    rs = graph.run(query)
+    rs = list(rs)
+
+    for i, r in enumerate(rs):
+        abspt_uuid = r["apt_uuid"]
+        projname   = r["projname"]
+        session    = r["session"]
+        user       = r["user"]
+
+        label = infer_trace_patterns(graph, abspt_uuid, projname, session, user, logger)
+        logger.info("Adding operation pattern {} for {} {} {} {} ({}/{})".format(label, abspt_uuid, projname, session, user, i, len(rs)))
+        """
+        TODO: fetch AbstractParseTree and add pattern
+        """
+
+
 def infer_event_patterns(abspt_uuid):
     """
     EVT_UNIQUE_OP or EVT_REPEATED_OP?

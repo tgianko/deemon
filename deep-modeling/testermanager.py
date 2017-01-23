@@ -25,6 +25,7 @@ from api.dm_types import *
 from api.multipart import Multipart
 import api.sqlnorm as sqlnorm
 
+import api.typeinfalg.typeinference as typeinf
 
 DEBUG = False
 
@@ -214,7 +215,7 @@ def test_stats(args, graph, logger=None):
 
 def skip(n, ignore):
     if ignore is not None and ignore == n:
-        logger.warning("Skipping {}={}".format(n.s_type, n.symbol))
+        logger.warning("In message concretization, skipping {}={}".format(n.s_type, n.symbol))
         #print "Skipping", ignore.uuid, ignore.symbol
         return True
     return False
@@ -457,8 +458,19 @@ def store_tgen(seq_id, projname, session, operation, user, uuid_request, uuid_tn
     return req_id
 
 
+import re
+_TGEN_RE_VAR_NAME_BLACKLIST=[".*cookie-pair.*", ".*multipart.*"]
+TGEN_RE_VAR_NAME_BLACKLIST=[re.compile(r) for r in _TGEN_RE_VAR_NAME_BLACKLIST]
+
+def _is_var_blacklisted(var_name):
+    for p in TGEN_RE_VAR_NAME_BLACKLIST:
+        if p.match(var_name) is not None:
+            return True
+    return False
+
 def tgen_pchain_su_p(args, graph, logger=None):
-    sqlitedb_init(args.database, sqlite_schema_tgen)
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
 
     data = {"len": args.len, "projname": args.projname, "session": args.session}
     uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
@@ -479,7 +491,10 @@ def tgen_pchain_su_p(args, graph, logger=None):
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
-        store_tgen(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
+        if not args.simulate:
+            store_tgen(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
+        else:
+            print i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], url
 
         i+=1
 
@@ -487,7 +502,8 @@ def tgen_pchain_su_p(args, graph, logger=None):
 
 
 def tgen_su_var(args, graph, logger=None):
-    sqlitedb_init(args.database, sqlite_schema_tgen)
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
 
     query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
                      stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
@@ -515,17 +531,121 @@ def tgen_su_var(args, graph, logger=None):
     uuids = list(uuids)
     print "Total number of test cases to generate: {}".format(len(uuids))
     for i, res in enumerate(uuids):
-       
+        if _is_var_blacklisted(res["v"]["name"]):
+            logger.info("Skipping {} because is blacklisted".format(res["v"]["name"]))
+            continue
         pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
         tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
     
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
-        store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
-
+        if not args.simulate:
+            store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+        else:
+            print i, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
         i+=1
 
+
+def _has_singleton_op(graph, evt_uuid, projname, session, user, logger):
+    query = """MATCH (http:Event {dm_type:"HttpRequest", uuid:{evt_uuid}})-[:CAUSED]->(xdebug:Event)<-[:PARSES]->(:ParseTree)<-[:ABSTRACTS]-(apt:AbstractParseTree)
+              RETURN DISTINCT apt.uuid AS apt_uuid;"""   
+    data = {
+        "evt_uuid": evt_uuid,
+        "dm_type": HTTPREQ,
+        "projname": projname,
+        "session": session,
+        "user": user
+    }
+
+    rs = graph.run(query, data)
+    rs = list(rs)
+
+    for r in rs:
+        apt_uuid = r["apt_uuid"]
+        label = infer_trace_patterns(graph, apt_uuid, projname, session, user, logger)
+        logger.info("   {} has abstract query {} with label {}".format(evt_uuid, apt_uuid, label))
+        if label == TRACE_SINGLETON_OP:
+            return True
+
+    return False
+
+
+def tgen_su_uu_var_singleton(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
+
+    su_query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+               WHERE "session_unique" IN v.semtype
+                WITH DISTINCT ae, 
+                              v.name AS var_name, 
+                              collect([pt, tn, v, e]) AS candidates 
+              RETURN ae,
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(candidates)[0] AS pt, 
+                     head(candidates)[1] AS tn,
+                     head(candidates)[2] AS v,
+                     head(candidates)[3].session AS session,
+                     head(candidates)[3].user AS user,
+                     head(candidates)[3].uuid AS e_uuid"""
+
+    uu_query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+               WHERE "user_unique" IN v.semtype
+                WITH DISTINCT ae, 
+                              v.name AS var_name, 
+                              collect([pt, tn, v, e]) AS candidates 
+              RETURN ae,
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(candidates)[0] AS pt, 
+                     head(candidates)[1] AS tn,
+                     head(candidates)[2] AS v,
+                     head(candidates)[3].session AS session,
+                     head(candidates)[3].user AS user,
+                     head(candidates)[3].uuid AS e_uuid"""
+
+    data = {
+            "projname": args.projname,
+            "operation": args.operation,
+            "dm_type"  : ABSHTTPREQ
+            }
+
+    su_uuids = graph.run(su_query, data)
+    su_uuids = list(su_uuids)
+    logger.info("Max number of SU test cases to generate: {}".format(len(su_uuids)))
+
+    uu_uuids = graph.run(uu_query, data)
+    uu_uuids = list(uu_uuids)
+    logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
+    
+    for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
+        logger.info("Generating tests for {} variables".format(label))
+        for i, res in enumerate(uuids):
+            pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
+            tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
+            command, url, headers, body = pt_to_req(pt, tn)
+
+            logger.info("Variable {} is {}".format(res["v"]["name"], label))
+            logger.info("  Request {} {}".format(command, url))
+            if not _has_singleton_op(graph, res["e_uuid"], res["projname"], res["session"], res["user"], logger):
+                logger.info(" Skipping because does not result in a SINGLETON operation")
+                continue
+
+            if _is_var_blacklisted(res["v"]["name"]):
+                logger.info(" Skipping because is blacklisted")
+                continue
+
+            logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+
+            if not args.simulate:
+                store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+            else:
+                print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
 
 def store_oracle_output(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern, dbname):
     headers = json.dumps(headers)
@@ -662,7 +782,7 @@ def oracle(args, graph, logger=None):
 def parse_args(args):
     p = argparse.ArgumentParser(description='tester parameters')
     subp = p.add_subparsers()
-
+    
 
 
     stats_p = subp.add_parser("stats", help="Get some statistics about the testing phase") 
@@ -688,7 +808,15 @@ def parse_args(args):
     su_var_p.add_argument("projname", help="Project name")
     su_var_p.add_argument("operation",  help="Operation")    
     su_var_p.add_argument("database",  help="Database where to store HTTP requests")
+    su_var_p.add_argument('--simulate', help="Do not write to database", action="store_true")
     su_var_p.set_defaults(func=tgen_su_var) 
+
+    su_uu_var_ston_p = tests_subp.add_parser("su_uu_var_singleton", help="Generate a test by neglecting session unique HTTP request variables on HTTP requests that lead to a SINGLETON operation")
+    su_uu_var_ston_p.add_argument("projname", help="Project name")
+    su_uu_var_ston_p.add_argument("operation",  help="Operation")    
+    su_uu_var_ston_p.add_argument("database",  help="Database where to store HTTP requests")
+    su_uu_var_ston_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    su_uu_var_ston_p.set_defaults(func=tgen_su_uu_var_singleton) 
 
     """
     ===========
@@ -707,7 +835,6 @@ def parse_args(args):
 
 def main(args):
     # global args_obj # global variables are the devils tool
-    logger = log.getdebuglogger("dbmanager")
     graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME,
                   password=NEO4J_PASSWORD)
     args_obj = parse_args(args)

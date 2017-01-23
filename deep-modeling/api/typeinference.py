@@ -124,7 +124,7 @@ def get_users_sessions_from_operation(graph, operation, projname):
 
 def _abs_url(u):
     scheme, netloc, path, params, query, fragment = urlparse(u)
-    query_p = parse_qs(query)
+    query_p = parse_qs(query, keep_blank_values=1)
 
     """ remove qs values """
     for k in query_p:
@@ -249,7 +249,7 @@ def align_sequences(seqs, graph, logger):
 
                 logger.info("    > pos1 and pos2 are both null => misalign both of 1")
                 seq1 = seq1[0:i] + [None] + seq1[i:]
-                seq2 = seq2[0:i+1] + [None] + seq1[i+1:]
+                seq2 = seq2[0:i+1] + [None] + seq2[i+1:]
                 
             elif pos1 < 0: # we shift the non null one
 
@@ -374,6 +374,8 @@ def insert_abstract_events(graph, logger, operation, projname):
                 # if logger is not None:
                 #     logger.info("{} abstracts {}".format(abs_evt.uuid, req.uuid))
                 abs_evt.Abstracts.add(req)
+                if logger is not None:
+                    logger.info("  - abs evt message {} -> evt message {}".format(abs_evt.message, req.message))
 
         if prev_abs_evt:
             prev_abs_evt.IsFollowedBy.add(abs_evt)
