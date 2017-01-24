@@ -19,7 +19,7 @@ MOSGI_ROOT_USER="root"
 MOSGI_ROOT_PWD="bitnami"
 
 
-if [ $# -ne 7 ]; then
+if [ $# -ne 8 ]; then
     echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <selenese-tc> <firefox-path>"
     exit 1
 fi
