@@ -273,7 +273,7 @@ def pt_to_urlformenc(pt, ignore=None):
         if skip(value, ignore):
             qs.setdefault(name.symbol, [])
         else:
-            qs.setdefault(name.symbol, []).append(value.symbol)            
+            qs.setdefault(name.symbol, []).append(unicode(value.symbol).encode('utf-8'))            
     return urlencode(qs, True)
 
 def inline_cookie(cookie):
@@ -459,7 +459,7 @@ def store_tgen(seq_id, projname, session, operation, user, uuid_request, uuid_tn
 
 
 import re
-_TGEN_RE_VAR_NAME_BLACKLIST=[".*cookie-pair.*", ".*multipart.*"]
+_TGEN_RE_VAR_NAME_BLACKLIST=[".*cookie-pair.*", ".*multipart.*", ".*param-name"]
 TGEN_RE_VAR_NAME_BLACKLIST=[re.compile(r) for r in _TGEN_RE_VAR_NAME_BLACKLIST]
 
 def _is_var_blacklisted(var_name):
@@ -578,7 +578,7 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
     su_query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
                      stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
-               WHERE "session_unique" IN v.semtype
+               WHERE "session_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
                 WITH DISTINCT ae, 
                               v.name AS var_name, 
                               collect([pt, tn, v, e]) AS candidates 
@@ -595,7 +595,7 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
     uu_query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
                      stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
-               WHERE "user_unique" IN v.semtype
+               WHERE "user_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
                 WITH DISTINCT ae, 
                               v.name AS var_name, 
                               collect([pt, tn, v, e]) AS candidates 
@@ -646,6 +646,124 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
                 store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
+
+def tgen_not_protected(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
+
+    query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+       WITH DISTINCT ae, 
+                     e, 
+                     collect([pt, tn, v]) AS vars 
+       WITH DISTINCT ae, 
+                     collect([e, vars]) AS e_vars 
+              RETURN ae, 
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(e_vars)[0] AS e, 
+                     head(e_vars)[1] AS vars"""
+
+    data = {
+            "projname": args.projname,
+            "operation": args.operation,
+            "dm_type"  : ABSHTTPREQ
+            }
+
+    uuids = graph.run(query, data)
+    uuids = list(uuids)
+    logger.info("Number of requests to process: {}".format(len(uuids)))
+    
+    def _is_not_protected(res):
+        V = res["vars"]
+        for pt, tn, v in V:
+            if not set([str(typeinf.SEM_TYPE_SESSION_UNIQUE), str(typeinf.SEM_TYPE_USER_UNIQUE)]).isdisjoint(set(v.get("semtype", []))):
+                """
+                This request has a UU/UG variable. We still don't know if this is a blacklisted one, e.g., session cookie.
+                """
+                if not _is_var_blacklisted(v["name"]):
+                    """
+                    The variable is not blacklisted => PROTECTED
+                    """
+                    return False
+
+        return True
+
+    st_ch_ops = [res for res in uuids if _has_singleton_op(graph, res["e"]["uuid"], res["projname"], res["e"]["session"], res["e"]["user"], logger)]
+    logger.info("N.ro of state changing operations: {}".format(len(st_ch_ops)))
+
+    not_protected = filter(_is_not_protected, st_ch_ops)
+    logger.info("No. of NON protected state changing operations: {}".format(len(not_protected)))
+
+    for i, res in enumerate(not_protected):
+        pt, _, __ = res["vars"][0]
+        pt = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
+        command, url, headers, body = pt_to_req(pt)
+        
+        if not args.simulate:
+            store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
+        else:
+            print i, res["projname"], res["operation"], url          
+
+def tgen_protected(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
+
+    query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+       WITH DISTINCT ae, 
+                     e, 
+                     collect([pt, tn, v]) AS vars 
+       WITH DISTINCT ae, 
+                     collect([e, vars]) AS e_vars 
+              RETURN ae, 
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(e_vars)[0] AS e, 
+                     head(e_vars)[1] AS vars"""
+
+    data = {
+            "projname": args.projname,
+            "operation": args.operation,
+            "dm_type"  : ABSHTTPREQ
+            }
+
+    uuids = graph.run(query, data)
+    uuids = list(uuids)
+    logger.info("Number of requests to process: {}".format(len(uuids)))
+    
+    def _is_protected(res):
+        V = res["vars"]
+        for pt, tn, v in V:
+            if not set([str(typeinf.SEM_TYPE_SESSION_UNIQUE), str(typeinf.SEM_TYPE_USER_UNIQUE)]).isdisjoint(set(v.get("semtype", []))):
+                """
+                This request has a UU/UG variable. We still don't know if this is a blacklisted one, e.g., session cookie.
+                """
+                if not _is_var_blacklisted(v["name"]):
+                    """
+                    The variable is not blacklisted => PROTECTED
+                    """
+                    return True
+
+        return False
+
+    st_ch_ops = [res for res in uuids if _has_singleton_op(graph, res["e"]["uuid"], res["projname"], res["e"]["session"], res["e"]["user"], logger)]
+    logger.info("N.ro of state changing operations: {}".format(len(st_ch_ops)))
+
+    protected = filter(_is_protected, st_ch_ops)
+    logger.info("No. of protected state changing operations: {}".format(len(protected)))
+
+    for i, res in enumerate(protected):
+        pt, _, __ = res["vars"][0]
+        pt = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
+        command, url, headers, body = pt_to_req(pt)
+        
+        if not args.simulate:
+            store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
+        else:
+            print i, res["projname"], res["operation"], url 
 
 def store_oracle_output(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern, dbname):
     headers = json.dumps(headers)
@@ -817,6 +935,20 @@ def parse_args(args):
     su_uu_var_ston_p.add_argument("database",  help="Database where to store HTTP requests")
     su_uu_var_ston_p.add_argument('--simulate', help="Do not write to database", action="store_true")
     su_uu_var_ston_p.set_defaults(func=tgen_su_uu_var_singleton) 
+
+    not_protected_p = tests_subp.add_parser("not_protected", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
+    not_protected_p.add_argument("projname", help="Project name")
+    not_protected_p.add_argument("operation",  help="Operation")    
+    not_protected_p.add_argument("database",  help="Database where to store HTTP requests")
+    not_protected_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    not_protected_p.set_defaults(func=tgen_not_protected) 
+
+    protected_p = tests_subp.add_parser("protected", help="Generate a test for each protected HTTP requests that lead to a SINGLETON operation")
+    protected_p.add_argument("projname",   help="Project name")
+    protected_p.add_argument("operation",  help="Operation")    
+    protected_p.add_argument("database",   help="Database where to store HTTP requests")
+    protected_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    protected_p.set_defaults(func=tgen_protected) 
 
     """
     ===========
