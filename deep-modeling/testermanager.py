@@ -546,29 +546,31 @@ def tgen_su_var(args, graph, logger=None):
             print i, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
         i+=1
 
-
-def _has_singleton_op(graph, evt_uuid, projname, session, user, logger):
+def _get_singleton_ops(graph, evt_uuid, projname, session, user, logger):
     query = """MATCH (http:Event {dm_type:"HttpRequest", uuid:{evt_uuid}})-[:CAUSED]->(xdebug:Event)<-[:PARSES]->(:ParseTree)<-[:ABSTRACTS]-(apt:AbstractParseTree)
-              RETURN DISTINCT apt.uuid AS apt_uuid;"""   
+              RETURN DISTINCT apt.uuid AS apt_uuid, apt;"""   
     data = {
-        "evt_uuid": evt_uuid,
-        "dm_type": HTTPREQ,
-        "projname": projname,
-        "session": session,
-        "user": user
+        "evt_uuid": evt_uuid
     }
 
     rs = graph.run(query, data)
     rs = list(rs)
 
+    out = []
     for r in rs:
         apt_uuid = r["apt_uuid"]
         label = infer_trace_patterns(graph, apt_uuid, projname, session, user, logger)
         logger.info("   {} has abstract query {} with label {}".format(evt_uuid, apt_uuid, label))
         if label == TRACE_SINGLETON_OP:
-            return True
+            out.append(r["apt"])
 
+    return out
+
+def _has_singleton_op(graph, evt_uuid, projname, session, user, logger):
+    if len(_get_singleton_ops(graph, evt_uuid, projname, session, user, logger)) > 0:
+        return True
     return False
+
 
 
 def tgen_su_uu_var_singleton(args, graph, logger=None):
@@ -812,7 +814,7 @@ def _get_abs_query(graph, ae_uuid, tn_uuid, abs_message):
     return list(rs)
 
 
-def oracle(args, graph, logger=None):
+def oracle_stats(args, graph, logger=None):
 
     sqlitedb_init(args.output, sqlite_schema_oracle)
 
@@ -855,16 +857,15 @@ def oracle(args, graph, logger=None):
 
         Pts = dict(map(_extend_with_patterns, queries))
         #print Pts
+        
         """
         Queries and abstract observed while testing
         """
 
         Q2 = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
         Q2 = sorted(map(lambda e: _sanitize(e[2]), Q2)) # e[2] is the SQL query
-        H2 = [_hash(q) for q in Q2]
-        h2 = "-".join(H2)
-
-
+        H2 = [_hash(q) for q in Q2] # abstracts
+        h2 = "-".join(H2) # chain hashes 
 
         print ""
         print t[1], t[11], t[12], t[9]
@@ -892,7 +893,62 @@ def oracle(args, graph, logger=None):
             store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t[12], t[13], t[14], query_message, query_hash, apt_uuid, observed, tr_pattern, args.output)
 
 
+def _get_evtuuid_from_absreq(graph, ae_uuid, projname, session, user, logger):
+    query = """MATCH (ae:AbstractEvent {uuid:{ae_uuid}})-[:ABSTRACTS]->(e:Event {dm_type:"HttpRequest", projname:{projname}, session:{session}, user:{user}})
+              RETURN DISTINCT e.uuid AS e_uuid;"""   
+    data = {
+        "ae_uuid" : ae_uuid,
+        "projname": projname,
+        "session" : session,
+        "user"    : user
+    }
 
+    rs = graph.run(query, data)
+    rs = list(rs)
+    return rs[0]["e_uuid"]
+
+def oracle_st_chng(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.output, sqlite_schema_oracle)
+
+    csrftests = load_csrftests_sqlite(args.testcases, logger)
+
+    con = lite.connect(args.output) 
+    con.text_factory = str
+
+    for t in csrftests:
+        """
+        Get SINGLETON from t
+        """
+
+        e_uuid = _get_evtuuid_from_absreq(graph, t[7], t[3], t[4], t[6], logger)
+        ae_ops = _get_singleton_ops(graph, e_uuid, t[3], t[4], t[6], logger)
+        if len(ae_ops) == 0:
+            logger.warning("No SINGLETON for {} {} {} {}".format(t[7], t[3], t[4], t[6]))
+            continue
+
+        H_model = map(lambda ae: ae["message"], ae_ops)
+
+        """
+        Queries and abstract observed while testing
+        """
+        Q_exec = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
+        Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec)) # e[2] is the SQL query
+        H_exec = [_hash(q) for q in Q_exec]
+
+
+        print ""
+        print t[1], t[11], t[12], "H_model", len(H_model)
+        print "=" * 80
+
+        for query_hash, query_message in zip(H_exec, Q_exec):
+            st_ch = "ST_CHNG" if query_hash in H_model else "NO"
+            print "    {} = {:10} {}".format(query_hash, st_ch, query_message[:40])
+
+            if not args.simulate:
+                store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t[12], t[13], t[14], query_message, query_hash, ae_ops[0]["uuid"], st_ch, "NONE", args.output)
+
+        
 
     
     
@@ -956,12 +1012,23 @@ def parse_args(args):
     ===========
     """
 
-    oracle_p = subp.add_parser("oracle", help="Test case oracle") 
-    oracle_p.add_argument("projname"   , help="Project name")
-    oracle_p.add_argument("testcases"  , help="Database with test cases")
-    oracle_p.add_argument("analyzed"   , help="Rawtrace-analysis database")
-    oracle_p.add_argument("output"     , help="Output database")
-    oracle_p.set_defaults(func=oracle) 
+    oracle_p = subp.add_parser("oracle", help="Test case oracle")
+    oracle_subp = oracle_p.add_subparsers()
+
+    stats_p = oracle_subp.add_parser("oracle", help="Stats on the execution results")
+    stats_p.add_argument("projname"   , help="Project name")
+    stats_p.add_argument("testcases"  , help="Database with test cases")
+    stats_p.add_argument("analyzed"   , help="Rawtrace-analysis database")
+    stats_p.add_argument("output"     , help="Output database")
+    stats_p.set_defaults(func=oracle_stats)
+
+    oracle_st_chng_p = oracle_subp.add_parser("st_chng", help="Verify whether a test caused the same change of state of the model")
+    oracle_st_chng_p.add_argument("projname"   , help="Project name")
+    oracle_st_chng_p.add_argument("testcases"  , help="Database with test cases")
+    oracle_st_chng_p.add_argument("analyzed"   , help="Rawtrace-analysis database")
+    oracle_st_chng_p.add_argument("output"     , help="Output database")
+    oracle_st_chng_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    oracle_st_chng_p.set_defaults(func=oracle_st_chng)
 
     return p.parse_args(args)
 
