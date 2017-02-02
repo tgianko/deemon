@@ -220,45 +220,69 @@ def skip(n, ignore):
         return True
     return False
 
-def pt_to_url(pt, ignore=None):
+def pt_to_url(pt, ignore=None, replacewith=None):
     scheme, netloc, path, qs = "", "", "", ""
+    
     for child in sorted(list(pt.HasChild), key=lambda c: c.pos):
+        
         if isinstance(child, PTTerminalNode):
+            
             if child.s_type == "path":
                 path = child.symbol
+            
             elif child.s_type == "scheme":
                 scheme = child.symbol
+            
             elif child.s_type == "netloc":
                 netloc = child.symbol
+            
             else:
                 raise Exception("Unhandled URL component {} {}".format(child.uuid, child.s_type))
+        
         if isinstance(child, PTNonTerminalNode):
+            
             if child.s_type == "query-string":
-                qs = pt_to_query(child, ignore)
+                qs = pt_to_query(child, ignore, replacewith=replacewith)
+            
             else:
                 raise Exception("Unhandled NonTerminal component {} {}".format(child.uuid, child.s_type))
 
     return urlparse.urlunparse((scheme, netloc, path, "", qs, ""))
 
-def pt_to_query(pt, ignore=None):
+def pt_to_query(pt, ignore=None, replacewith=None):
     qs = {}
     parname = None
     for child in sorted(list(pt.HasChild), key=lambda c: c.pos):
         #logger.info(" --- {} {}".format(child.s_type, child.symbol))
         if child.s_type == "param-name":
+            
             if skip(child, ignore):
+                
                 parname = None
+                
+                if replacewith:
+                    parname = replacewith.value
+            
             elif parname is None:
                 parname = child.symbol
+            
             else:
                 qs.setdefault(parname, []).append("")
                 parname = None
+        
         elif child.s_type == "param-value":
+            
             if skip(child, ignore):
+                
                 parname = None
+
+                if replacewith:
+                    parname = replacewith.value
+            
             elif parname is None:
                 #raise Exception("Ooops. Two param-values in a row? {} {}".format(child.s_type, child.symbol))
                 logger.warning("Ooops. Two param-values in a row? {} {}".format(child.s_type, child.symbol))
+            
             else:
                 qs.setdefault(parname, []).append(child.symbol)
                 parname = None
@@ -266,12 +290,17 @@ def pt_to_query(pt, ignore=None):
             Exception("Mmmh... neither param-name nor param-value. This query string is really messed up: {}".format(child.s_type))
     return urlencode(qs, True)
 
-def pt_to_urlformenc(pt, ignore=None):
+def pt_to_urlformenc(pt, ignore=None, replacewith=None):
     qs = {}
     for child in pt.HasChild:
         name, value = sorted(list(child.HasChild), key=lambda c: c.pos)
+        
         if skip(value, ignore):
             qs.setdefault(name.symbol, [])
+            
+            if replacewith:
+                qs[name.symbol].append(replacewith.value)
+        
         else:
             qs.setdefault(name.symbol, []).append(unicode(value.symbol).encode('utf-8'))            
     return urlencode(qs, True)
@@ -285,29 +314,37 @@ def inline_cookie(cookie):
         result.append( V.OutputString() )
     return "; ".join(result)
 
-def pt_to_cookie(pt, ignore=None):
+def pt_to_cookie(pt, ignore=None, replacewith=None):
     cookie = SimpleCookie()
     for child in pt.HasChild:
         name, value = sorted(list(child.HasChild), key=lambda c: c.pos)
         if skip(name, ignore):
-            pass
+            
+            if replacewith:
+                cookie[str(replacewith.value)] = value
+        
         else:
+            
             if skip(value, ignore):
-                pass
+
+                if replacewith:
+                    cookie[str(replacewith.value)] = value
+            
             else:
                 cookie[str(name.symbol)]= str(value.symbol)
+    
     return inline_cookie(cookie)
 
-def pt_to_json(pt, ignore=None):
-    return json.dumps(visit_pt_json(pt, ignore=ignore))
+def pt_to_json(pt, ignore=None, replacewith=None):
+    return json.dumps(visit_pt_json(pt, ignore=ignore, replacewith=None))
 
-def visit_pt_json(pt, ignore=None):
+def visit_pt_json(pt, ignore=None, replacewith=None):
     if isinstance(pt, PTNonTerminalNode):
         if pt.s_type == "json-object":
             obj = dict()
             for child in pt.HasChild:
-                k = pt_to_json(child, ignore=ignore)
-                v = pt_to_json(child, ignore=ignore)
+                k = pt_to_json(child, ignore=ignore, replacewith=replacewith)
+                v = pt_to_json(child, ignore=ignore, replacewith=replacewith)
                 obj[k] = v
             return obj
         elif pt.s_type == "json-array":
@@ -315,45 +352,74 @@ def visit_pt_json(pt, ignore=None):
             return arr
     elif isinstance(pt, PTTerminalNode):
         if pt.s_type == "json-string":
-            if not skip(pt, ignore):
+            if skip(pt, ignore):
+                if replacewith:
+                    return str(replacewith.value)
+            else:
                 return str(pt.symbol)
         elif pt.s_type == "json-number-int":
-            if not skip(pt, ignore):
-                return int(pt.symbol)
+            if skip(pt, ignore):
+                if replacewith:
+                    return int(replacewith.value)
+            else:return int(pt.symbol)
         elif pt.s_type == "json-number-real":
-            if not skip(pt, ignore):
+            if skip(pt, ignore):
+                if replacewith:
+                    return float(replacewith.value)
+            else:
                 return float(pt.symbol)
         elif pt.s_type == "json-number-bool":
-            if not skip(pt, ignore):
+            if skip(pt, ignore):
+                if replacewith:
+                    return bool(replacewith.value)
+            else:
                 return bool(pt.symbol)
         elif pt.s_type == "json-number-null":
-            if not skip(pt, ignore):
+            if skip(pt, ignore):
+                if replacewith:
+                    return str(replacewith.value)
+            else:
                 return None
     else:
         return list(pt.HasChild)[0]
 
 
-def pt_to_body(pt, ignore=None):
+def pt_to_body(pt, ignore=None, replacewith=None):
     ct, body = "", ""
     if pt.dm_type == dm_types.MULTIPART:
         mp = Multipart()
         for child in pt.HasChild:
             name, value = sorted(list(child.HasChild), key=lambda c: c.pos)
-            if not skip(child, ignore):
-                mp.field(name.symbol, value.symbol)
+            s_name = name.symbol
+            s_value = value.symbol
+
+            if skip(name, ignore):
+                if replacewith:
+                    s_name = replacewith.value
+                else:
+                    continue
+            
+            if skip(value, ignore):
+                if replacewith:
+                    s_value = replacewith.value
+                else:
+                    s_value = ""
+
+            mp.field(s_name, s_value)
         ct, body = mp.get()
     elif pt.dm_type == dm_types.JSON:
         ct = ""
-        body = pt_to_json(pt, ignore=ignore)
+        body = pt_to_json(pt, ignore=ignore, replacewith=replacewith)
     elif pt.dm_type == dm_types.FORMURLENC:
         ct = ""
-        body = pt_to_urlformenc(pt, ignore=ignore)
+        body = pt_to_urlformenc(pt, ignore=ignore, replacewith=replacewith)
     else:
         ct = ""
         body = pt.message
     return ct, body
 
-def pt_to_req(pt, ignore=None):
+
+def pt_to_req(pt, ignore=None, replacewith=None):
     command = ""
     url = ""
     headers = {}
@@ -375,14 +441,21 @@ def pt_to_req(pt, ignore=None):
                     name, value = value, name # SWAAAAP!
 
                 if isinstance(value, ParseTree):
+                    
                     if value.dm_type == dm_types.URL:
-                        v = pt_to_url(value, ignore=ignore)
+                        v = pt_to_url(value, ignore=ignore, replacewith=replacewith)
+                    
                     elif value.dm_type == dm_types.COOKIE:
-                        v = pt_to_cookie(value, ignore=ignore)
+                        v = pt_to_cookie(value, ignore=ignore, replacewith=replacewith)
+                    
                     else:
                         raise Exception("Unhandled ParseTree {} {}".format(value.uuid, value.dm_type))
+                
                 else:
-                    if not skip(value, ignore):
+                    if skip(value, ignore):
+                        if replacewith:
+                            v = replacewith.value
+                    else:
                         v = value.symbol
                 
                 k = name.symbol
@@ -397,21 +470,29 @@ def pt_to_req(pt, ignore=None):
                 Q.extend(child.HasChild)
 
         elif isinstance(child, PTTerminalNode):
+            
             if child.s_type == "method":
                 command = child.symbol
+            
             else:
                 raise Exception("Unhandled s_type {} {}".format(child.uuid, child.symbol))
+        
         elif isinstance(child, ParseTree):
+            
             if child.dm_type == dm_types.URL:
-                url = pt_to_url(child, ignore=ignore)
+                url = pt_to_url(child, ignore=ignore, replacewith=replacewith)
+            
             elif child.dm_type in dm_types._BODY:
-                ct, body = pt_to_body(child, ignore=ignore)
+                ct, body = pt_to_body(child, ignore=ignore, replacewith=replacewith)
+            
             else:
                 raise Exception("Unhandled ParseTree {} {}".format(child.uuid, child.dm_type))
+        
         else:
             raise Exception("Unhandled Situation {} {}".format(child.uuid, child.dm_type))
    
     if len(ct) > 0: # we have a content type coming from body functions, we need to remove existing ones and replace
+        
         if "content-type" in headers:
             headers["content-type"] = ct
     
@@ -648,6 +729,105 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
                 store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
+
+def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
+
+    """
+    New query for Session unique (it needs to be adjusted for user unique)
+    MATCH abs=(ae:AbstractEvent {projname:"abantecart", operation:"login_and_change_email", dm_type:"AbsHttpRequest"})-[:ABSTRACTS]->(e:Event), stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) WHERE "session_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype)) WITH DISTINCT ae, e, pt, tn, v WITH ae, v.name AS var_name, v.user AS user, collect([v]) AS s_vars WITH ae, var_name, collect([user, s_vars]) AS candidates RETURN ae, var_name, head(candidates)[0], length(head(candidates)[1]);
+    """
+
+    """
+    This query finds all session unique variables protecting a state changing operation.
+    It selects also another variable (from the second user session) to be used as
+    replacement of the first one.
+    """
+    su_query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                        stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+                  WHERE "session_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype)) 
+                   WITH DISTINCT ae, e, pt, tn, v 
+                   WITH ae, 
+                        v.name                     AS var_name, 
+                        v.user                     AS user, 
+                        collect([e, pt, tn, v])    AS test_data 
+                   WITH ae, 
+                        var_name, 
+                        collect([user, test_data]) AS candidates 
+                 RETURN ae, 
+                        var_name, 
+                        head(candidates)[0]        AS user, 
+                        head(candidates)[1][0][0]  AS e, 
+                        head(candidates)[1][0][1]  AS pt, 
+                        head(candidates)[1][0][2]  AS tn, 
+                        head(candidates)[1][0][3]  AS var, 
+                        head(candidates)[1][1][3]  AS replacement;"""
+
+    """
+    Wrt the previous query, this one here group variables by session, not user.
+    This because we want to have a replacement for a UU value
+    """
+    uu_query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
+                        stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+                  WHERE "user_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype)) 
+                   WITH DISTINCT ae, e, pt, tn, v 
+                   WITH ae, 
+                        v.name                        AS var_name, 
+                        v.session                     AS session, 
+                        collect([e, pt, tn, v])       AS test_data 
+                   WITH ae, 
+                        var_name, 
+                        collect([session, test_data]) AS candidates 
+                 RETURN ae, 
+                        var_name, 
+                        head(candidates)[0]           AS session, 
+                        head(candidates)[1][0][0]     AS e, 
+                        head(candidates)[1][0][1]     AS pt, 
+                        head(candidates)[1][0][2]     AS tn, 
+                        head(candidates)[1][0][3]     AS var, 
+                        head(candidates)[1][1][3]     AS replacement"""
+
+    data = {
+            "projname": args.projname,
+            "operation": args.operation,
+            "dm_type"  : ABSHTTPREQ
+            }
+
+    su_uuids = graph.run(su_query, data)
+    su_uuids = list(su_uuids)
+    logger.info("Max number of SU test cases to generate: {}".format(len(su_uuids)))
+
+    uu_uuids = graph.run(uu_query, data)
+    uu_uuids = list(uu_uuids)
+    logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
+    
+    for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
+        logger.info("Generating tests for {} variables".format(label))
+        for i, res in enumerate(uuids):
+            pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
+            tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
+            command, url, headers, body = pt_to_req(pt, tn)
+
+            logger.info("Variable {} is {}".format(res["v"]["name"], label))
+            logger.info("  Request {} {}".format(command, url))
+            if not _has_singleton_op(graph, res["e_uuid"], res["projname"], res["session"], res["user"], logger):
+                logger.info(" Skipping because does not result in a SINGLETON operation")
+                continue
+
+            if _is_var_blacklisted(res["v"]["name"]):
+                logger.info(" Skipping because is blacklisted")
+                continue
+
+            logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+
+            if not args.simulate:
+                store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+            else:
+                print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
+
 
 def tgen_not_protected(args, graph, logger=None):
     if not args.simulate:
@@ -976,6 +1156,7 @@ def parse_args(args):
     pchain_su_p.add_argument("projname", help="Project name")
     pchain_su_p.add_argument("session",  help="Session")
     pchain_su_p.add_argument("database",  help="Database where to store HTTP requests")
+    pchain_su_p.add_argument('--simulate', help="Do not write to database", action="store_true")
     pchain_su_p.set_defaults(func=tgen_pchain_su_p) 
 
     su_var_p = tests_subp.add_parser("su_var", help="Generate a test by neglecting session unique HTTP request variables")
