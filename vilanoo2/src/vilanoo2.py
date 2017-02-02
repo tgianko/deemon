@@ -357,6 +357,7 @@ def start_selenese_runner(fname,selenese_log):
         else:
             s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.poll()))
 
+        time.sleep(args.wait*2)
         os.kill(os.getpid(), signal.SIGTERM)
 
     s_logger.info("Running selenese-runner.jar")
