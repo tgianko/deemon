@@ -110,8 +110,3 @@
      :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications - kneel before thy master"
      :suffix "so that's how it works…"
      :usage-of "run-analyzer.sh"))))
-
-
-
-
-  

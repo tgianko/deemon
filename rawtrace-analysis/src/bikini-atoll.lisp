@@ -1,12 +1,10 @@
 (setf sb-ext:*posix-argv* 
       '("/useless/exec/path"        
-        "-m" "/home/simkoc/hiwi/csrf/tmp/abantecart-login_and_change_email-201612121442-csrftests-mosgi.db"
-        "-d" "/home/simkoc/hiwi/csrf/tmp/abantecart-login_and_change_email-analyzed.db"
-        "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"
-        "-f" "1"
-        "-e" "1"))
-
-
+        "-m" "/home/simkoc/tmp/mauticbug/mautic-admin_user-delete_contact_S1-201702022125-mosgi.db"
+        "-v" "/home/simkoc/tmp/mauticbug/mautic-admin_user-delete_contact_S1-201702022125-vilanoo.db"
+        "-d" "/home/simkoc/tmp/mauticbug/mautic-admin_user-delete_contact_S1-201702022125-analyzer.db"
+        "-S" "/home/simkoc/hiwi/csrf/vilanoo/data/DBSchema.sql"))
+        
 (analyzer:main)
 
 (in-package :xdebug)

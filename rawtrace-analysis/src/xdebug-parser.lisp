@@ -435,8 +435,8 @@ given trace and returns all parameters passed to those calls.
                 queries))))
     
 
-
 #|
-(get-sql-queries
- (make-xdebug-trace-from-file "/home/simkoc/tmp/simpleinvoice/xdebug.xt") NIL)
-  |#                                         
+(FORMAT T "~{~a~%~}"
+        (get-sql-queries
+         (make-xdebug-trace-from-file "/home/simkoc/tmp/mautic_httpreq8_delete_contact_xdebug.xt") NIL))
+|#                                         
