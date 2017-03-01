@@ -27,6 +27,8 @@ import api.sqlnorm as sqlnorm
 
 import api.typeinfalg.typeinference as typeinf
 
+import csv
+
 DEBUG = False
 
 if DEBUG:
@@ -67,120 +69,177 @@ class PartialFormatter(string.Formatter):
             else: raise
 
 def test_stats(args, graph, logger=None):
-    logger.info("Retrieving max_reqs")
-    query = """MATCH (e:Event {dm_type:"HttpRequest"}) 
-                WITH DISTINCT e.projname AS projname, left(e.session,size(e.session)-3) AS operation, 
-                              e.user AS user, 
-                              e.session AS session, 
-                              count(e) AS http_reqs 
-              RETURN projname, 
-                     operation, 
-                     max(http_reqs) AS max_reqs
-               ORDER BY projname, 
-                        operation;"""
+    # logger.info("Retrieving max_reqs")
+    # query = """MATCH (e:Event {dm_type:"HttpRequest"}) 
+    #             WITH DISTINCT e.projname AS projname, left(e.session,size(e.session)-3) AS operation, 
+    #                           e.user AS user, 
+    #                           e.session AS session, 
+    #                           count(e) AS http_reqs 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(http_reqs) AS max_reqs
+    #            ORDER BY projname, 
+    #                     operation;"""
 
-    max_reqs = list(graph.run(query))
+    # max_reqs = list(graph.run(query))
 
-    logger.info("Retrieving max_stchreqs")
-    query = """MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
-                WITH DISTINCT e 
-                WITH DISTINCT e.projname AS projname, 
-                              e.session AS session, 
-                              e.user AS user, 
-                              left(e.session, size(e.session)-3) AS operation, 
-                              count(e) AS tot_stchreqs 
-              RETURN projname, 
-                     operation, 
-                     max(tot_stchreqs) AS max_stchreqs
-               ORDER BY projname, 
-                        operation;"""
+    # logger.info("Retrieving max_stchreqs")
+    # query = """MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
+    #             WITH DISTINCT e 
+    #             WITH DISTINCT e.projname AS projname, 
+    #                           e.session AS session, 
+    #                           e.user AS user, 
+    #                           left(e.session, size(e.session)-3) AS operation, 
+    #                           count(e) AS tot_stchreqs 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(tot_stchreqs) AS max_stchreqs
+    #            ORDER BY projname, 
+    #                     operation;"""
 
-    max_stchreqs = list(graph.run(query))
+    # max_stchreqs = list(graph.run(query))
 
-    logger.info("Retrieving max_vars")
-    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-                       (v1:Variable)-[:BELONGS_TO]->(e)
-                WITH DISTINCT e.projname AS projname, 
-                              e.session AS session, 
-                              e.user AS user, 
-                              left(e.session, size(e.session)-3) AS operation, 
-                              count(v1) AS tot_vars 
-              RETURN projname, 
-                     operation, 
-                     max(tot_vars) AS max_vars
-               ORDER BY projname, 
-                        operation;"""
+    logger.info("Retrieving Ops")
+    query = """MATCH (ae:AbstractEvent)
+                       WITH DISTINCT ae
+                RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS ops
+                ORDER BY projname, operation"""
 
-    max_vars = list(graph.run(query))
+    ops = list(graph.run(query))
 
-    logger.info("Retrieving max_su_uu_vars")
-    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-                       (v1:Variable)-[:BELONGS_TO]->(e)
-               WHERE "session_unique" IN v1.semtype OR "user_unique" IN v1.semtype
-                WITH DISTINCT e.projname AS projname, 
-                              e.session AS session, 
-                              e.user AS user, 
-                              left(e.session, size(e.session)-3) AS operation, 
-                              count(v1) AS tot_vars 
-              RETURN projname, 
-                     operation, 
-                     max(tot_vars) AS max_su_uu_vars
-               ORDER BY projname, 
-                        operation;"""
+    logger.info("Retrieving stchreqs_tr")
+    # query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
+    #             WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+    #             WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
+    #             WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
+    #             MATCH (ae:AbstractEvent {projname: projname})-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql {message:hash})
+    #             WITH DISTINCT abssql, ae
+    #             WITH abssql.message AS hash, collect(ae) AS ops
+    #             WITH DISTINCT head(ops) AS ae
+    #             RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr
+    #             ORDER BY projname, operation"""
 
-    max_su_uu_vars = list(graph.run(query))
+    ## This query counts state-changing operation using the singleton on a per-trace.
+    query = """MATCH (sql:ParseTree)<-[:ABSTRACTS]-(abssql:AbstractParseTree) 
+                      WITH DISTINCT abssql, sql 
+                      WITH abssql, count(sql) AS c 
+               MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql)
+                      WITH DISTINCT ae
+               RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr
+               ORDER BY projname, operation"""
 
-    logger.info("Retrieving max_su_vars")
-    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-                       (v1:Variable)-[:BELONGS_TO]->(e) 
-               WHERE "session_unique" IN v1.semtype 
-                WITH DISTINCT e, v1 
-                WITH DISTINCT e.projname AS projname, 
-                              e.session AS session, 
-                              e.user AS user, 
-                              left(e.session, size(e.session)-3) AS operation, 
-                              count(v1) AS tot_vars 
-              RETURN projname, 
-                     operation, 
-                     max(tot_vars) AS max_su_vars
-               ORDER BY projname, 
-                        operation;"""
+    stchreqs_tr = list(graph.run(query))
 
-    max_su_vars = list(graph.run(query))
+    logger.info("Retrieving stchreqs_tr_ston")
+    query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
+                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+                WHERE c = 1
+                WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
+                WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
+                WHERE n_of_ops=1
+                MATCH (ae:AbstractEvent {projname: projname})-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql {message:hash})
+                WITH DISTINCT abssql, ae
+                WITH abssql.message AS hash, collect(ae) AS ops
+                WITH DISTINCT head(ops) AS ae
+                RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr_ston
+                ORDER BY projname, operation"""
+
+    ### This query counts state-changing operation using the singleton on a per-trace. 
+    # query = """MATCH (sql:ParseTree)<-[:ABSTRACTS]-(abssql:AbstractParseTree) 
+    #                   WITH DISTINCT abssql, sql 
+    #                   WITH abssql, count(sql) AS c 
+    #                   WHERE c = 1
+    #            MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql)
+    #                   WITH DISTINCT ae
+    #            RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr_ston
+    #            ORDER BY projname, operation"""
+
+    stchreqs_tr_ston = list(graph.run(query))
+
+    # logger.info("Retrieving max_stchreqs_tr")
+    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+    #                    (v1:Variable)-[:BELONGS_TO]->(e)
+    #             WITH DISTINCT e.projname AS projname, 
+    #                           e.session AS session, 
+    #                           e.user AS user, 
+    #                           left(e.session, size(e.session)-3) AS operation, 
+    #                           count(v1) AS tot_vars 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(tot_vars) AS max_vars
+    #            ORDER BY projname, 
+    #                     operation;"""
+
+    # max_vars = list(graph.run(query))
+
+    # logger.info("Retrieving max_su_uu_vars")
+    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+    #                    (v1:Variable)-[:BELONGS_TO]->(e)
+    #            WHERE "session_unique" IN v1.semtype OR "user_unique" IN v1.semtype
+    #             WITH DISTINCT e.projname AS projname, 
+    #                           e.session AS session, 
+    #                           e.user AS user, 
+    #                           left(e.session, size(e.session)-3) AS operation, 
+    #                           count(v1) AS tot_vars 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(tot_vars) AS max_su_uu_vars
+    #            ORDER BY projname, 
+    #                     operation;"""
+
+    # max_su_uu_vars = list(graph.run(query))
+
+    # logger.info("Retrieving max_su_vars")
+    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+    #                    (v1:Variable)-[:BELONGS_TO]->(e) 
+    #            WHERE "session_unique" IN v1.semtype 
+    #             WITH DISTINCT e, v1 
+    #             WITH DISTINCT e.projname AS projname, 
+    #                           e.session AS session, 
+    #                           e.user AS user, 
+    #                           left(e.session, size(e.session)-3) AS operation, 
+    #                           count(v1) AS tot_vars 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(tot_vars) AS max_su_vars
+    #            ORDER BY projname, 
+    #                     operation;"""
+
+    # max_su_vars = list(graph.run(query))
 
 
-    logger.info("Retrieving max_pchains")
-    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-                       df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
-                WITH DISTINCT e, v1
-                WITH DISTINCT e.projname AS projname, 
-                              e.session AS session, 
-                              e.user AS user, 
-                              left(e.session, size(e.session)-3) AS operation, 
-                              count(v1) AS tot_vars 
-              RETURN projname, 
-                     operation, 
-                     max(tot_vars) AS max_pchains
-               ORDER BY projname, 
-                        operation;"""
+    # logger.info("Retrieving max_pchains")
+    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+    #                    df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
+    #             WITH DISTINCT e, v1
+    #             WITH DISTINCT e.projname AS projname, 
+    #                           e.session AS session, 
+    #                           e.user AS user, 
+    #                           left(e.session, size(e.session)-3) AS operation, 
+    #                           count(v1) AS tot_vars 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(tot_vars) AS max_pchains
+    #            ORDER BY projname, 
+    #                     operation;"""
 
-    max_pchains = list(graph.run(query))
+    # max_pchains = list(graph.run(query))
 
-    logger.info("Retrieving max_pchains_su")
-    query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-                       df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
-               WHERE "session_unique" IN v1.semtype
-                WITH DISTINCT e, v1 
-                WITH DISTINCT e.projname AS projname, 
-                              e.session AS session, 
-                              e.user AS user, 
-                              left(e.session, size(e.session)-3) AS operation, 
-                              count(v1) AS tot_vars 
-              RETURN projname, 
-                     operation, 
-                     max(tot_vars) AS max_pchains_su
-               ORDER BY projname, 
-                        operation;"""
+    # logger.info("Retrieving max_pchains_su")
+    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
+    #                    df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
+    #            WHERE "session_unique" IN v1.semtype
+    #             WITH DISTINCT e, v1 
+    #             WITH DISTINCT e.projname AS projname, 
+    #                           e.session AS session, 
+    #                           e.user AS user, 
+    #                           left(e.session, size(e.session)-3) AS operation, 
+    #                           count(v1) AS tot_vars 
+    #           RETURN projname, 
+    #                  operation, 
+    #                  max(tot_vars) AS max_pchains_su
+    #            ORDER BY projname, 
+    #                     operation;"""
 
     max_pchains_su = list(graph.run(query))
 
@@ -188,7 +247,7 @@ def test_stats(args, graph, logger=None):
     Group by projname and operation
     """
     merge = {}
-    for rs in [max_reqs, max_stchreqs, max_vars, max_su_uu_vars, max_su_vars, max_pchains, max_pchains_su]:
+    for rs in [ops, stchreqs_tr, stchreqs_tr_ston]: #max_reqs, max_stchreqs,        , max_vars, max_su_uu_vars, max_su_vars, max_pchains, max_pchains_su]:
         for e in list(rs):
             d = dict(e)
             proj_k = e["projname"]
@@ -205,12 +264,12 @@ def test_stats(args, graph, logger=None):
 
     fmt=PartialFormatter()
 
-    col_names = ("PROJECT", "OPERATION", "Max Reqs.", "Max St.Ch. Reqs", "Max Vars",  "Max SU-UU Vars",  "Max SU Vars", "Max PChains", "Max SU PChains")
-    hdr = "| {:^24} | {:^60} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
+    col_names = ("PROJECT", "OPERATION", "OPs", "SC OPs", "SC STon OPs") # "Max Reqs.", "Max St.Ch. Reqs",        , "Max Vars",  "Max SU-UU Vars",  "Max SU Vars", "Max PChains", "Max SU PChains")
+    hdr = "| {:^24} | {:^60} | {:^14} | {:^14} | {:^14}".format(*col_names) #| {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
     print hdr
     print "=" * len(hdr)
     for s in out:
-        print fmt.format("| {projname:<24} | {operation:<60} | {max_reqs:>18} | {max_stchreqs:>18} | {max_vars:>18} | {max_su_uu_vars:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
+        print fmt.format("| {projname:<24} | {operation:<60} | {ops:>14} | {stchreqs_tr:>14} | {stchreqs_tr_ston:>14}", **s)# {max_reqs:>18} |{max_stchreqs:>18} |             {max_vars:>18} | {max_su_uu_vars:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
     print "\r\n\r\n"
 
 def skip(n, ignore):
@@ -730,6 +789,106 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
 
+def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
+
+    su_query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
+                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+                WHERE c = 1
+                WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
+                WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
+                WHERE n_of_ops=1
+                MATCH (ae:AbstractEvent {projname: projname})-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql {message:hash})
+                WITH DISTINCT abssql, ae
+                WITH abssql.message AS hash, collect(ae) AS ops
+                WITH DISTINCT head(ops) AS ae
+
+                MATCH (ae)-[:ABSTRACTS]->(e:Event), (pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+
+                WHERE ("session_unique" IN v.semtype) 
+                          AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
+                          AND (NOT v.name =~ ".*cookie-pair.*")
+                          AND (NOT v.name =~ ".*multipart.*")
+                          AND (NOT v.name =~ ".*param-name.*")
+                WITH DISTINCT ae, 
+                              v.name AS var_name, 
+                              collect([pt, tn, v, e]) AS candidates 
+              RETURN ae,
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(candidates)[0] AS pt, 
+                     head(candidates)[1] AS tn,
+                     head(candidates)[2] AS v,
+                     head(candidates)[3].session AS session,
+                     head(candidates)[3].user AS user,
+                     head(candidates)[3].uuid AS e_uuid"""
+
+    uu_query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
+                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+                WHERE c = 1
+                WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
+                WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
+                WHERE n_of_ops=1
+                MATCH (ae:AbstractEvent {projname: projname})-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql {message:hash})
+                WITH DISTINCT abssql, ae
+                WITH abssql.message AS hash, collect(ae) AS ops
+                WITH DISTINCT head(ops) AS ae
+
+                MATCH (ae)-[:ABSTRACTS]->(e:Event), (pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+               WHERE ("user_unique" IN v.semtype ) 
+                          AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
+                          AND (NOT v.name =~ ".*cookie-pair.*")
+                          AND (NOT v.name =~ ".*multipart.*")
+                          AND (NOT v.name =~ ".*param-name.*")
+                WITH DISTINCT ae, 
+                              v.name AS var_name, 
+                              collect([pt, tn, v, e]) AS candidates 
+              RETURN ae,
+                     ae.projname AS projname, 
+                     ae.operation AS operation, 
+                     head(candidates)[0] AS pt, 
+                     head(candidates)[1] AS tn,
+                     head(candidates)[2] AS v,
+                     head(candidates)[3].session AS session,
+                     head(candidates)[3].user AS user,
+                     head(candidates)[3].uuid AS e_uuid"""
+
+    su_uuids = graph.run(su_query)
+    su_uuids = list(su_uuids)
+    logger.info("Max number of SU test cases to generate: {}".format(len(su_uuids)))
+
+    uu_uuids = graph.run(uu_query)
+    uu_uuids = list(uu_uuids)
+    logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
+    
+    for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
+        logger.info("Generating tests for {} variables".format(label))
+        for i, res in enumerate(uuids):
+            pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
+            tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
+            command, url, headers, body = pt_to_req(pt, tn)
+
+            logger.info("Variable {} is {}".format(res["v"]["name"], label))
+            logger.info("  Request {} {}".format(command, url))
+            #if not _has_singleton_op(graph, res["e_uuid"], res["projname"], res["session"], res["user"], logger):
+            #    logger.info(" Skipping because does not result in a SINGLETON operation")
+            #    continue
+
+            if _is_var_blacklisted(res["v"]["name"]):
+                logger.info(" Skipping because is blacklisted")
+                continue
+
+            logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+
+            if not args.simulate:
+                store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+            else:
+                row = [i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url, res["ae"]["uuid"]]
+                csv.writer(sys.stdout, delimiter=",", quotechar="\"").writerow(row)
+                #print "{},{},{},{},{},{},{},{}".format(i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url, res["ae"]["uuid"])
+
+
 def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
@@ -827,6 +986,65 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
                 store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
+
+def tgen_not_protected_all_new(args, graph, logger=None):
+    if not args.simulate:
+        sqlitedb_init(args.database, sqlite_schema_tgen)
+
+    query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
+                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+                WHERE c = 1
+                WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
+                WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
+                WHERE n_of_ops=1
+                MATCH (ae:AbstractEvent {projname: projname})-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql {message:hash})
+                WITH DISTINCT abssql, ae
+                WITH abssql.message AS hash, collect(ae) AS ops
+                WITH DISTINCT head(ops) AS ae
+                MATCH (ae)-[:ABSTRACTS]->(e:Event), (pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+                    WITH DISTINCT  ae, e, collect([pt,tn,v]) AS vars
+                    WITH DISTINCT  ae, collect([e, vars]) AS e_vars
+               RETURN ae, 
+                      ae.projname AS projname, 
+                      ae.operation AS operation, 
+                      head(e_vars)[0] AS e, 
+                      head(e_vars)[1] AS vars"""
+
+
+    uuids = graph.run(query)
+    uuids = list(uuids)
+    logger.info("Number of requests to process: {}".format(len(uuids)))
+    
+    def _is_not_protected(res):
+        V = res["vars"]
+        for pt, tn, v in V:
+            if not set([str(typeinf.SEM_TYPE_SESSION_UNIQUE), str(typeinf.SEM_TYPE_USER_UNIQUE)]).isdisjoint(set(v.get("semtype", []))):
+                """
+                This request has a UU/UG variable. We still don't know if this is a blacklisted one, e.g., session cookie.
+                """
+                if not _is_var_blacklisted(v["name"]):
+                    """
+                    The variable is not blacklisted => PROTECTED
+                    """
+                    return False
+
+        return True
+
+    #st_ch_ops = [res for res in uuids if _has_singleton_op(graph, res["e"]["uuid"], res["projname"], res["e"]["session"], res["e"]["user"], logger)]
+    #logger.info("N.ro of state changing operations: {}".format(len(st_ch_ops)))
+
+    not_protected = filter(_is_not_protected, uuids)
+    logger.info("No. of NON protected state changing operations: {}".format(len(not_protected)))
+
+    for i, res in enumerate(not_protected):
+        pt, _, __ = res["vars"][0]
+        pt = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
+        command, url, headers, body = pt_to_req(pt)
+        
+        if not args.simulate:
+            store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
+        else:
+            print "{},{},{},{},{}".format(i, res["projname"], res["operation"], url, res["ae"]["uuid"])
 
 
 def tgen_not_protected(args, graph, logger=None):
@@ -1173,12 +1391,24 @@ def parse_args(args):
     su_uu_var_ston_p.add_argument('--simulate', help="Do not write to database", action="store_true")
     su_uu_var_ston_p.set_defaults(func=tgen_su_uu_var_singleton) 
 
+    su_uu_var_ston_new_all_p = tests_subp.add_parser("su_uu_var_singleton_new_all", help="Generate a test by neglecting session unique HTTP request variables on HTTP requests that lead to a SINGLETON operation")
+    su_uu_var_ston_new_all_p.add_argument("database",  help="Database where to store HTTP requests")
+    su_uu_var_ston_new_all_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    su_uu_var_ston_new_all_p.set_defaults(func=tgen_su_uu_var_singleton_new_all) 
+
     not_protected_p = tests_subp.add_parser("not_protected", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
     not_protected_p.add_argument("projname", help="Project name")
     not_protected_p.add_argument("operation",  help="Operation")    
     not_protected_p.add_argument("database",  help="Database where to store HTTP requests")
     not_protected_p.add_argument('--simulate', help="Do not write to database", action="store_true")
     not_protected_p.set_defaults(func=tgen_not_protected) 
+
+    not_protected_all_new_p = tests_subp.add_parser("not_protected_all_new", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
+    not_protected_all_new_p.add_argument("database",  help="Database where to store HTTP requests")
+    not_protected_all_new_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    not_protected_all_new_p.set_defaults(func=tgen_not_protected_all_new) 
+
+
 
     protected_p = tests_subp.add_parser("protected", help="Generate a test for each protected HTTP requests that lead to a SINGLETON operation")
     protected_p.add_argument("projname",   help="Project name")

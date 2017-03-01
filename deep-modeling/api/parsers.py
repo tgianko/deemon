@@ -37,7 +37,8 @@ def parse_url(url, projname):
         query_n = PTNonTerminalNode(projname, URL, "query-string",pos)
         pos += 1
         q_pos = 0  
-        for k, vs in parse_qs(query).iteritems():
+        pairs = sorted(parse_qs(query).iteritems(), key=lambda e: e[0]) # we sort to avoid fuck-ups with variable comparison
+        for k, vs in pairs:
             for v in vs:
                 query_n.HasChild.add(PTTerminalNode(projname, URL, k, "param-name", q_pos))
                 query_n.HasChild.add(PTTerminalNode(projname, URL, v, "param-value", q_pos+1))
@@ -294,11 +295,13 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
 
 
 def visit_sql_pt(pt, i, n):
+    #print ">", pt
     for el in pt.tokens:
-        if el.is_group:
+        #print "= element", el
+        if el.is_group():
             child = PTNonTerminalNode(n.projname, SQL, "token-list", i)
             n.HasChild.add(child)
-            # print "SQLTokenList"
+            #print "= SQLTokenList", el
             visit_sql_pt(el, 0, child)
         else:
             if el.ttype == sqlptokens.Token.Punctuation or\
