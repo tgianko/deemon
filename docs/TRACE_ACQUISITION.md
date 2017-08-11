@@ -46,8 +46,10 @@ In general, the steps of this use case are:
 
 ## Change proxy configuration of your browser and play around
 
-Come on. If you do need help on this, please consider to leave this page and
-find another job ;)
+If you are not familiar with the terms proxy and/or browser please consider
+reading up on those terms and how they interact with each other before proceeding.
+We assume working knowledge of those (and comparable) basic terms from 
+here on.
 
 In case of using Selenese-Runner to replay recorded traces you do not need to set a proxy because this is done by Selenese-Runner automotically. 
 
