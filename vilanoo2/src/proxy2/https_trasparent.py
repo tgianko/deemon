@@ -1,5 +1,6 @@
 from proxy2 import *
 
+
 class ThreadingHTTPSServer(ThreadingHTTPServer):
     address_family = socket.AF_INET6
     daemon_threads = True
@@ -13,7 +14,7 @@ class ThreadingHTTPSServer(ThreadingHTTPServer):
         return request, client_address
 
     def handle_error(self, request, client_address):
-        # surpress socket/ssl related errors
+        # COMMENT: surpress socket/ssl related errors
         cls, e = sys.exc_info()[:2]
         if cls is socket.error or cls is ssl.SSLError:
             pass

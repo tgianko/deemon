@@ -28,7 +28,7 @@ class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
 
     def handle_error(self, request, client_address):
-        # surpress socket/ssl related errors
+        # COMMENT: surpress socket/ssl related errors
         cls, e = sys.exc_info()[:2]
         if cls is socket.error or cls is ssl.SSLError:
             pass
@@ -51,7 +51,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def log_error(self, format, *args):
-        # surpress "Request timed out: timeout('timed out',)"
+        # COMMENT: surpress "Request timed out: timeout('timed out',)"
         if isinstance(args[0], socket.timeout):
             return
 
@@ -142,10 +142,10 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         try:
             origin = (scheme, netloc)
-            if not origin in self.tls.conns:
+            if origin not in self.tls.conns:
                 if scheme == 'https':
                     ver = sys.version_info[0:3]
-                    if ver[0] == 2 and ver[1] == 7 and ver[2] < 9: 
+                    if ver[0] == 2 and ver[1] == 7 and ver[2] < 9:
                         self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout)
                     else:
                         self.tls.conns[origin] = httplib.HTTPSConnection(netloc, timeout=self.timeout, context=ssl._create_unverified_context())
@@ -159,11 +159,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
-            #self.send_error(502)
             return
         except Exception as e:
-            self.log_message("{} when requesting {}, {}".format(e.__class__.__name__, path, e.message))
-            #import SimpleHTTPServer
             if origin in self.tls.conns:
                 del self.tls.conns[origin]
             self.send_error(502)
@@ -197,13 +194,12 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         with self.lock:
             self.save_handler(req, req_body, res, res_body_plain)
 
-
     do_HEAD = do_GET
     do_POST = do_GET
     do_OPTIONS = do_GET
 
     def filter_headers(self, headers):
-        # http://tools.ietf.org/html/rfc2616#section-13.5.1
+        # COMMENT: http://tools.ietf.org/html/rfc2616#section-13.5.1
         hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade')
         for k in hop_by_hop:
             del headers[k]

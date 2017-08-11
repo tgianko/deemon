@@ -1,6 +1,7 @@
 from lxml import html
 from os.path import join, dirname
 
+
 class SeleneseCommand(object):
     def __init__(self, columns):
         self.columns = columns
@@ -25,6 +26,7 @@ class SeleneseCommand(object):
             self._value = self.columns[2].text or ''
             self._value = self._value.strip()
         return self._value
+
 
 class SeleneseTestCase(object):
     def __init__(self, filename):
@@ -52,9 +54,8 @@ class SeleneseTestCase(object):
         return self._baseurl
 
 
-
 class SeleneseTestSuite(object):
-    
+
     def __init__(self, filename):
         self.dirname = dirname(filename)
         self.tree = html.parse(filename).getroot()
@@ -63,7 +64,6 @@ class SeleneseTestSuite(object):
     def __iter__(self):
         for a in self.tree.xpath('//tr//td//a'):
             yield SeleneseTestCase(join(self.dirname, a.attrib["href"]))
-
 
 
 def is_suite(filename):

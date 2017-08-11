@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import re  # COMMENT: added during cleanup
 from proxy2 import *
 from collections import deque
+
 
 class SSLStripRequestHandler(ProxyRequestHandler):
     replaced_urls = deque(maxlen=1024)

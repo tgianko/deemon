@@ -21,7 +21,6 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-import traceback
 
 def with_color(c, s):
     return "\x1b[%dm%s\x1b[0m" % (c, s)
@@ -32,7 +31,7 @@ class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
 
     def handle_error(self, request, client_address):
-        # surpress socket/ssl related errors
+        # COMMENT: surpress socket/ssl related errors
         cls, e = sys.exc_info()[:2]
         if cls is socket.error or cls is ssl.SSLError:
             pass
@@ -55,12 +54,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def log_error(self, format, *args):
-        # surpress "Request timed out: timeout('timed out',)"
-        #if isinstance(args[0], socket.timeout):
-        #    return
-
         self.log_message(format, *args)
-
 
     def do_CONNECT(self):
         if os.path.isfile(self.cakey) and os.path.isfile(self.cacert) and os.path.isfile(self.certkey) and os.path.isdir(self.certdir):
@@ -88,8 +82,6 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         self.log_message("SSL connection established")
         self.rfile = self.connection.makefile("rb", self.rbufsize)
         self.wfile = self.connection.makefile("wb", self.wbufsize)
-        #print self.rfile
-        #print self.wfile
 
         conntype = self.headers.get('Proxy-Connection', '')
         if conntype.lower() == 'close':
@@ -97,13 +89,12 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         elif (conntype.lower() == 'keep-alive' and self.protocol_version >= "HTTP/1.1"):
             self.close_connection = 0
 
-
     def connect_relay(self):
         address = self.path.split(':', 1)
         address[1] = int(address[1]) or 443
         try:
             s = socket.create_connection(address, timeout=self.timeout)
-        except Exception as e:
+        except Exception:
             self.send_error(502)
             return
         self.send_response(200, 'Connection Established')
@@ -201,16 +192,16 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
     do_POST = do_GET
     do_OPTIONS = do_GET
 
-
     hop_by_hop = ('connection', 'keep-alive', 'proxy-authenticate', 'proxy-authorization', 'te', 'trailers', 'transfer-encoding', 'upgrade')
+
     def filter_headers(self, headers):
-        # http://tools.ietf.org/html/rfc2616#section-13.5.1        
+        # COMMENT: http://tools.ietf.org/html/rfc2616#section-13.5.1
         for k in self.hop_by_hop:
             del headers[k]
         return headers
 
     def filter_respheaders(self, headers):
-        # http://tools.ietf.org/html/rfc2616#section-13.5.1
+        # COMMENT: http://tools.ietf.org/html/rfc2616#section-13.5.1
         for k in self.hop_by_hop:
             if k in headers:
                 del headers[k]
@@ -310,7 +301,6 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         cookies = res.headers.get('Set-Cookie', None)
         if cookies:
-            #cookies = '\n'.join(cookies)
             print with_color(31, "==== SET-COOKIE ====\n%s\n" % cookies)
 
         if res_body is not None:
