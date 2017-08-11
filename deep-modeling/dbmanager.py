@@ -406,8 +406,8 @@ def analysis_intracausality(args, graph, logger=None):
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
     analysis_user_generated_chains(args, graph, logger)
-    analysis_model_inference(args, graph, logger)
     analysis_intracausality(args, graph, logger)
+    analysis_add_abspt(args, graph, logger)
 
 def typeinference_all(arg, graph, logger=None):
     analysis_synsem_types(arg, graph, logger)
@@ -443,10 +443,10 @@ def parse_args(args):
     ========
     """
 
-    an_p = subp.add_parser("analysis", help="Analyze existing deep models")
+    an_p = subp.add_parser("analysis", help="Analyze existing deep models (except FSM inference)")
     an_subp = an_p.add_subparsers()
 
-    an_all = an_subp.add_parser("all", help="Perform all analyses")
+    an_all = an_subp.add_parser("all", help="Perform all analyses that can be run as a group. This is not really ALL.")
     an_all.add_argument("projname", help="Project name")
     an_all.add_argument("session",  help="Session identifier")
     an_all.add_argument("user",     help="User identifier")
@@ -467,7 +467,7 @@ def parse_args(args):
     User generate chains inference
     """
 
-    an_df = an_subp.add_parser("datatype", help="Infer user generated chains")
+    an_df = an_subp.add_parser("proptype", help="Infer user generated chains")
     an_df.add_argument("projname", help="Project name")
     an_df.add_argument("session",  help="Session identifier")
     an_df.add_argument("user",     help="User identifier")

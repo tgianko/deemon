@@ -123,4 +123,8 @@ $ ./run-analyzer.sh -m $path_to_your_mosgi_sqlitedb -v $path_to_your_vilanoo_sql
 This will create a new SQLiteDB3 `$path_to_your_rawtraceanalysis_sqlitedb` from 
 the analysis on `$path_to_your_mosgi_sqlitedb` and `$path_to_your_vilanoo_sqlitedb`.
 
+
+**WARNING: DO NOT USE THIS SCRIPT IN PARALLEL.**
+It will most likely crash and if not the results are unpredictable.
+
 Then continue with the README.md located in `./deep-modelling/`.
