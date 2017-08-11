@@ -39,7 +39,6 @@
                              
 
 (defun make-diff (id-list db-source-connection db-sink-connection keep-all-queries-p)
-  ;(database:copy-http-request-entries id-list db-source-connection db-sink-connection)
   (do ((rem-ids id-list (cdr rem-ids)))
       ((not rem-ids) nil)
     (FORMAT T "php session analysis for request ~a/~a~%" (car rem-ids) (car (last rem-ids)))

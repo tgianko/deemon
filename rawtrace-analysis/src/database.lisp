@@ -55,7 +55,6 @@
         #'<=))	
 
 
-
 (defmethod commit-full-sessions (database request-db-id php-session-list)
   (dolist (session php-session-list)
     (clsql:insert-records :into [SESSIONS]
@@ -64,7 +63,6 @@
                                         (php-session:session-id session)
 					(base64:string-to-base64-string (FORMAT nil "~a" session)))
 			  :database database)))
-
 
 
 (defun commit-raw-sessions (request-db-id session-list sink-connection)
@@ -159,8 +157,8 @@
     (FORMAT stream "SELECT dump_content WHERE http_request_id = ~a;"
             id)))
 
-#|this is everything but same or smart - do not use in parallel
-do not expect great performance|#
+;;Do not use in parallel
+;;Do not expect great performance
 (defun get-xdebug-entry-as-file-path (id db-connection)
   (let ((command (FORMAT nil "echo '~a' | sqlite3 ~a | base64 -d | gunzip > ~a"
                          (FORMAT nil "SELECT dump_content FROM xdebug_dumps WHERE http_request_id = ~a;"  id)
@@ -169,13 +167,3 @@ do not expect great performance|#
     (FORMAT T "executing command ~a~%" command)
     (trivial-shell:shell-command command)
     +query-result-buffer+))
-
-
-#|
-(defun get-xdebug-entry (id db-connection)
-  (caar 
-   (clsql:select [DUMP-CONTENT]
-		 :FROM [XDEBUG-DUMPS]
-		 :WHERE [= [HTTP-REQUEST-ID] id] 
-		 :database db-connection)))
-|#

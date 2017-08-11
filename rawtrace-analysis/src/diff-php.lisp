@@ -44,7 +44,6 @@ clustering of page requests
     (make-php-session-diff-entry :diffs (php-sessions-diff (php-sessions old) (php-sessions new)))))
 
 
-;in this function are debug prints
 (defun make-php-session-history-state (php-session-entries)
   (make-instance 'php-session-state
 		 :php-sessions (sort (mapcar #'(lambda(php-session-entry)

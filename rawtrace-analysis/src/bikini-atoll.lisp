@@ -14,10 +14,3 @@
 
 
 (get-pdo-prepared-queries *test*)
-
-
-#|
-(with-open-file (istream "/tmp/analysis-query-result-buffer" :external-format :latin1)
-  (with-open-file (ostream "~/test-dump.xt" :direction :output :if-does-not-exist :create :if-exists :supersede)
-    (remove-bad-newlines istream ostream)))
-|#

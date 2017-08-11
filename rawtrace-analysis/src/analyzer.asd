@@ -1,5 +1,5 @@
 (asdf:defsystem :analyzer
-    :description "analyzes the trace data previously retrieved by mosgi"
+    :description "analyzes the trace data previously retrieved by mosgi and extracts queries"
     :version "1.0"
     :author "Simon Koch <s9sikoch@stud.uni-saarland.de>"
     :depends-on (:cl-ppcre

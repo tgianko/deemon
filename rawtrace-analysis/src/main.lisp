@@ -1,6 +1,12 @@
 (in-package :de.uni-saarland.syssec.analyzer)
 
 
+(defparameter *php-session-diff-state* nil)
+
+
+(defparameter *file-diff-state* nil) 
+
+
 (opts:define-opts
   (:name :source-database-mosgi
 	 :description "the database path of mosgis db from which to retrieve the information to analyze"
@@ -41,15 +47,8 @@
                                  (string= string "Y"))
                              T
                              NIL))))
+
                              
-
-
-(defparameter *php-session-diff-state* nil)
-
-
-(defparameter *file-diff-state* nil) 
-
-
 (defun make-diff (id-list db-source-connection db-sink-connection keep-all-queries-p)
   (database:copy-http-request-entries id-list db-source-connection db-sink-connection)
   (let ((*file-diff-state* (make-instance 'analysis:state-trace))
@@ -61,8 +60,6 @@
        (car rem-ids)
        (database:get-all-session-entries (car rem-ids) db-source-connection)
        db-sink-connection) 
-      ;(analysis:add-next-state-* *php-session-diff-state*
-      ;				 (analysis:make-php-session-history-state (database:get-all-session-entries (car rem-ids) db-source-connection)))
       (FORMAT T "xdebug analysis for request ~a/~a~%" (car rem-ids) (car (last rem-ids)))
       (let ((xdebug (xdebug:make-xdebug-trace-from-file (database:get-xdebug-entry-as-file-path (car rem-ids) db-source-connection))))
 	(analysis:add-next-state-* *file-diff-state* 
@@ -70,8 +67,6 @@
 				    (xdebug:get-changed-files-paths 
 				     xdebug)))
 	(database:commit-sql-queries db-sink-connection (car rem-ids) (xdebug:get-sql-queries xdebug keep-all-queries-p))
-	;(database:commit-latest-diff db-sink-connection (car rem-ids) *php-session-diff-state*)
-	;(database:commit-full-sessions db-sink-connection (car rem-ids) (analysis:php-sessions (analysis:current-state *php-session-diff-state*)))
 	(database:commit-latest-diff db-sink-connection (car rem-ids) *file-diff-state*)))))
 
 

@@ -2,10 +2,6 @@
 Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
 This file contains code to parse serialized php-sessions
 
-As I got lazy thinking on how to represent the php session
-as pure list/tree I go for an OOP approach:
-http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
-
 :<TYPE-CHAR>:<SIZE-NUMBER>:<CONTENT>
 -> s:<SIZE>:"<STRING-CONTENT>";
 -> a:<SIZE>:{<ARRAY-CONTENT>}
@@ -63,7 +59,7 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
            :format-control "expected \" to start string content but encountered ~a in ~a"
            :format-arguments (list (car char-list) char-list)))
   (let ((char-list (cdr char-list)))                                        
-    (let ((string-content-end size)) ;(position #\" char-list :start 1 :test #'char=))) ;yep I am quite stupid however now fixed                  
+    (let ((string-content-end size))
       (values (make-instance 'php-session-string-element 
                              :content (coerce (subseq char-list 1 string-content-end) 'string))
               (if (not (char= #\; (car (subseq char-list (+ string-content-end 1)))))
@@ -199,11 +195,6 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
 
 
 (defun parse-session-content-element-head (char-list)
-  #|(when (not (and (>= (count #\: char-list :test #'char=) 3) ;;well there is no leading :
-		  (char= (car char-list) #\:)))
-    (error 'php-text-serialized-session-parsing-condition
-	   :format-control "malformed session element string at head ~a"
-	   :format-arguments (list char-list)))|#
   (let* ((first-colon (position #\: char-list :start 0 :test #'char=))
 	 (second-colon  (position #\: char-list :start (+ first-colon 1) :test #'char=)))
     (when (or (not (= first-colon 1))
@@ -262,7 +253,6 @@ http://c2.com/cgi/wiki?DesignForTheSakeOfDesign
   (FORMAT stream "(~a (~{ ~a ~}))" (session-id session) (elements session)))
 
 
-;in this function are debug printsd
 (defun parse-php-session-bug (stream session-id)
   (do ((line (read-line stream nil nil)
 	     (read-line stream nil nil))

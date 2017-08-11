@@ -7,7 +7,7 @@ given trace and returns all parameters passed to those calls.
 |#
 (in-package :de.uni-saarland.syssec.analyzer.xdebug)
 
-(defparameter *giancarlo-change-this-to-T* nil)
+(defparameter *keep-all-queries* nil)
 (defparameter *drop-nonexecuted-queries-p* T)
 
 (defun get-xdebug-trace-file (folder-files)
@@ -232,7 +232,7 @@ given trace and returns all parameters passed to those calls.
 
 
 (defun remove-non-state-changing-queries(query-list)
-  (if *giancarlo-change-this-to-T*
+  (if *keep-all-queries*
       query-list
       (remove-if #'(lambda(query)
                      (let ((substr (if (> (length query) 10)
@@ -325,9 +325,9 @@ given trace and returns all parameters passed to those calls.
 
 
 ; in case the webapp programmer is really mean and has a abitrary distribution
-; of the ? order we are royally screwed and I have to implement a better 
-; scheme but let this be for the moment as this will break in that case
-; anyhow
+; of the ? order it breaks. We have to implement a better 
+; scheme in that case. But for the moment no such problem has arisen and
+; this will break in such a case and notify us of the problem
 (defun pdo-bind-values (prep-string prepare-statements) 
   (let ((prepare-statements (reverse prepare-statements)))
     (dolist (item prepare-statements)
@@ -391,7 +391,6 @@ given trace and returns all parameters passed to those calls.
             (get-next-pdo-start pdo-records)
           (multiple-value-bind (records remaining-records)
               (get-preparation-set start-record remaining-records)
-            ;(FORMAT T "START:~a~% REST:~a~%" start-record records)
             (let ((query (pdo-function-calls->query-string (cons start-record
                                                                  records))))
               (when query
@@ -433,10 +432,3 @@ given trace and returns all parameters passed to those calls.
             (if (not keep-all-queries-p)
                 (remove-non-state-changing-queries queries)
                 queries))))
-    
-
-#|
-(FORMAT T "~{~a~%~}"
-        (get-sql-queries
-         (make-xdebug-trace-from-file "/home/simkoc/tmp/mautic_httpreq8_delete_contact_xdebug.xt") NIL))
-|#                                         

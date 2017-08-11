@@ -128,8 +128,3 @@ Labels:
       (if diff
 	  (make-instance 'php-session :elements diff :session-id (session-id new))
 	  nil))))
-  
-  
-  
-
-
