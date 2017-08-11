@@ -12,6 +12,7 @@ from enum import Enum
 import json
 import phpserialize
 
+
 def parse_url(url, projname):
     scheme, netloc, path, params, query, fragment = urlparse(url)
 
@@ -36,8 +37,8 @@ def parse_url(url, projname):
         # Create KeyValuePair
         query_n = PTNonTerminalNode(projname, URL, "query-string",pos)
         pos += 1
-        q_pos = 0  
-        pairs = sorted(parse_qs(query).iteritems(), key=lambda e: e[0]) # we sort to avoid fuck-ups with variable comparison
+        q_pos = 0
+        pairs = sorted(parse_qs(query).iteritems(), key=lambda e: e[0])  # COMMENT: we sort to avoid problems with variable comparison
         for k, vs in pairs:
             for v in vs:
                 query_n.HasChild.add(PTTerminalNode(projname, URL, k, "param-name", q_pos))
@@ -45,8 +46,6 @@ def parse_url(url, projname):
                 q_pos += 2
         url_n.HasChild.add(query_n)
 
-
-        
     if len(fragment) > 0:
         url_n.HasChild.add(PTTerminalNode(projname, URL, fragment, "fragment", pos))
 
@@ -64,11 +63,12 @@ IGNORE_HEADERS = ["accept-.*", "connection", "date", "expect",
 def headers_to_list(hdrs):
     if hdrs[-2:] == "\r\n":
         hdrs = hdrs[:-2]
-    
+
     hdrs = hdrs.split("\r\n")
     hdrs = [(hdr.split(":", 1)[0], hdr.split(":", 1)[1])
             for hdr in hdrs]  # from list of strings to  list of (k,v)
     return hdrs
+
 
 def parse_cookie(hdrname, hdrval, projname):
     dm_type = None
@@ -91,8 +91,9 @@ def parse_cookie(hdrname, hdrval, projname):
         kv_n.HasChild.add(k_n)
         kv_n.HasChild.add(v_n)
         n.HasChild.add(kv_n)
-        pos+=1
+        pos += 1
     return n
+
 
 def parse_headers(hdrs, projname, dm_type):
     hdrs = headers_to_list(hdrs)
@@ -121,9 +122,9 @@ def parse_headers(hdrs, projname, dm_type):
         
         kv_n.HasChild.add(k_n)
         kv_n.HasChild.add(v_n)
-        pos+=1
+        pos += 1
         hdrs_n.HasChild.add(kv_n)
-    
+
     return hdrs_n
 
 
@@ -133,6 +134,7 @@ def content_type(hdrs):
         if k.lower() == "content-type":
             return v
     return None
+
 
 def content_len(hdrs):
     hdrs = headers_to_list(hdrs)
@@ -144,6 +146,7 @@ def content_len(hdrs):
             except:
                 return 0
     return 0
+
 
 def parse_body(body, ctype, projname, dm_type):
     body_n = None
@@ -160,8 +163,8 @@ def parse_body(body, ctype, projname, dm_type):
             k = part.options.get("name")
             v = part.value
             kv_n = PTNonTerminalNode(projname, MULTIPART, "multipart-pair", pos)
-            k_n  = PTTerminalNode(projname, dm_type, k, "multipart-name", 0)
-            v_n  = PTTerminalNode(projname, dm_type, v, "multipart-value", 1)
+            k_n = PTTerminalNode(projname, dm_type, k, "multipart-name", 0)
+            v_n = PTTerminalNode(projname, dm_type, v, "multipart-value", 1)
             kv_n.HasChild.add(k_n)
             kv_n.HasChild.add(v_n)
             body_n.HasChild.add(kv_n)
@@ -170,14 +173,14 @@ def parse_body(body, ctype, projname, dm_type):
     elif "application/x-www-form-urlencoded" in ctype:
         body = str(body)
         body_n = ParseTree(projname, FORMURLENC, body)
-        pos = 0 
+        pos = 0
         for k, vs in parse_qs(body).iteritems():
             for v in vs:
                 pair_n = PTNonTerminalNode(projname, URL, "form-urlenc-pair", pos)
                 pair_n.HasChild.add(PTTerminalNode(projname, FORMURLENC, k, "form-urlenc-param-name", 0))
                 pair_n.HasChild.add(PTTerminalNode(projname, FORMURLENC, v, "form-urlenc-param-value", 1))
                 body_n.HasChild.add(pair_n)
-                pos+=1
+                pos += 1
 
     elif "json" in ctype:
         body = str(body)
@@ -189,7 +192,7 @@ def parse_body(body, ctype, projname, dm_type):
         body_n = ParseTree(projname, ctype, "{} file, we ignore this content".format(ctype))
         s_n = PTTerminalNode(projname, dm_type, "{} file, we ignore this content".format(ctype), "plaintext-body", 0)
         body_n.HasChild.add(s_n)
-    
+
     return body_n
 
 
@@ -203,14 +206,14 @@ def visit_json(projname, json_node):
             k_n = visit_json(projname, k)
             k_n.pos = 0
             kv_n.HasChild.add(k_n)
-            
+
             child = visit_json(projname, item)
             child.pos = 1
             kv_n.HasChild.add(child)
-            
+
             d.HasChild.add(kv_n)
 
-            pos+=1
+            pos += 1
         return d
     elif isinstance(json_node, list):
         l = PTNonTerminalNode(projname, JSON, "json-array", 0)
@@ -237,12 +240,11 @@ def visit_json(projname, json_node):
         return n
 
 
-
 def parse_httpreq(method, url, hdrs, body, seq, ts, projname, session, user):
     hreq_n = ParseTree(projname, HTTPREQ, "{} {}".format(method, url))
 
     hreq_n.HasChild.add(PTTerminalNode(projname, HTTPREQ, method, "method",  0))
-    
+
     url_n = parse_url(url, projname)
     url_n.pos = 1
     hreq_n.HasChild.add(url_n)
@@ -278,15 +280,14 @@ def parse_httpres(status, hdrs, body, seq, ts, projname, session, user):
     return hres_n
 
 
-
 def parse_selcmd(command, target, value, seq, ts, projname, session, user):
     sel_n = ParseTree(projname, SELENESE, "command={} target={} value={}".format(command, target, value))
     
     pairs = [("command", command, 0), ("target", target, 1), ("value", value, 2)]
     for n, v, i in pairs:
         nt = PTNonTerminalNode(projname, SELENESE, "{}-pair".format(n), i)
-        t_n  = PTTerminalNode(projname, SELENESE, n, "{}-name".format(n), 0)
-        t_v  = PTTerminalNode(projname, SELENESE, v, "{}-value".format(n), 1)
+        t_n = PTTerminalNode(projname, SELENESE, n, "{}-name".format(n), 0)
+        t_v = PTTerminalNode(projname, SELENESE, v, "{}-value".format(n), 1)
         nt.HasChild.add(t_n)
         nt.HasChild.add(t_v)
         sel_n.HasChild.add(nt)
@@ -295,13 +296,10 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
 
 
 def visit_sql_pt(pt, i, n):
-    #print ">", pt
     for el in pt.tokens:
-        #print "= element", el
         if el.is_group():
             child = PTNonTerminalNode(n.projname, SQL, "token-list", i)
             n.HasChild.add(child)
-            #print "= SQLTokenList", el
             visit_sql_pt(el, 0, child)
         else:
             if el.ttype == sqlptokens.Token.Punctuation or\
@@ -314,27 +312,25 @@ def visit_sql_pt(pt, i, n):
             child = PTTerminalNode(n.projname, SQL, value, str(el.ttype), i)
 
             n.HasChild.add(child)
-            # print "SQLTToken", el.ttype, el.value
-        i+=1
-            
+        i += 1
+
 
 def parse_sql(sql, seq, ts, projname, session, user):
     if sql[0] == "'":
         sql = sql[1:-1]
     sql_n = ParseTree(projname, SQL, sql, seq)
     parsed = sqlparse.parse(sql)
-    
+
     for q in parsed:
         visit_sql_pt(q, 0, sql_n)
 
     return sql_n
 
 
-
-
 """
 PHP Session Parser
 """
+
 
 class SessionElementType(Enum):
     string = 1
@@ -342,6 +338,7 @@ class SessionElementType(Enum):
     array = 3
     empty = 4
     boolean = 5
+
 
 def skipLeadingBlank(string):
     return lstrip(string)
@@ -387,7 +384,7 @@ def stringToType(string):
 def parseSessionContentElementType(string):
     return [stringToType(string[0:string.index(' ')]),
             string[string.index(' ') + 1:]]
-    
+
 
 def parseSessionContentElement(string, projname, pos):
     string = skipLeadingBlank(string)
@@ -409,9 +406,9 @@ def parseSessionContentElement(string, projname, pos):
         else:
             s = rem[2:rem.index(')')]
             rem = rem[rem.index(')')+1:]
-    
+
         n = PTTerminalNode(projname, PHPSESSION, s, "element-string", pos)
-        
+
         return n, rem
     elif type_e == SessionElementType.integer:
         integerContent = rem[2:rem.index(')')]
@@ -466,34 +463,6 @@ def parseSessionName(string):
     return string[1:string.index(' ')], string[string.index(' '):]
 
 
-# def parseSession(projname, string):
-#     name, rem = parseSessionName(string)
-#     rem = skipLeadingBlank(rem)
-#     contentList = list()
-#     assert(rem[0] == '(')
-    
-#     rem = skipLeadingBlank(rem[1:])
-#     assert(rem[0] == '(')
-    
-#     pos = 0
-#     while(rem[0] != ')'):
-#         rem = skipLeadingBlank(rem)
-#         content, rem = parseSessionContent(rem, projname, pos)
-#         contentList.append(content)
-#         rem = skipLeadingBlank(rem)
-#         pos += 1
-#     assert(rem[2:] == '')
-
-#     root = ParseTree(projname, PHPSESSION, string)
-
-#     name_n = PTTerminalNode(projname, PHPSESSION, name, "session-name", 0)
-#     root.HasChild.add(name_n)
-#     for cont in contentList:
-#         root.HasChild.add(cont)
-
-#     return root
-
-
 def visit_session(projname, sess_node):
     if isinstance(sess_node, dict):
         d = PTNonTerminalNode(projname, PHPSESSION, "session-hashmap", 0)
@@ -504,21 +473,21 @@ def visit_session(projname, sess_node):
             k_n = visit_session(projname, k)
             k_n.pos = 0
             kv_n.HasChild.add(k_n)
-            
+
             child = visit_session(projname, item)
             child.pos = 1
             kv_n.HasChild.add(child)
-            
+
             d.HasChild.add(kv_n)
 
-            pos+=1
+            pos += 1
         return d
     elif isinstance(sess_node, phpserialize.phpobject):
         o = PTNonTerminalNode(projname, PHPSESSION, "session-phpobject", 0)
-        
+
         name = PTTerminalNode(projname, PHPSESSION, sess_node.__name__, "session-phpobject-name", 0)
         o.HasChild.add(name)
-        
+
         vars_n = visit_session(projname, sess_node.__php_vars__)
 
         php_vars = PTNonTerminalNode(projname, PHPSESSION, "session-phpobject-phpvars", 1)
@@ -547,6 +516,7 @@ def visit_session(projname, sess_node):
     else:
         raise Exception("Unknown PHP Session data type")
 
+
 def parse_session(projname, ses_id, string):
     root = ParseTree(projname, PHPSESSION, string.decode('utf-8', 'replace').encode('utf-8'))
     sess_name = PTTerminalNode(projname, PHPSESSION, ses_id, "session-name", 0)
@@ -556,9 +526,8 @@ def parse_session(projname, ses_id, string):
     root.HasChild.add(sess_cnt)
 
     if len(string) > 0:
-        #print string
         p_sess = phpserialize.loads(string, object_hook=phpserialize.phpobject)
         cnt_n = visit_session(projname, p_sess)
         sess_cnt.HasChild.add(cnt_n)
-    
+
     return root

@@ -1,6 +1,7 @@
 from datamodel.core import *
 from dm_types import *
 
+
 def insert_propagates_to(graph, rs, logger):
 
     rs = list(rs)
@@ -10,11 +11,12 @@ def insert_propagates_to(graph, rs, logger):
             logger.info("Inserting relationship {}/{}".format(i, len(rs)))
         var1 =  Variable.select(graph).where(uuid=e[0]).first()
         var2 =  Variable.select(graph).where(uuid=e[1]).first()
-        
+
         var1.PropagatesTo.add(var2)
 
         graph.push(var1)
-        i+=1
+        i += 1
+
 
 def insert_backward_selenese_chains(graph, projname, session, user, logger):
     if logger is not None:
@@ -27,9 +29,8 @@ def insert_backward_selenese_chains(graph, projname, session, user, logger):
                       v2.uuid"""
 
     rs = graph.run(query, projname=projname, session=session, user=user)
-    
-    insert_propagates_to(graph, rs, logger)
 
+    insert_propagates_to(graph, rs, logger)
 
 
 def insert_vertical_chains(graph, projname, session, user, logger):
@@ -38,17 +39,18 @@ def insert_vertical_chains(graph, projname, session, user, logger):
 
     query = """MATCH (v_http:Variable)-[:BELONGS_TO]->(e_http:Event {projname: {projname}, session:{session}, user:{user}})-[:CAUSED*]->(e_final:Event)<-[:BELONGS_TO]-(v_final:Variable) 
                 WITH v_http, v_final
-               WHERE v_http.value=v_final.value 
-              RETURN v_http.uuid, 
+               WHERE v_http.value=v_final.value
+               RETURN v_http.uuid,
                      v_final.uuid"""
     
     rs = graph.run(query, projname=projname, session=session, user=user)
     
     insert_propagates_to(graph, rs, logger)
 
+
 def insert_variables(graph, projname, session, user, logger):
 
-    BLACKLIST = ["command-name", "command-value", 
+    BLACKLIST = ["command-name", "command-value",
                  "target-name", "target-value",
                  "value-name",
                  "HTTP-version",
@@ -56,21 +58,21 @@ def insert_variables(graph, projname, session, user, logger):
                  "scheme",
                  "field-name",
                  "plaintext-body",
-                 "Token.Operator.Comparison", "Token.Operator", 
+                 "Token.Operator.Comparison", "Token.Operator",
                  "Token.Keyword", "Token.Keyword.DML",
                  "Token.Name.Builtin"]
 
     if logger is not None:
         logger.info("Deriving Variables from PTs...")
     
-    query = """MATCH p1=(pt:ParseTree)-[:HAS_CHILD*]->(d:PTTerminalNode), 
+    query = """MATCH p1=(pt:ParseTree)-[:HAS_CHILD*]->(d:PTTerminalNode),
                      p2=(pt)-[par:PARSES]->(e:Event {projname: {projname}, session:{session}, user:{user}}) 
-               WHERE size(d.symbol) > 0 
-              UNWIND nodes(p1) AS t 
-                WITH collect(t) AS sli, 
-                     d, 
-                     pt, 
-                     e 
+               WHERE size(d.symbol) > 0
+              UNWIND nodes(p1) AS t
+                WITH collect(t) AS sli,
+                     d,
+                     pt,
+                     e
               RETURN e.dm_type AS dm_type,
                      e.seq AS seq,
                      reduce(s="", t IN sli | s + ">" + "(" + t.pos + ")" + coalesce(t.s_type, t.dm_type)) AS name, 
@@ -80,14 +82,13 @@ def insert_variables(graph, projname, session, user, logger):
                      d.s_type as s_type"""
     rs = graph.run(query, projname=projname, session=session, user=user)
     rs = list(rs)
-    
+
     def do_blacklist(e):
         return e["s_type"] not in BLACKLIST
 
     if logger is not None:
         logger.info("Applying blacklist of s_type")
     rs = filter(do_blacklist, rs)
-
 
     i = 1
     for e in rs:
@@ -106,6 +107,6 @@ def insert_variables(graph, projname, session, user, logger):
         var.BelongsTo.add(event)
 
         graph.push(var)
-        i+=1
+        i += 1
 
 

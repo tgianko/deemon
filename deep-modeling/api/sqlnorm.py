@@ -13,8 +13,8 @@ def remove_whitespaces(tree):
 
 def remove_rhs_values_sub(element):
     if type(element) is sqlparse.sql.Comparison:
-        # delete any value as this might be different
-        # to eq queries in diff context
+        # COMMENT: delete any value as this might be different
+        # COMMENT: to eq queries in diff context
         element.tokens.remove(element.right)
         return element
 
@@ -61,10 +61,8 @@ def normalize_query_syntax_tree(tree):
     return order_alphabetically(
         remove_right_side_of_values(
             remove_rhs_values(remove_whitespaces(tree))))
-    # return remove_rhs_values(remove_whitespaces(tree))
-    # return remove_rhs_values(tree)
 
-    
+
 def generate_normalized_query_hash(query_string):
     return hashlib.md5(normalize_query_syntax_tree(
         sqlparse.parse(query_string)[0]).__str__()).hexdigest()

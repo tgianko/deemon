@@ -1,5 +1,6 @@
 import sqlite3 as lite
 
+
 def load_selcmd_sqlite(fname, logger=None):
     if logger is not None:
         logger.info("Loading Selense commands from vilanoo2/mosgi SQLite db")
@@ -12,7 +13,7 @@ def load_selcmd_sqlite(fname, logger=None):
         cmdlist = list(rs)
     return cmdlist
 
-    
+
 def load_hreqs_sqlite(fname, logger=None):
     if logger is not None:
         logger.info("Loading HTTP requests from vilanoo2/mosgi SQLite db")
@@ -37,7 +38,6 @@ def load_hres_sqlite(fname, logger=None):
         con.text_factory = bytearray
         rs = cur.execute("SELECT * FROM http_responses ORDER BY id")
         resplist = [(r[0], r[1], str(r[2]), str(r[3]), str(r[4]), r[5]) for r in rs]
-        #resplist = list(rs)
     return resplist
 
 
@@ -53,6 +53,7 @@ def load_cmd2http_sqlite(fname, logger=None):
         rs = cur.execute("SELECT id, command_id FROM http_requests")
         ids = list(rs)
     return ids
+
 
 def load_xdebug_sqlite(fname, logger=None):
     if logger is not None:
@@ -79,6 +80,7 @@ def load_queries_sqlite(fname, logger=None):
         ids = list(rs)
     return ids
 
+
 def load_queries_by_id_sqlite(fname, seq_id, logger=None):
     con = lite.connect(fname)
     ids = []
@@ -87,6 +89,7 @@ def load_queries_by_id_sqlite(fname, seq_id, logger=None):
         rs = cur.execute("SELECT * FROM sql_queries WHERE http_request_id = ?", (seq_id,))
         ids = list(rs)
     return ids
+
 
 def load_php_sessions_dumps(fname, logger=None):
     if logger is not None:
@@ -100,6 +103,7 @@ def load_php_sessions_dumps(fname, logger=None):
         ids = list(rs)
     return ids
 
+
 def load_php_sessions(fname, logger=None):
     if logger is not None:
         logger.info("Loading PHP Sessions from Analyzer SQLite db")
@@ -112,6 +116,7 @@ def load_php_sessions(fname, logger=None):
         ids = list(rs)
     return ids
 
+
 def load_csrftests_sqlite(fname, logger=None):
     if logger is not None:
         logger.info("Loading SQL queries from  Analyzer SQLite db")
@@ -123,6 +128,7 @@ def load_csrftests_sqlite(fname, logger=None):
         rs = cur.execute("SELECT * FROM CSRF_tests")
         ids = list(rs)
     return ids
+
 
 def save_oracle_output(fname, logger=None):
     if logger is not None:

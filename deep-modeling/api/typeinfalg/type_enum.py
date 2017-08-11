@@ -13,7 +13,7 @@ class TypeEnum:
 
     @staticmethod
     def size():
-        return TypeEnum._instance_count 
+        return TypeEnum._instance_count
 
     @staticmethod
     def get_by_id(id):
@@ -24,5 +24,6 @@ class TypeEnum:
         TypeEnum._instance_count = 0
         TypeEnum._instances = []
         
+
 TypeEnum._instance_count = 0
 TypeEnum._instances = []

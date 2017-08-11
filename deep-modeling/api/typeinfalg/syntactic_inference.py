@@ -3,6 +3,7 @@ import url_regex
 import re
 from type_enum import *
 
+
 SYN_TYPE_STRING = TypeEnum("str")
 SYN_TYPE_INT = TypeEnum("int")
 SYN_TYPE_FLOAT = TypeEnum("float")
@@ -26,13 +27,13 @@ def infer_syntactic_type(values):
 
         instancesOfTypesFound[int(guessedType)] += 1
 
-    # Check whether all values share the same type
+    # COMMENT: Check whether all values share the same type
     for idx, counter in enumerate(instancesOfTypesFound):
         if counter == len(values):
             return TypeEnum.get_by_id(idx)
 
-    # If not, check for special case SYN_TYPE_FLOAT > SYN_TYPE_INT, else it has to be
-    # a STRING_TYPE
+    # COMMENT: If not, check for special case SYN_TYPE_FLOAT > SYN_TYPE_INT, else it has to be
+    # COMMENT: a STRING_TYPE
     if instancesOfTypesFound[int(SYN_TYPE_INT)] + instancesOfTypesFound[int(SYN_TYPE_FLOAT)] == len(values):
         return SYN_TYPE_FLOAT
     elif instancesOfTypesFound[int(SYN_TYPE_INT)] + instancesOfTypesFound[int(SYN_TYPE_HEX)] == len(values):
@@ -52,25 +53,25 @@ def _infer_basic_type(value):
 
 def _infer_advanced_type(value):
     lowered = value.lower()
-    # Bool type
+    # COMMMENT: Bool type
     if lowered in ["true", "false"]:
         return SYN_TYPE_BOOL
 
-    # HEX Type
+    # COMMENT: HEX Type
     if re.match(r"^([\d|[a-f])+$", lowered):
         return SYN_TYPE_HEX
 
-    # UUID Type
+    # COMMENT: UUID Type
     if re.match(r"^(\d|[a-f]){8}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){4}-(\d|[a-f]){12}$", lowered):
         return SYN_TYPE_UUID
 
-    # URL type
+    # COMMENT: URL type
     if re.match(url_regex.URL_REGEX, lowered):
         return SYN_TYPE_URL
 
-    # Path type
+    # COMMENT: Path type
     if re.match(r"^((\S+/\S*)|(\S*/\S+))$", lowered):
-        return SYN_TYPE_PATH    
+        return SYN_TYPE_PATH
 
     return SYN_TYPE_STRING
 
@@ -93,7 +94,7 @@ class BasicTypeDEA:
 
     def digest(self, c):
         codepoint = ord(c)
-        transition = self.ANYTHING_ELSE  # default case, gets overriden otherwise
+        transition = self.ANYTHING_ELSE  # COMMENT: default case, gets overriden otherwise
 
         if codepoint >= 48 and codepoint <= 57:
             transition = self.DIGIT

@@ -17,22 +17,13 @@ from api.oppat import *
 
 from shared.config import *
 
-# from dataflow import insert_data_flows
-# from modelAbstractor import add_full_abstraction_layer
-
 if DEBUG:
     log.LEVEL = log.LEVELS[-1]
     watch("neo4j.bolt")
 else:
     log.LEVEL = log.LEVELS[0]
 
-# global vars are the devils tool
-# graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME, password=NEO4J_PASSWORD)
 
-# argument parser object
-# args_obj = None #global variables are the devils tool
-
-# really dislike havin the setup code here!
 UNIQUENESS = [(DFAState.__name__,
                 ["uuid"]),
               (DFAStateTransition.__name__,
@@ -65,8 +56,6 @@ INDEX = [
          (Variable.__name__,
             ["projname", "seq", "session", "user", "dm_type"]),
          ]
-
-
 
 
 def init_database(args, graph, logger=None):
@@ -116,17 +105,16 @@ def show_stats_database(args, graph, logger=None):
     if logger is not None:
         logger.info("Database statistics")
 
-    #stats = graph.run("MATCH (n:Event) RETURN DISTINCT n.projname AS projname, n.session AS session, n.user AS user ORDER BY projname, session, user")
-    stats = graph.run("""MATCH (n:Event) 
-                 WITH DISTINCT n.projname AS projname, 
-                               n.session  AS session, 
-                               n.user     AS user 
-                         MATCH (ht:Event {dm_type:"HttpRequest"}) 
-                         WHERE ht.projname=projname 
-                               AND ht.session=session 
-                               AND ht.user=user 
-                          WITH projname, session, user, count(ht) AS tot_httpreqs 
-                        RETURN projname, session, user, tot_httpreqs 
+    stats = graph.run("""MATCH (n:Event)
+                 WITH DISTINCT n.projname AS projname,
+                               n.session  AS session,
+                               n.user     AS user
+                         MATCH (ht:Event {dm_type:"HttpRequest"})
+                         WHERE ht.projname=projname
+                               AND ht.session=session
+                               AND ht.user=user
+                          WITH projname, session, user, count(ht) AS tot_httpreqs
+                        RETURN projname, session, user, tot_httpreqs
                       ORDER BY projname, session, user;
       """)
     stats = list(stats)
@@ -136,7 +124,6 @@ def show_stats_database(args, graph, logger=None):
     for s in stats:
         print "| {projname:<20} | {session:<60} | {user:<30} | {tot_httpreqs:>10} |".format(**s)
     print "\r\n\r\n"
-
 
     stats = graph.run("START n=node(*) RETURN distinct labels(n) AS l, count(n) AS c ORDER BY c DESC")
 
@@ -156,72 +143,14 @@ def show_stats_database(args, graph, logger=None):
 
 def show_csrf(args, graph, logger=None):
 
-    # """
-    # HTTP requests
-    # """
-    # http_reqs   = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})
-    #                            RETURN e.projname AS projname, 
-    #                                   e.session AS session, 
-    #                                   e.user AS user, 
-    #                                   count(e) AS http_reqs
-    #                          ORDER BY projname,
-    #                                   session,
-    #                                   user,
-    #                                   http_reqs""")
-    # http_reqs = list(http_reqs)
-
-    # """
-    # State-changing SQL queries
-    # """
-    # sql   = graph.run("""MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[:PARSES]->(e:Event)
-    #                       WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, pt 
-    #                     RETURN projname, 
-    #                            session, 
-    #                            user, 
-    #                            count(pt) AS sql
-    #                   ORDER BY projname,
-    #                            session,
-    #                            user,
-    #                            sql""")
-    # sql = list(sql)
-
-    # """
-    # State-changing HTTP requests
-    # """
-    # http_stchng = graph.run("""MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
-    #                              WITH DISTINCT e
-    #                            RETURN e.projname AS projname, 
-    #                                   e.session AS session, 
-    #                                   e.user AS user, 
-    #                                   count(e) AS http_stchng
-    #                          ORDER BY projname,
-    #                                   session,
-    #                                   user,
-    #                                   http_stchng""")
-    # http_stchng = list(http_stchng)
-
-    """
-    State-changing Operations
-    """
-    # stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}) 
-    #                  WITH DISTINCT e.projname AS projname, e.session AS session, e.user AS user, sym 
-    #                RETURN projname, 
-    #                       session, 
-    #                       user, 
-    #                       count(sym) as stchng_op
-    #              ORDER BY projname,
-    #                       session,
-    #                       user,
-    #                       stchng_op""")
-
     stchang_op = graph.run("""MATCH p=(abshttp:AbstractEvent)-[:ABSTRACTS]->()<-[:ACCEPTS]-(tr:DFAStateTransition) 
-                      WITH DISTINCT p, 
-                                    abshttp, 
-                                    tr 
-                             RETURN abshttp.projname AS projname, 
-                                    abshttp.operation AS operation, 
-                                    count(DISTINCT tr) AS transitions 
-                           ORDER BY projname, 
+                      WITH DISTINCT p,
+                                    abshttp,
+                                    tr
+                             RETURN abshttp.projname AS projname,
+                                    abshttp.operation AS operation,
+                                    count(DISTINCT tr) AS transitions
+                           ORDER BY projname,
                                     operation""")
 
     stchang_op = list(stchang_op)
@@ -230,18 +159,18 @@ def show_csrf(args, graph, logger=None):
     Operation Patterns: SINGLETON
     """
     op_singleton = graph.run("""MATCH (abssql:AbstractParseTree {dm_type:"AbsQuery"})-[:ABSTRACTS]->()-[:PARSES]->(evt) 
-                     WITH DISTINCT abssql.uuid AS abspt_uuid, 
-                                   evt.projname AS projname, 
-                                   evt.session AS session, 
-                                   evt.user AS user, 
-                                   count(evt) AS op_pattern 
-                             WHERE op_pattern = 1 
-                            RETURN projname, 
-                                   session, 
-                                   user, 
-                                   count(*) AS op_singleton 
-                          ORDER BY projname, 
-                                   session, 
+                     WITH DISTINCT abssql.uuid AS abspt_uuid,
+                                   evt.projname AS projname,
+                                   evt.session AS session,
+                                   evt.user AS user,
+                                   count(evt) AS op_pattern
+                             WHERE op_pattern = 1
+                            RETURN projname,
+                                   session,
+                                   user,
+                                   count(*) AS op_singleton
+                          ORDER BY projname,
+                                   session,
                                    user;""")
 
     op_singleton = list(op_singleton)
@@ -250,33 +179,33 @@ def show_csrf(args, graph, logger=None):
     Operation Patterns: REPEATABLE
     """
     op_singleton = graph.run("""MATCH (abssql:AbstractParseTree {dm_type:"AbsQuery"})-[:ABSTRACTS]->()-[:PARSES]->(evt) 
-                     WITH DISTINCT abssql.uuid AS abspt_uuid, 
-                                   evt.projname AS projname, 
-                                   evt.session AS session, 
-                                   evt.user AS user, 
-                                   count(evt) AS op_pattern 
-                             WHERE op_pattern = 1 
-                            RETURN projname, 
-                                   session, 
-                                   user, 
-                                   op_pattern, 
-                                   count(*) AS op_singleton 
-                          ORDER BY projname, 
-                                   session, 
-                                   user, 
+                     WITH DISTINCT abssql.uuid AS abspt_uuid,
+                                   evt.projname AS projname,
+                                   evt.session AS session,
+                                   evt.user AS user,
+                                   count(evt) AS op_pattern
+                             WHERE op_pattern = 1
+                            RETURN projname,
+                                   session,
+                                   user,
+                                   op_pattern,
+                                   count(*) AS op_singleton
+                          ORDER BY projname,
+                                   session,
+                                   user,
                                    op_pattern;""")
 
     op_singleton = list(op_singleton)
 
     df_stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}), 
-                                        df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
-                         WITH DISTINCT sym.projname AS projname, 
-                                       e.session AS session, 
-                                       e.user AS user, 
-                                       v1 
-                                RETURN projname, 
-                                       session, 
-                                       user, 
+                                        df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e)
+                         WITH DISTINCT sym.projname AS projname,
+                                       e.session AS session,
+                                       e.user AS user,
+                                       v1
+                                RETURN projname,
+                                       session,
+                                       user,
                                        count(v1) AS df_stchng_op
                               ORDER BY projname,
                                        session,
@@ -286,15 +215,15 @@ def show_csrf(args, graph, logger=None):
     df_stchang_op = list(df_stchang_op)
 
     df_big_stchang_op = graph.run("""MATCH acc=(sym:DFAStateTransition)-[a:ACCEPTS]->(e:Event {dm_type:"HttpRequest"}), 
-                                           df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
+                                           df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e)
                                      WHERE size(v1.value) > 10
-                             WITH DISTINCT sym.projname AS projname, 
-                                           e.session AS session, 
-                                           e.user AS user, 
-                                           v1 
-                                      RETURN projname, 
-                                           session, 
-                                           user, 
+                             WITH DISTINCT sym.projname AS projname,
+                                           e.session AS session,
+                                           e.user AS user,
+                                           v1
+                                      RETURN projname,
+                                           session,
+                                           user,
                                            count(v1) AS df_big_stchng_op
                                   ORDER BY projname,
                                            session,
@@ -310,7 +239,6 @@ def show_csrf(args, graph, logger=None):
             aux.update(dict(e))
         out.append(aux)
 
-
     print ""
     hdr = "| {:^20} | {:^40} | {:^25} |{:^14} | {:^14} | {:^14} | {:^14} | {:^14}|".format("PROJECT", "SESSION", "USER", "ST.CNG OP", "OP_SINGLETON", "OP_REPEATED", "DF ST.CNG OP", "DF ST.CNG OP>10")
     print hdr
@@ -318,7 +246,6 @@ def show_csrf(args, graph, logger=None):
     for s in out:
         print "| {projname:<20} | {session:<40} | {user:<25} | {stchng_op:>14} | {op_singleton:>14} | {op_repeatable:>14} | {df_stchng_op:>14} | {df_big_stchng_op:>14} |".format(**s)
     print "\r\n\r\n"
-
 
 
 def import_all(args, graph, logger=None):
@@ -341,67 +268,73 @@ def import_all(args, graph, logger=None):
 def import_selenese(args, graph, logger=None):
     cmdlist = load_selcmd_sqlite(args.vilanoo_fname)
     insert_selenese(graph, cmdlist, args.projname,
-                                     args.session, args.user, logger)
+                    args.session, args.user, logger)
     
 
 def import_http(args, graph, logger=None):
     hreqs = load_hreqs_sqlite(args.vilanoo_fname)
     hress = load_hres_sqlite(args.vilanoo_fname)
     insert_http(graph, hreqs, hress, args.projname,
-                                    args.session, args.user, logger)
+                args.session, args.user, logger)
 
     
 def import_rel_selhttp(args, graph, logger=None):
     ids = load_cmd2http_sqlite(args.vilanoo_fname)
     insert_causality_selhttp(graph, ids, args.projname,
-                                    args.session, args.user, logger)
+                             args.session, args.user, logger)
 
 
 def import_xdebug(args, graph, logger=None):
     ids = load_xdebug_sqlite(args.mosgi_fname)
     insert_xdebug(graph, ids, args.projname,
-                                   args.session, args.user, logger)
+                  args.session, args.user, logger)
+
 
 def import_sql(args, graph, logger=None):
     ids = load_queries_sqlite(args.analyzer_fname)
     insert_queries(graph, ids, args.projname,
-                                   args.session, args.user, logger)
+                   args.session, args.user, logger)
 
 
 def import_session(args, graph, logger=None):
     sessions = load_php_sessions_dumps(args.analyzer_fname)
     insert_session_dumps(graph, sessions, args.projname,
-                                    args.session, args.user, logger)
+                         args.session, args.user, logger)
     sessions = load_php_sessions(args.analyzer_fname)
     insert_sessions(graph, sessions, args.projname,
-                                     args.session, args.user, logger)
-
+                    args.session, args.user, logger)
 
 
 def analysis_dataflow(args, graph, logger=None):
     insert_variables(graph, args.projname,
-                                    args.session, args.user, logger)
+                     args.session, args.user, logger)
     insert_vertical_chains(graph, args.projname,
-                                    args.session, args.user, logger)
+                           args.session, args.user, logger)
     insert_backward_selenese_chains(graph, args.projname,
                                     args.session, args.user, logger)
 
+
 def analysis_user_generated_chains(args, graph, logger=None):
     insert_user_generated_chains(graph, args.projname,
-                                    args.session, args.user, logger)
+                                 args.session, args.user, logger)
+
     
 def analysis_synsem_types(args, graph, logger=None):
     insert_abstract_events(graph, logger, args.operation, args.projname)
     insert_synsem_type_by_op(graph, logger, args.operation, args.projname)
 
+
 def analysis_add_abspt(args, graph, logger=None):
     add_abstract_sql_queries_for_session_trace(graph, args.projname, args.session, args.user, logger)
+
 
 def analysis_model_inference(args, graph, logger=None):
     magic_mike(graph, args.projname, args.session, args.user, logger)
 
+
 def analysis_intracausality(args, graph, logger=None):
     insert_intracausality(graph, args.projname, args.session, args.user, logger)
+
 
 def analysis_all(args, graph, logger=None):
     analysis_dataflow(args, graph, logger)
@@ -409,11 +342,14 @@ def analysis_all(args, graph, logger=None):
     analysis_intracausality(args, graph, logger)
     analysis_add_abspt(args, graph, logger)
 
+
 def typeinference_all(arg, graph, logger=None):
     analysis_synsem_types(arg, graph, logger)
 
+
 def oppat_bulk(arg, graph, logger=None):
     analysis_oppat_bulk(arg, graph, logger)
+
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
@@ -432,10 +368,10 @@ def parse_args(args):
     """
 
     stats_p = subp.add_parser("stats", help="Show statistics: project names, sessions, and users")
-    stats_p.set_defaults(func=show_stats_database)    
+    stats_p.set_defaults(func=show_stats_database)
 
     stats_p = subp.add_parser("csrf", help="Show CSRF data")
-    stats_p.set_defaults(func=show_csrf) 
+    stats_p.set_defaults(func=show_csrf)
 
     """
     ========
@@ -626,7 +562,6 @@ def parse_args(args):
 
 
 def main(args):
-    # global args_obj # global variables are the devils tool
     logger = log.getdebuglogger("dbmanager")
     graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME,
                   password=NEO4J_PASSWORD)

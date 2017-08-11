@@ -1,8 +1,9 @@
 from dm_types import *
 
+
 def analysis_oppat_bulk(arg, graph, logger):
-    query = """MATCH init=(apt:AbstractParseTree)-[:ABSTRACTS]->(pt:ParseTree), 
-                    trace=(pt)-[:PARSES]->(e:Event) 
+    query = """MATCH init=(apt:AbstractParseTree)-[:ABSTRACTS]->(pt:ParseTree),
+                    trace=(pt)-[:PARSES]->(e:Event)
      RETURN DISTINCT apt.uuid AS apt_uuid, e.projname AS projname, e.session AS session, e.user AS user"""
 
     rs = graph.run(query)
@@ -10,15 +11,12 @@ def analysis_oppat_bulk(arg, graph, logger):
 
     for i, r in enumerate(rs):
         abspt_uuid = r["apt_uuid"]
-        projname   = r["projname"]
-        session    = r["session"]
-        user       = r["user"]
+        projname = r["projname"]
+        session = r["session"]
+        user = r["user"]
 
         label = infer_trace_patterns(graph, abspt_uuid, projname, session, user, logger)
         logger.info("Adding operation pattern {} for {} {} {} {} ({}/{})".format(label, abspt_uuid, projname, session, user, i, len(rs)))
-        """
-        TODO: fetch AbstractParseTree and add pattern
-        """
 
 
 def infer_event_patterns(abspt_uuid):
@@ -27,6 +25,7 @@ def infer_event_patterns(abspt_uuid):
     """
     pass
 
+
 def infer_trace_patterns(graph, abspt_uuid, projname, session, user, logger):
     """
     TRACE_SINGLETON_OP or TRACE_REPEATED_OP?
@@ -34,7 +33,7 @@ def infer_trace_patterns(graph, abspt_uuid, projname, session, user, logger):
 
     query = """MATCH init=(apt:AbstractParseTree {uuid:{abspt_uuid}})-[:ABSTRACTS]->(pt:ParseTree), 
                     trace=(pt)-[:PARSES]->(e:Event {dm_type:{dm_type}, projname:{projname}, session:{session}, user:{user}}) 
-                WITH DISTINCT apt, e 
+                WITH DISTINCT apt, e
               RETURN apt, count(e) AS count;"""
 
     data = {
@@ -59,7 +58,4 @@ def infer_trace_patterns(graph, abspt_uuid, projname, session, user, logger):
 
 
 def is_absevt_op(abspt_uuid, absevt_uuid):
-    """
-    ABSEVT_OP ?
-    """
     pass

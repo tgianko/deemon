@@ -519,17 +519,17 @@ def load(fp, charset='utf-8', errors=default_errors, decode_strings=False,
         raise ValueError('unexpected opcode - %s' % repr(type_))
 
     fp_position = fp.tell()
-    chunk = _read_until(':');
-    fp.seek(fp_position) # Reset pointer
+    chunk = _read_until(':')
+    fp.seek(fp_position)  # COMMENT: Reset pointer
     if '|' in chunk:
         # We may be dealing with a serialized session, in which case keys
         # followed by a pipe are preceding the serialized data.
         unserialized_data = {}
         while 1:
             try:
-                key = _read_until('|');
+                key = _read_until('|')
             except ValueError:
-                break # end of stream
+                break  # COMMENT: end of stream
             if return_unicode:
                 key = unicode(key, charset)
             unserialized_data[key] = _unserialize()
@@ -545,7 +545,7 @@ def loads(data, charset='utf-8', errors=default_errors, decode_strings=False,
     string past the object's representation are ignored.  On Python 3 the
     string must be a bytestring.
     """
-    # Convert unicode strings to byte strings.
+    # COMMENT: Convert unicode strings to byte strings.
     if type(data) == unicode:
         data = data.encode(charset)
         return_unicode = True
@@ -572,8 +572,8 @@ def dump(data, fp, charset='utf-8', errors=default_errors, object_hook=None):
 
 def dict_to_list(d):
     """Converts an ordered dict into a list."""
-    # make sure it's a dict, that way dict_to_list can be used as an
-    # array_hook.
+    # COMMENT: make sure it's a dict, that way dict_to_list can be used as an
+    # COMMENT: array_hook.
     d = dict(d)
     try:
         return [d[x] for x in xrange(len(d))]

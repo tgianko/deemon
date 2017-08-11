@@ -6,7 +6,8 @@ import urlparse
 import sqlite3 as lite
 import os
 import datetime
-import string
+import strin
+import re
 
 from Cookie import SimpleCookie
 from urllib import urlencode
@@ -37,14 +38,13 @@ if DEBUG:
 else:
     log.LEVEL = log.LEVELS[0]
 
-logger        = log.getdebuglogger("tester")
-sqlite_schema_tgen   = os.path.join(os.getcwd(), "../data/DBSchemaCSRFTests.sql")
+logger = log.getdebuglogger("tester")
+sqlite_schema_tgen = os.path.join(os.getcwd(), "../data/DBSchemaCSRFTests.sql")
 sqlite_schema_oracle = os.path.join(os.getcwd(), "../data/DBSchemaOracle.sql")
 
 
-#
-# Credits http://stackoverflow.com/questions/20248355/how-to-get-python-to-gracefully-format-none-and-non-existing-fields
-#
+# COMMENT Credits http://stackoverflow.com/questions/20248355/how-to-get-python-to-gracefully-format-none-and-non-existing-fields
+
 class PartialFormatter(string.Formatter):
     def __init__(self, missing='n.a.', bad_fmt='err.'):
         self.missing, self.bad_fmt=missing, bad_fmt
@@ -56,7 +56,7 @@ class PartialFormatter(string.Formatter):
             # Python 3, 'super().get_field(field_name, args, kwargs)' works
         except (KeyError, AttributeError):
             val=None,field_name 
-        return val 
+        return val
 
     def format_field(self, value, spec):
         # handle an invalid format
@@ -68,36 +68,8 @@ class PartialFormatter(string.Formatter):
             if self.bad_fmt is not None: return self.bad_fmt   
             else: raise
 
+
 def test_stats(args, graph, logger=None):
-    # logger.info("Retrieving max_reqs")
-    # query = """MATCH (e:Event {dm_type:"HttpRequest"}) 
-    #             WITH DISTINCT e.projname AS projname, left(e.session,size(e.session)-3) AS operation, 
-    #                           e.user AS user, 
-    #                           e.session AS session, 
-    #                           count(e) AS http_reqs 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(http_reqs) AS max_reqs
-    #            ORDER BY projname, 
-    #                     operation;"""
-
-    # max_reqs = list(graph.run(query))
-
-    # logger.info("Retrieving max_stchreqs")
-    # query = """MATCH (e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}) 
-    #             WITH DISTINCT e 
-    #             WITH DISTINCT e.projname AS projname, 
-    #                           e.session AS session, 
-    #                           e.user AS user, 
-    #                           left(e.session, size(e.session)-3) AS operation, 
-    #                           count(e) AS tot_stchreqs 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(tot_stchreqs) AS max_stchreqs
-    #            ORDER BY projname, 
-    #                     operation;"""
-
-    # max_stchreqs = list(graph.run(query))
 
     logger.info("Retrieving Ops")
     query = """MATCH (ae:AbstractEvent)
@@ -108,21 +80,11 @@ def test_stats(args, graph, logger=None):
     ops = list(graph.run(query))
 
     logger.info("Retrieving stchreqs_tr")
-    # query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
-    #             WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
-    #             WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
-    #             WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
-    #             MATCH (ae:AbstractEvent {projname: projname})-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql {message:hash})
-    #             WITH DISTINCT abssql, ae
-    #             WITH abssql.message AS hash, collect(ae) AS ops
-    #             WITH DISTINCT head(ops) AS ae
-    #             RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr
-    #             ORDER BY projname, operation"""
 
-    ## This query counts state-changing operation using the singleton on a per-trace.
-    query = """MATCH (sql:ParseTree)<-[:ABSTRACTS]-(abssql:AbstractParseTree) 
-                      WITH DISTINCT abssql, sql 
-                      WITH abssql, count(sql) AS c 
+    # COMMENT: This query counts state-changing operation using the singleton on a per-trace.
+    query = """MATCH (sql:ParseTree)<-[:ABSTRACTS]-(abssql:AbstractParseTree)
+                      WITH DISTINCT abssql, sql
+                      WITH abssql, count(sql) AS c
                MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql)
                       WITH DISTINCT ae
                RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr
@@ -144,102 +106,7 @@ def test_stats(args, graph, logger=None):
                 RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr_ston
                 ORDER BY projname, operation"""
 
-    ### This query counts state-changing operation using the singleton on a per-trace. 
-    # query = """MATCH (sql:ParseTree)<-[:ABSTRACTS]-(abssql:AbstractParseTree) 
-    #                   WITH DISTINCT abssql, sql 
-    #                   WITH abssql, count(sql) AS c 
-    #                   WHERE c = 1
-    #            MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)<-[:ACCEPTS]-(t:DFAStateTransition), (e)-[:CAUSED]->(:Event)<-[:PARSES]-(:ParseTree)<-[:ABSTRACTS]-(abssql)
-    #                   WITH DISTINCT ae
-    #            RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS stchreqs_tr_ston
-    #            ORDER BY projname, operation"""
-
     stchreqs_tr_ston = list(graph.run(query))
-
-    # logger.info("Retrieving max_stchreqs_tr")
-    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-    #                    (v1:Variable)-[:BELONGS_TO]->(e)
-    #             WITH DISTINCT e.projname AS projname, 
-    #                           e.session AS session, 
-    #                           e.user AS user, 
-    #                           left(e.session, size(e.session)-3) AS operation, 
-    #                           count(v1) AS tot_vars 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(tot_vars) AS max_vars
-    #            ORDER BY projname, 
-    #                     operation;"""
-
-    # max_vars = list(graph.run(query))
-
-    # logger.info("Retrieving max_su_uu_vars")
-    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-    #                    (v1:Variable)-[:BELONGS_TO]->(e)
-    #            WHERE "session_unique" IN v1.semtype OR "user_unique" IN v1.semtype
-    #             WITH DISTINCT e.projname AS projname, 
-    #                           e.session AS session, 
-    #                           e.user AS user, 
-    #                           left(e.session, size(e.session)-3) AS operation, 
-    #                           count(v1) AS tot_vars 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(tot_vars) AS max_su_uu_vars
-    #            ORDER BY projname, 
-    #                     operation;"""
-
-    # max_su_uu_vars = list(graph.run(query))
-
-    # logger.info("Retrieving max_su_vars")
-    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-    #                    (v1:Variable)-[:BELONGS_TO]->(e) 
-    #            WHERE "session_unique" IN v1.semtype 
-    #             WITH DISTINCT e, v1 
-    #             WITH DISTINCT e.projname AS projname, 
-    #                           e.session AS session, 
-    #                           e.user AS user, 
-    #                           left(e.session, size(e.session)-3) AS operation, 
-    #                           count(v1) AS tot_vars 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(tot_vars) AS max_su_vars
-    #            ORDER BY projname, 
-    #                     operation;"""
-
-    # max_su_vars = list(graph.run(query))
-
-
-    # logger.info("Retrieving max_pchains")
-    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-    #                    df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
-    #             WITH DISTINCT e, v1
-    #             WITH DISTINCT e.projname AS projname, 
-    #                           e.session AS session, 
-    #                           e.user AS user, 
-    #                           left(e.session, size(e.session)-3) AS operation, 
-    #                           count(v1) AS tot_vars 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(tot_vars) AS max_pchains
-    #            ORDER BY projname, 
-    #                     operation;"""
-
-    # max_pchains = list(graph.run(query))
-
-    # logger.info("Retrieving max_pchains_su")
-    # query = """MATCH stch=(e:Event {dm_type:"HttpRequest"})-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree {dm_type:"SQLQuery"}), 
-    #                    df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e) 
-    #            WHERE "session_unique" IN v1.semtype
-    #             WITH DISTINCT e, v1 
-    #             WITH DISTINCT e.projname AS projname, 
-    #                           e.session AS session, 
-    #                           e.user AS user, 
-    #                           left(e.session, size(e.session)-3) AS operation, 
-    #                           count(v1) AS tot_vars 
-    #           RETURN projname, 
-    #                  operation, 
-    #                  max(tot_vars) AS max_pchains_su
-    #            ORDER BY projname, 
-    #                     operation;"""
 
     max_pchains_su = list(graph.run(query))
 
@@ -247,37 +114,38 @@ def test_stats(args, graph, logger=None):
     Group by projname and operation
     """
     merge = {}
-    for rs in [ops, stchreqs_tr, stchreqs_tr_ston]: #max_reqs, max_stchreqs,        , max_vars, max_su_uu_vars, max_su_vars, max_pchains, max_pchains_su]:
+    for rs in [ops, stchreqs_tr, stchreqs_tr_ston]:
         for e in list(rs):
             d = dict(e)
             proj_k = e["projname"]
-            op_k   = e["operation"]
+            op_k = e["operation"]
             merge.setdefault(proj_k, {}).setdefault(op_k, {}).update(d)
 
     out = []
     for proj, ops in merge.iteritems():
         for op, el in ops.iteritems():
-            out.append(el)   
+            out.append(el)
 
     out = sorted(out, key=lambda e: e["operation"])
     out = sorted(out, key=lambda e: e["projname"])
 
-    fmt=PartialFormatter()
+    fmt = PartialFormatter()
 
-    col_names = ("PROJECT", "OPERATION", "OPs", "SC OPs", "SC STon OPs") # "Max Reqs.", "Max St.Ch. Reqs",        , "Max Vars",  "Max SU-UU Vars",  "Max SU Vars", "Max PChains", "Max SU PChains")
-    hdr = "| {:^24} | {:^60} | {:^14} | {:^14} | {:^14}".format(*col_names) #| {:^18} | {:^18} | {:^18} | {:^18} | {:^18} |".format(*col_names)
+    col_names = ("PROJECT", "OPERATION", "OPs", "SC OPs", "SC STon OPs")
+    hdr = "| {:^24} | {:^60} | {:^14} | {:^14} | {:^14}".format(*col_names)
     print hdr
     print "=" * len(hdr)
     for s in out:
-        print fmt.format("| {projname:<24} | {operation:<60} | {ops:>14} | {stchreqs_tr:>14} | {stchreqs_tr_ston:>14}", **s)# {max_reqs:>18} |{max_stchreqs:>18} |             {max_vars:>18} | {max_su_uu_vars:>18} | {max_su_vars:>18} | {max_pchains:>18} | {max_pchains_su:>18} |", **s)
+        print fmt.format("| {projname:<24} | {operation:<60} | {ops:>14} | {stchreqs_tr:>14} | {stchreqs_tr_ston:>14}", **s)
     print "\r\n\r\n"
+
 
 def skip(n, ignore):
     if ignore is not None and ignore == n:
         logger.warning("In message concretization, skipping {}={}".format(n.s_type, n.symbol))
-        #print "Skipping", ignore.uuid, ignore.symbol
         return True
     return False
+
 
 def pt_to_url(pt, ignore=None, replacewith=None):
     scheme, netloc, path, qs = "", "", "", ""
@@ -308,11 +176,11 @@ def pt_to_url(pt, ignore=None, replacewith=None):
 
     return urlparse.urlunparse((scheme, netloc, path, "", qs, ""))
 
+
 def pt_to_query(pt, ignore=None, replacewith=None):
     qs = {}
     parname = None
     for child in sorted(list(pt.HasChild), key=lambda c: c.pos):
-        #logger.info(" --- {} {}".format(child.s_type, child.symbol))
         if child.s_type == "param-name":
             
             if skip(child, ignore):
@@ -339,7 +207,6 @@ def pt_to_query(pt, ignore=None, replacewith=None):
                     parname = replacewith.value
             
             elif parname is None:
-                #raise Exception("Ooops. Two param-values in a row? {} {}".format(child.s_type, child.symbol))
                 logger.warning("Ooops. Two param-values in a row? {} {}".format(child.s_type, child.symbol))
             
             else:
@@ -348,6 +215,7 @@ def pt_to_query(pt, ignore=None, replacewith=None):
         else:
             Exception("Mmmh... neither param-name nor param-value. This query string is really messed up: {}".format(child.s_type))
     return urlencode(qs, True)
+
 
 def pt_to_urlformenc(pt, ignore=None, replacewith=None):
     qs = {}
@@ -364,38 +232,42 @@ def pt_to_urlformenc(pt, ignore=None, replacewith=None):
             qs.setdefault(name.symbol, []).append(unicode(value.symbol).encode('utf-8'))            
     return urlencode(qs, True)
 
+
 def inline_cookie(cookie):
     """Return an inline cookie string"""
     result = []
     items = cookie.items()
     items.sort()
-    for K,V in items:
-        result.append( V.OutputString() )
+    for K, V in items:
+        result.append(V.OutputString())
     return "; ".join(result)
+
 
 def pt_to_cookie(pt, ignore=None, replacewith=None):
     cookie = SimpleCookie()
     for child in pt.HasChild:
         name, value = sorted(list(child.HasChild), key=lambda c: c.pos)
         if skip(name, ignore):
-            
+
             if replacewith:
                 cookie[str(replacewith.value)] = value
-        
+
         else:
-            
+
             if skip(value, ignore):
 
                 if replacewith:
                     cookie[str(replacewith.value)] = value
-            
+
             else:
-                cookie[str(name.symbol)]= str(value.symbol)
-    
+                cookie[str(name.symbol)] = str(value.symbol)
+
     return inline_cookie(cookie)
+
 
 def pt_to_json(pt, ignore=None, replacewith=None):
     return json.dumps(visit_pt_json(pt, ignore=ignore, replacewith=None))
+
 
 def visit_pt_json(pt, ignore=None, replacewith=None):
     if isinstance(pt, PTNonTerminalNode):
@@ -457,7 +329,6 @@ def pt_to_body(pt, ignore=None, replacewith=None):
                     s_name = replacewith.value
                 else:
                     continue
-            
             if skip(value, ignore):
                 if replacewith:
                     s_value = replacewith.value
@@ -490,12 +361,12 @@ def pt_to_req(pt, ignore=None, replacewith=None):
         child = Q.pop()
 
         if isinstance(child, PTNonTerminalNode):
-            # Special case: we just pick name and value
+            # COMMENT: Special case: we just pick name and value
             if child.s_type == "header-field":
                 name, value = sorted(list(child.HasChild), key=lambda c: c.pos)
 
                 k, v = "", ""
-                # Adjustment because we screwed up with the pos for URLs
+                # COMMENT: Adjustment because we screwed up with the pos for URLs
                 if isinstance(name, ParseTree):
                     name, value = value, name # SWAAAAP!
 
@@ -522,7 +393,6 @@ def pt_to_req(pt, ignore=None, replacewith=None):
                 headers.setdefault(k, "")
                 if isinstance(v, list):
                     headers[k] = ", ".join(v)
-                    #print len(v), v, headers[k]
                 else:
                     headers[k] = v
             else:
@@ -550,7 +420,7 @@ def pt_to_req(pt, ignore=None, replacewith=None):
         else:
             raise Exception("Unhandled Situation {} {}".format(child.uuid, child.dm_type))
    
-    if len(ct) > 0: # we have a content type coming from body functions, we need to remove existing ones and replace
+    if len(ct) > 0:  # COMMENT: we have a content type coming from body functions, we need to remove existing ones and replace
         
         if "content-type" in headers:
             headers["content-type"] = ct
@@ -559,37 +429,34 @@ def pt_to_req(pt, ignore=None, replacewith=None):
 
 
 def sqlitedb_init(filename, sqlite_schema):
-    # If the DB does not exist, lite.connect does not create a folder. 
-    # Check folder first...
+    # COMMENT: If the DB does not exist, lite.connect does not create a folder.
+    # COMMENT: Check folder first...
     dirname = os.path.dirname(filename)
     if len(dirname) > 0 and not os.path.exists(dirname):
         logger.info("Folder {0} does not exist. Creating...".format(dirname))
         os.makedirs(dirname)
-
-
-    #if not os.path.exists(sqlite_schema):
-    #    v_logger.fatal("Houston, we have a problem. sqlite_schema {0} does not exist.".format(sqlite_schema))
 
     if not os.path.exists(filename):
         logger.info("SQLite DB file {0} does not exist. Creating from {1}".format(filename, sqlite_schema))
         
         f = open(sqlite_schema)
         con = lite.connect(filename)
-        with con:            
+        with con:
             cur = con.cursor()
             with f:
                 schema = f.read()
                 cur.executescript(schema)
         logger.info("SQLite DB file {0} created.".format(filename))
 
+
 def store_tgen(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, dbname):
     headers = json.dumps(headers)
               
-    con = lite.connect(dbname) 
-    con.text_factory = str       
-    with con:            
-        cur = con.cursor()            
-        ##inserting the http_request that triggered the sql_queries            
+    con = lite.connect(dbname)
+    con.text_factory = str
+    with con:
+        cur = con.cursor()
+        # COMMENT: inserting the http_request that triggered the sql_queries
         data = (seq_id, datetime.datetime.now(), projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body)
         cur.execute("INSERT INTO CSRF_tests (seq_id, time, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     data)
@@ -598,9 +465,9 @@ def store_tgen(seq_id, projname, session, operation, user, uuid_request, uuid_tn
     return req_id
 
 
-import re
-_TGEN_RE_VAR_NAME_BLACKLIST=[".*cookie-pair.*", ".*multipart.*", ".*param-name"]
-TGEN_RE_VAR_NAME_BLACKLIST=[re.compile(r) for r in _TGEN_RE_VAR_NAME_BLACKLIST]
+_TGEN_RE_VAR_NAME_BLACKLIST = [".*cookie-pair.*", ".*multipart.*", ".*param-name"]
+TGEN_RE_VAR_NAME_BLACKLIST = [re.compile(r) for r in _TGEN_RE_VAR_NAME_BLACKLIST]
+
 
 def _is_var_blacklisted(var_name):
     for p in TGEN_RE_VAR_NAME_BLACKLIST:
@@ -608,16 +475,17 @@ def _is_var_blacklisted(var_name):
             return True
     return False
 
+
 def tgen_pchain_su_p(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
     data = {"len": args.len, "projname": args.projname, "session": args.session}
     uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
-                                df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e1), 
-                                pt=(p1:ParseTree)-[:PARSES]->(e1), injpt=(p1)-[:HAS_CHILD*]->(tn1:PTTerminalNode)<-[:HAS_VALUE]-(v1) 
+                                df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e1),
+                                pt=(p1:ParseTree)-[:PARSES]->(e1), injpt=(p1)-[:HAS_CHILD*]->(tn1:PTTerminalNode)<-[:HAS_VALUE]-(v1)
                          WHERE size(v1.value) > {len}
-                 WITH DISTINCT sym, e1, p1, v1, v2, collect(v2) AS dests, tn1 
+                 WITH DISTINCT sym, e1, p1, v1, v2, collect(v2) AS dests, tn1
                         RETURN sym.uuid, e1.uuid, e1.dm_type, p1.uuid, v1.uuid, v2.uuid, dests, tn1.uuid
                       ORDER BY e1.symbol""", data)
     uuids = list(uuids)
@@ -636,9 +504,7 @@ def tgen_pchain_su_p(args, graph, logger=None):
         else:
             print i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], url
 
-        i+=1
-
-
+        i += 1
 
 
 def tgen_su_var(args, graph, logger=None):
@@ -646,16 +512,16 @@ def tgen_su_var(args, graph, logger=None):
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
     query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
-                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
-               WHERE "session_unique" IN v.semtype 
-                WITH DISTINCT ae, 
-                              v.name AS var_name, 
-                              collect([pt, tn, v, e]) AS candidates 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+               WHERE "session_unique" IN v.semtype
+                WITH DISTINCT ae,
+                              v.name AS var_name,
+                              collect([pt, tn, v, e]) AS candidates
               RETURN ae,
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(candidates)[0] AS pt, 
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(candidates)[0] AS pt,
                      head(candidates)[1] AS tn,
                      head(candidates)[2] AS v,
                      head(candidates)[3].session AS session,
@@ -664,7 +530,7 @@ def tgen_su_var(args, graph, logger=None):
     data = {
             "projname": args.projname,
             "operation": args.operation,
-            "dm_type"  : ABSHTTPREQ
+            "dm_type" : ABSHTTPREQ
             }
 
     uuids = graph.run(query, data)
@@ -684,11 +550,12 @@ def tgen_su_var(args, graph, logger=None):
             store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
         else:
             print i, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
-        i+=1
+        i += 1
+
 
 def _get_singleton_ops(graph, evt_uuid, projname, session, user, logger):
     query = """MATCH (http:Event {dm_type:"HttpRequest", uuid:{evt_uuid}})-[:CAUSED]->(xdebug:Event)<-[:PARSES]->(:ParseTree)<-[:ABSTRACTS]-(apt:AbstractParseTree)
-              RETURN DISTINCT apt.uuid AS apt_uuid, apt;"""   
+              RETURN DISTINCT apt.uuid AS apt_uuid, apt;"""
     data = {
         "evt_uuid": evt_uuid
     }
@@ -706,11 +573,11 @@ def _get_singleton_ops(graph, evt_uuid, projname, session, user, logger):
 
     return out
 
+
 def _has_singleton_op(graph, evt_uuid, projname, session, user, logger):
     if len(_get_singleton_ops(graph, evt_uuid, projname, session, user, logger)) > 0:
         return True
     return False
-
 
 
 def tgen_su_uu_var_singleton(args, graph, logger=None):
@@ -718,16 +585,16 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
     su_query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
-                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
                WHERE "session_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
-                WITH DISTINCT ae, 
-                              v.name AS var_name, 
-                              collect([pt, tn, v, e]) AS candidates 
+                WITH DISTINCT ae,
+                              v.name AS var_name,
+                              collect([pt, tn, v, e]) AS candidates
               RETURN ae,
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(candidates)[0] AS pt, 
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(candidates)[0] AS pt,
                      head(candidates)[1] AS tn,
                      head(candidates)[2] AS v,
                      head(candidates)[3].session AS session,
@@ -735,16 +602,16 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
                      head(candidates)[3].uuid AS e_uuid"""
 
     uu_query = """MATCH  abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
-                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
+                       df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
                WHERE "user_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
-                WITH DISTINCT ae, 
-                              v.name AS var_name, 
-                              collect([pt, tn, v, e]) AS candidates 
+                WITH DISTINCT ae,
+                              v.name AS var_name,
+                              collect([pt, tn, v, e]) AS candidates
               RETURN ae,
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(candidates)[0] AS pt, 
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(candidates)[0] AS pt,
                      head(candidates)[1] AS tn,
                      head(candidates)[2] AS v,
                      head(candidates)[3].session AS session,
@@ -789,6 +656,7 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
 
+
 def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
@@ -806,18 +674,18 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
 
                 MATCH (ae)-[:ABSTRACTS]->(e:Event), (pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
 
-                WHERE ("session_unique" IN v.semtype) 
+                WHERE ("session_unique" IN v.semtype)
                           AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
                           AND (NOT v.name =~ ".*cookie-pair.*")
                           AND (NOT v.name =~ ".*multipart.*")
                           AND (NOT v.name =~ ".*param-name.*")
-                WITH DISTINCT ae, 
-                              v.name AS var_name, 
-                              collect([pt, tn, v, e]) AS candidates 
+                WITH DISTINCT ae,
+                              v.name AS var_name,
+                              collect([pt, tn, v, e]) AS candidates
               RETURN ae,
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(candidates)[0] AS pt, 
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(candidates)[0] AS pt,
                      head(candidates)[1] AS tn,
                      head(candidates)[2] AS v,
                      head(candidates)[3].session AS session,
@@ -836,18 +704,18 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
                 WITH DISTINCT head(ops) AS ae
 
                 MATCH (ae)-[:ABSTRACTS]->(e:Event), (pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
-               WHERE ("user_unique" IN v.semtype ) 
+               WHERE ("user_unique" IN v.semtype )
                           AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
                           AND (NOT v.name =~ ".*cookie-pair.*")
                           AND (NOT v.name =~ ".*multipart.*")
                           AND (NOT v.name =~ ".*param-name.*")
-                WITH DISTINCT ae, 
-                              v.name AS var_name, 
-                              collect([pt, tn, v, e]) AS candidates 
+                WITH DISTINCT ae,
+                              v.name AS var_name,
+                              collect([pt, tn, v, e]) AS candidates
               RETURN ae,
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(candidates)[0] AS pt, 
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(candidates)[0] AS pt,
                      head(candidates)[1] AS tn,
                      head(candidates)[2] AS v,
                      head(candidates)[3].session AS session,
@@ -861,7 +729,7 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
     uu_uuids = graph.run(uu_query)
     uu_uuids = list(uu_uuids)
     logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
-    
+
     for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
         logger.info("Generating tests for {} variables".format(label))
         for i, res in enumerate(uuids):
@@ -871,9 +739,6 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
 
             logger.info("Variable {} is {}".format(res["v"]["name"], label))
             logger.info("  Request {} {}".format(command, url))
-            #if not _has_singleton_op(graph, res["e_uuid"], res["projname"], res["session"], res["user"], logger):
-            #    logger.info(" Skipping because does not result in a SINGLETON operation")
-            #    continue
 
             if _is_var_blacklisted(res["v"]["name"]):
                 logger.info(" Skipping because is blacklisted")
@@ -886,7 +751,6 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
             else:
                 row = [i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url, res["ae"]["uuid"]]
                 csv.writer(sys.stdout, delimiter=",", quotechar="\"").writerow(row)
-                #print "{},{},{},{},{},{},{},{}".format(i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url, res["ae"]["uuid"])
 
 
 def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
@@ -904,24 +768,24 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
     replacement of the first one.
     """
     su_query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                        stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
-                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
+                        stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
+                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
                   WHERE "session_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype)) 
-                   WITH DISTINCT ae, e, pt, tn, v 
-                   WITH ae, 
-                        v.name                     AS var_name, 
-                        v.user                     AS user, 
-                        collect([e, pt, tn, v])    AS test_data 
-                   WITH ae, 
-                        var_name, 
-                        collect([user, test_data]) AS candidates 
-                 RETURN ae, 
-                        var_name, 
-                        head(candidates)[0]        AS user, 
-                        head(candidates)[1][0][0]  AS e, 
-                        head(candidates)[1][0][1]  AS pt, 
-                        head(candidates)[1][0][2]  AS tn, 
-                        head(candidates)[1][0][3]  AS var, 
+                   WITH DISTINCT ae, e, pt, tn, v
+                   WITH ae,
+                        v.name                     AS var_name,
+                        v.user                     AS user,
+                        collect([e, pt, tn, v])    AS test_data
+                   WITH ae,
+                        var_name,
+                        collect([user, test_data]) AS candidates
+                 RETURN ae,
+                        var_name,
+                        head(candidates)[0]        AS user,
+                        head(candidates)[1][0][0]  AS e,
+                        head(candidates)[1][0][1]  AS pt,
+                        head(candidates)[1][0][2]  AS tn,
+                        head(candidates)[1][0][3]  AS var,
                         head(candidates)[1][1][3]  AS replacement;"""
 
     """
@@ -929,24 +793,24 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
     This because we want to have a replacement for a UU value
     """
     uu_query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                        stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
-                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode) 
-                  WHERE "user_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype)) 
-                   WITH DISTINCT ae, e, pt, tn, v 
-                   WITH ae, 
-                        v.name                        AS var_name, 
-                        v.session                     AS session, 
-                        collect([e, pt, tn, v])       AS test_data 
-                   WITH ae, 
-                        var_name, 
-                        collect([session, test_data]) AS candidates 
-                 RETURN ae, 
-                        var_name, 
-                        head(candidates)[0]           AS session, 
-                        head(candidates)[1][0][0]     AS e, 
-                        head(candidates)[1][0][1]     AS pt, 
-                        head(candidates)[1][0][2]     AS tn, 
-                        head(candidates)[1][0][3]     AS var, 
+                        stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
+                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
+                  WHERE "user_unique" IN v.semtype AND (v.proptype IS null OR NOT ('UG' IN v.proptype))
+                   WITH DISTINCT ae, e, pt, tn, v
+                   WITH ae,
+                        v.name                        AS var_name,
+                        v.session                     AS session,
+                        collect([e, pt, tn, v])       AS test_data
+                   WITH ae,
+                        var_name,
+                        collect([session, test_data]) AS candidates
+                 RETURN ae,
+                        var_name,
+                        head(candidates)[0]           AS session,
+                        head(candidates)[1][0][0]     AS e,
+                        head(candidates)[1][0][1]     AS pt,
+                        head(candidates)[1][0][2]     AS tn,
+                        head(candidates)[1][0][3]     AS var,
                         head(candidates)[1][1][3]     AS replacement"""
 
     data = {
@@ -987,6 +851,7 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
 
+
 def tgen_not_protected_all_new(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
@@ -1004,12 +869,11 @@ def tgen_not_protected_all_new(args, graph, logger=None):
                 MATCH (ae)-[:ABSTRACTS]->(e:Event), (pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
                     WITH DISTINCT  ae, e, collect([pt,tn,v]) AS vars
                     WITH DISTINCT  ae, collect([e, vars]) AS e_vars
-               RETURN ae, 
-                      ae.projname AS projname, 
-                      ae.operation AS operation, 
-                      head(e_vars)[0] AS e, 
+               RETURN ae,
+                      ae.projname AS projname,
+                      ae.operation AS operation,
+                      head(e_vars)[0] AS e,
                       head(e_vars)[1] AS vars"""
-
 
     uuids = graph.run(query)
     uuids = list(uuids)
@@ -1030,9 +894,6 @@ def tgen_not_protected_all_new(args, graph, logger=None):
 
         return True
 
-    #st_ch_ops = [res for res in uuids if _has_singleton_op(graph, res["e"]["uuid"], res["projname"], res["e"]["session"], res["e"]["user"], logger)]
-    #logger.info("N.ro of state changing operations: {}".format(len(st_ch_ops)))
-
     not_protected = filter(_is_not_protected, uuids)
     logger.info("No. of NON protected state changing operations: {}".format(len(not_protected)))
 
@@ -1051,24 +912,24 @@ def tgen_not_protected(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
-    query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+    query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event),
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
-       WITH DISTINCT ae, 
-                     e, 
-                     collect([pt, tn, v]) AS vars 
-       WITH DISTINCT ae, 
-                     collect([e, vars]) AS e_vars 
-              RETURN ae, 
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(e_vars)[0] AS e, 
+       WITH DISTINCT ae,
+                     e,
+                     collect([pt, tn, v]) AS vars
+       WITH DISTINCT ae,
+                     collect([e, vars]) AS e_vars
+              RETURN ae,
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(e_vars)[0] AS e,
                      head(e_vars)[1] AS vars"""
 
     data = {
             "projname": args.projname,
             "operation": args.operation,
-            "dm_type"  : ABSHTTPREQ
+            "dm_type": ABSHTTPREQ
             }
 
     uuids = graph.run(query, data)
@@ -1104,30 +965,31 @@ def tgen_not_protected(args, graph, logger=None):
         if not args.simulate:
             store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
         else:
-            print i, res["projname"], res["operation"], url          
+            print i, res["projname"], res["operation"], url
+
 
 def tgen_protected(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
     query = """MATCH abs=(ae:AbstractEvent {projname:{projname}, operation:{operation}, dm_type:{dm_type}})-[:ABSTRACTS]->(e:Event), 
-                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree), 
+                     stch=(e)-[:CAUSED]->(m:Event)<-[:PARSES]-(s:ParseTree),
                        df=(pt:ParseTree)-[:PARSES]->(e)<-[:BELONGS_TO]-(v:Variable)-[:HAS_VALUE]->(tn:PTTerminalNode)
-       WITH DISTINCT ae, 
-                     e, 
-                     collect([pt, tn, v]) AS vars 
-       WITH DISTINCT ae, 
-                     collect([e, vars]) AS e_vars 
-              RETURN ae, 
-                     ae.projname AS projname, 
-                     ae.operation AS operation, 
-                     head(e_vars)[0] AS e, 
+       WITH DISTINCT ae,
+                     e,
+                     collect([pt, tn, v]) AS vars
+       WITH DISTINCT ae,
+                     collect([e, vars]) AS e_vars
+              RETURN ae,
+                     ae.projname AS projname,
+                     ae.operation AS operation,
+                     head(e_vars)[0] AS e,
                      head(e_vars)[1] AS vars"""
 
     data = {
             "projname": args.projname,
             "operation": args.operation,
-            "dm_type"  : ABSHTTPREQ
+            "dm_type": ABSHTTPREQ
             }
 
     uuids = graph.run(query, data)
@@ -1163,16 +1025,16 @@ def tgen_protected(args, graph, logger=None):
         if not args.simulate:
             store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
         else:
-            print i, res["projname"], res["operation"], url 
+            print i, res["projname"], res["operation"], url
+
 
 def store_oracle_output(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern, dbname):
     headers = json.dumps(headers)
               
-    con = lite.connect(dbname) 
-    con.text_factory = str       
-    with con:            
-        cur = con.cursor()            
-        ##inserting the http_request that triggered the sql_queries            
+    con = lite.connect(dbname)
+    con.text_factory = str
+    with con:
+        cur = con.cursor()
         data = (seq_id, datetime.datetime.now(), projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern)
         cur.execute("INSERT INTO CSRF_tests_results (seq_id, time, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     data)
@@ -1181,14 +1043,15 @@ def store_oracle_output(seq_id, projname, session, operation, user, uuid_request
     return _id
 
 
-
 def _hash(q):
     return sqlnorm.generate_normalized_query_hash(q)
 
+
 def _sanitize(q):
     if q.startswith("'"):
-        q = q[1:-1] 
+        q = q[1:-1]
     return q
+
 
 def _get_abs_query(graph, ae_uuid, tn_uuid, abs_message):
     """
@@ -1201,10 +1064,10 @@ def _get_abs_query(graph, ae_uuid, tn_uuid, abs_message):
                 RETURN aq"""
 
     data = {
-        "ae_uuid"  : ae_uuid,
-        "tn_uuid"  : tn_uuid,
+        "ae_uuid" : ae_uuid,
+        "tn_uuid" : tn_uuid,
         "abs_message": abs_message,
-        "q_type"   : SQL
+        "q_type" : SQL
     }
 
     rs = graph.run(cypher, data)
@@ -1218,7 +1081,7 @@ def oracle_stats(args, graph, logger=None):
 
     csrftests = load_csrftests_sqlite(args.testcases, logger)
 
-    con = lite.connect(args.output) 
+    con = lite.connect(args.output)
     con.text_factory = str
 
     for t in csrftests:
@@ -1232,19 +1095,19 @@ def oracle_stats(args, graph, logger=None):
                     RETURN q, aq"""
         
         data = {
-            "ae_uuid"  : t[7],
-            "tn_uuid"  : t[8],
-            "q_type"   : SQL,
+            "ae_uuid": t[7],
+            "tn_uuid": t[8],
+            "q_type": SQL,
         }
         
         queries = graph.run(cypher, data)
 
         queries = list(queries)
-        queries = sorted(queries, key=lambda e:e["q"]["message"])
+        queries = sorted(queries, key=lambda e: e["q"]["message"])
         
-        Q1  = map(lambda e:e["q"]["message"], queries)
-        H1  = map(lambda e:e["aq"]["message"], queries)
-        h1  = "-".join(H1)
+        Q1 = map(lambda e: e["q"]["message"], queries)
+        H1 = map(lambda e: e["aq"]["message"], queries)
+        h1 = "-".join(H1)
 
         """
         Patterns of abstract queries
@@ -1254,14 +1117,13 @@ def oracle_stats(args, graph, logger=None):
             return (e["aq"]["message"], (e["aq"], p))
 
         Pts = dict(map(_extend_with_patterns, queries))
-        #print Pts
         
         """
         Queries and abstract observed while testing
         """
 
         Q2 = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
-        Q2 = sorted(map(lambda e: _sanitize(e[2]), Q2)) # e[2] is the SQL query
+        Q2 = sorted(map(lambda e: _sanitize(e[2]), Q2))  # COMMENT: e[2] is the SQL query
         H2 = [_hash(q) for q in Q2] # abstracts
         h2 = "-".join(H2) # chain hashes 
 
@@ -1275,7 +1137,6 @@ def oracle_stats(args, graph, logger=None):
 
         for h, q in zip(H1, Q1):
             print "     H1 = {:100} {}".format(q[:100], h)
-            #print "                  sbirulo {}".format(len(_get_abs_query(graph, t[7], t[8], h)))
         print "      ------------"
         for query_hash, query_message in zip(H2, Q2):
             observed = "OBSERVED" if query_hash in H1 else "NEW"
@@ -1293,17 +1154,18 @@ def oracle_stats(args, graph, logger=None):
 
 def _get_evtuuid_from_absreq(graph, ae_uuid, projname, session, user, logger):
     query = """MATCH (ae:AbstractEvent {uuid:{ae_uuid}})-[:ABSTRACTS]->(e:Event {dm_type:"HttpRequest", projname:{projname}, session:{session}, user:{user}})
-              RETURN DISTINCT e.uuid AS e_uuid;"""   
+              RETURN DISTINCT e.uuid AS e_uuid;"""
     data = {
-        "ae_uuid" : ae_uuid,
+        "ae_uuid": ae_uuid,
         "projname": projname,
-        "session" : session,
-        "user"    : user
+        "session": session,
+        "user": user
     }
 
     rs = graph.run(query, data)
     rs = list(rs)
     return rs[0]["e_uuid"]
+
 
 def oracle_st_chng(args, graph, logger=None):
     if not args.simulate:
@@ -1311,7 +1173,7 @@ def oracle_st_chng(args, graph, logger=None):
 
     csrftests = load_csrftests_sqlite(args.testcases, logger)
 
-    con = lite.connect(args.output) 
+    con = lite.connect(args.output)
     con.text_factory = str
 
     for t in csrftests:
@@ -1331,9 +1193,8 @@ def oracle_st_chng(args, graph, logger=None):
         Queries and abstract observed while testing
         """
         Q_exec = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
-        Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec)) # e[2] is the SQL query
+        Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec))  # COMMENT: e[2] is the SQL query
         H_exec = [_hash(q) for q in Q_exec]
-
 
         print ""
         print t[1], t[11], t[12], "H_model", len(H_model)
@@ -1346,19 +1207,13 @@ def oracle_st_chng(args, graph, logger=None):
             if not args.simulate:
                 store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t[12], t[13], t[14], query_message, query_hash, ae_ops[0]["uuid"], st_ch, "NONE", args.output)
 
-        
-
-    
-    
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='tester parameters')
     subp = p.add_subparsers()
-    
-
 
     stats_p = subp.add_parser("stats", help="Get some statistics about the testing phase") 
-    stats_p.set_defaults(func=test_stats) 
+    stats_p.set_defaults(func=test_stats)
 
     """
     ===============
@@ -1366,7 +1221,7 @@ def parse_args(args):
     ===============
     """
 
-    tests_p = subp.add_parser("tgen", help="Test case generator functions") 
+    tests_p = subp.add_parser("tgen", help="Test case generator functions")
     tests_subp = tests_p.add_subparsers()
     
     pchain_su_p = tests_subp.add_parser("pchain_su", help="Generate a test by breaking a session unique propagation chain") 
@@ -1375,21 +1230,21 @@ def parse_args(args):
     pchain_su_p.add_argument("session",  help="Session")
     pchain_su_p.add_argument("database",  help="Database where to store HTTP requests")
     pchain_su_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    pchain_su_p.set_defaults(func=tgen_pchain_su_p) 
+    pchain_su_p.set_defaults(func=tgen_pchain_su_p)
 
     su_var_p = tests_subp.add_parser("su_var", help="Generate a test by neglecting session unique HTTP request variables")
     su_var_p.add_argument("projname", help="Project name")
-    su_var_p.add_argument("operation",  help="Operation")    
+    su_var_p.add_argument("operation",  help="Operation")
     su_var_p.add_argument("database",  help="Database where to store HTTP requests")
     su_var_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    su_var_p.set_defaults(func=tgen_su_var) 
+    su_var_p.set_defaults(func=tgen_su_var)
 
     su_uu_var_ston_p = tests_subp.add_parser("su_uu_var_singleton", help="Generate a test by neglecting session unique HTTP request variables on HTTP requests that lead to a SINGLETON operation")
     su_uu_var_ston_p.add_argument("projname", help="Project name")
-    su_uu_var_ston_p.add_argument("operation",  help="Operation")    
+    su_uu_var_ston_p.add_argument("operation",  help="Operation")
     su_uu_var_ston_p.add_argument("database",  help="Database where to store HTTP requests")
     su_uu_var_ston_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    su_uu_var_ston_p.set_defaults(func=tgen_su_uu_var_singleton) 
+    su_uu_var_ston_p.set_defaults(func=tgen_su_uu_var_singleton)
 
     su_uu_var_ston_new_all_p = tests_subp.add_parser("su_uu_var_singleton_new_all", help="Generate a test by neglecting session unique HTTP request variables on HTTP requests that lead to a SINGLETON operation")
     su_uu_var_ston_new_all_p.add_argument("database",  help="Database where to store HTTP requests")
@@ -1398,24 +1253,24 @@ def parse_args(args):
 
     not_protected_p = tests_subp.add_parser("not_protected", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
     not_protected_p.add_argument("projname", help="Project name")
-    not_protected_p.add_argument("operation",  help="Operation")    
+    not_protected_p.add_argument("operation",  help="Operation")
     not_protected_p.add_argument("database",  help="Database where to store HTTP requests")
     not_protected_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    not_protected_p.set_defaults(func=tgen_not_protected) 
+    not_protected_p.set_defaults(func=tgen_not_protected)
 
     not_protected_all_new_p = tests_subp.add_parser("not_protected_all_new", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
     not_protected_all_new_p.add_argument("database",  help="Database where to store HTTP requests")
     not_protected_all_new_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    not_protected_all_new_p.set_defaults(func=tgen_not_protected_all_new) 
+    not_protected_all_new_p.set_defaults(func=tgen_not_protected_all_new)
 
 
 
     protected_p = tests_subp.add_parser("protected", help="Generate a test for each protected HTTP requests that lead to a SINGLETON operation")
     protected_p.add_argument("projname",   help="Project name")
-    protected_p.add_argument("operation",  help="Operation")    
+    protected_p.add_argument("operation",  help="Operation")
     protected_p.add_argument("database",   help="Database where to store HTTP requests")
     protected_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    protected_p.set_defaults(func=tgen_protected) 
+    protected_p.set_defaults(func=tgen_protected)
 
     """
     ===========
@@ -1443,8 +1298,8 @@ def parse_args(args):
 
     return p.parse_args(args)
 
+
 def main(args):
-    # global args_obj # global variables are the devils tool
     graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME,
                   password=NEO4J_PASSWORD)
     args_obj = parse_args(args)

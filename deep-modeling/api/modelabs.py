@@ -25,7 +25,6 @@ def get_all_sql_queries_of(xdebug_event, graph, logger=None, projname=None):
     return final_list
 
 
-# TODO: If this function is still in use we should rename it
 def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
     sqlQueries = ParseTree.select(graph).where("_.dm_type='{}'".format(ABSQUERY))
     final_list = list()
@@ -36,28 +35,7 @@ def get_all_sql_queries_of_old(xdebug_event, graph, logger=None):
     return final_list
 
 
-# TODO: This function is based on the model without AbstractSQLParseTrees, changing
-#  this would conform more closely to our chosen model. But for now 'Never touch
-#  a running system'
-"""
 def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=None):
-    if list(httpRequestEvent.Caused) == []:
-        if logger is not None:
-            logger.info("{} has no xdebug".format(httpRequestEvent))
-        return hashlib.md5("").hexdigest()
-    else:
-        xdebug = list(httpRequestEvent.Caused)[0]
-        query_hashes = list()
-        for queryParseTree in get_all_sql_queries_of(xdebug, graph, logger):
-            query_hashes.append(sqlnorm.generate_normalized_query_hash(queryParseTree.message))
-
-            query_hashes.sort()
-        return hashlib.md5("".join(query_hashes)).hexdigest()
-"""
-
-
-def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=None):
-    # TODO: check this query I expect AbstrQ -> Q -> Xdebug -> Request
     query = """MATCH (a:AbstractParseTree {dm_type:'SqlQuery'})\
 -[]->()-[]->()-[]->(:Event {uuid:{uuid}}) RETURN a"""
     rs = graph.run(query, uuid=httpRequestEvent.uuid)
@@ -67,7 +45,6 @@ def get_summary_sql_queries_abstraction_hash(httpRequestEvent, graph, logger=Non
     return hashlib.md5("".join(query_hash_array)).hexdigest()
 
 
-# TODO: check if url normalization in abstractEvent is proper
 def get_http_request_method_url_abstraction_hash(httpRequestEvent, graph, logger=None):
     query = """MATCH (a:AbstractEvent)-[:ABSTRACTS]->(:Event {uuid:{uuid}}) RETURN a"""
     rs = graph.run(query, uuid=httpRequestEvent.uuid)
@@ -99,8 +76,6 @@ def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
     4. return cons list
     """
     firstEvent = Event.select(graph).where("_.dm_type='{}'".format(SELENESE)).where("_.projname='{}' AND _.session='{}' AND _.user='{}'".format(projname, session, user)).where("_.seq=1").first()
-    # print "{}".format(firstEvent)
-    # check whether it is possible that there are multiple caused
     firstHttpRequest = None
     for request in list(firstEvent.Caused):
         if request.seq == 1:
@@ -112,7 +87,7 @@ def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
                                                             logger)]]
     current = retList[-1][0]
     while list(current.IsFollowedBy) != []:
-        # either it ain't followed or the follower is unique
+        # either it is not followed or the follower is unique
         assert(len(list(current.IsFollowedBy)) <= 1)
         current = list(current.IsFollowedBy)[0]
         if current.dm_type == "HttpResponse":
@@ -123,7 +98,7 @@ def get_l_http_event_hash_tuple(graph, projname, session, user, logger=None):
                             get_http_abstraction_hash(follower,
                                                       graph,
                                                       logger)])
-            
+
     return retList
 
 
@@ -141,7 +116,7 @@ def create_state_cluster_list(event_hash_list, projname):
 
     clusterList.append(DFAState(projname,
                                 HTTPREQ,
-                                counter + 1))  # end state
+                                counter + 1))  # COMMENT: end state
 
     return clusterList
 
@@ -163,7 +138,7 @@ def get_hash_to_transition(event_hash_list, projname):
 def create_dfa(projname, event_hash_list, logger):
     state_to_cluster = create_state_cluster_list(event_hash_list, projname)
     hash_to_transition = get_hash_to_transition(event_hash_list, projname)
-        
+
     state_counter = 0
     start_state = state_to_cluster[state_counter]
     current_state = state_to_cluster[state_counter]
@@ -206,12 +181,12 @@ def insert_intracausality(graph, projname, session, user, logger=None):
 
     query = """MATCH (e1:Event {dm_type:"HttpRequest", projname:{projname}, session:{session}, user:{user}})<-[]-(pt1:ParseTree), 
                      (pt1)-[:HAS_CHILD*]->(nt:PTNonTerminalNode)-[:HAS_CHILD]->(ref1:PTTerminalNode {symbol:"referer"}), 
-                     (nt)-[:HAS_CHILD]->(url_ref1:ParseTree {dm_type:"URL"}), 
-                     dist=shortestPath((e2:Event)-[:IS_FOLLOWED_BY*..30]->(e1)), 
+                     (nt)-[:HAS_CHILD]->(url_ref1:ParseTree {dm_type:"URL"}),
+                     dist=shortestPath((e2:Event)-[:IS_FOLLOWED_BY*..30]->(e1)),
                      (pt1:ParseTree)-[:HAS_CHILD]->(url1:ParseTree {dm_type:"URL"}), 
                      (e2)<-[]-(pt2:ParseTree)-[:HAS_CHILD]->(url2:ParseTree {dm_type:"URL"}) 
-               WHERE url2.message = url_ref1.message 
-       WITH DISTINCT e1, e2 
+               WHERE url2.message = url_ref1.message
+       WITH DISTINCT e1, e2
               RETURN e1.seq, MAX(e2.seq) AS prev
             ORDER BY e1.seq, prev
     """
@@ -226,19 +201,19 @@ def insert_intracausality(graph, projname, session, user, logger=None):
     for e in rs:
         e1 = Event.select(graph).where(seq=e["e1.seq"], dm_type=HTTPREQ, projname=projname, session=session, user=user).first()
         e2 = Event.select(graph).where(seq=e["prev"], dm_type=HTTPREQ, projname=projname, session=session, user=user).first()
-        
+
         if logger is not None:
             logger.info("Adding intra-causality {}-[IS_GENERATED_BY]->{} ({}/{})".format(e1.seq, e2.seq, i, len(rs)))
 
         e1.IsGeneratedBy.add(e2)
 
         graph.push(e1)
-        i+=1
+        i += 1
 
 
 def get_all_sql_queries_for_trace(graph, projname, session, user, logger=None):
     query = """MATCH (pt:ParseTree {dm_type:"SQLQuery"})-[PARSES]->(:Event {dm_type:"Xdebug", projname:{projname}, session:{session}, user:{user}}) 
-              RETURN pt"""
+               RETURN pt"""
     return list(graph.run(query, projname=projname, session=session, user=user))
 
 
