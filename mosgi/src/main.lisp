@@ -243,9 +243,6 @@ waits/responds for commands and executes given commands
                                                    (aif (getf options :port) it 8844))))
             (unwind-protect
                  (progn 
-                   #|(ssh-interface:register-machine (aif (getf options :target-system-root) it "root")
-                   (aif (getf options :target-system-ip) it (error "you need to provide the target system ip"))
-                   (aif (getf options :target-system-pwd) it "bitnami"))|#
                    (handler-case
                        (progn 
                          (print-threaded :main (FORMAT nil "Started threads Differ [~a] / Mover [~a]" (sb-thread:thread-alive-p differ-thread) (sb-thread:thread-alive-p mover-thread)))

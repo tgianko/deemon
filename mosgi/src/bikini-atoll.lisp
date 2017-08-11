@@ -1,3 +1,8 @@
+#|
+This is a pure test file. Not meant for production or anything other
+than testing the current implementation and simulating calls
+from the command line.
+|#
 (setf *posix-argv* '("./call/path" 
 		     "--php-session-folder" "/opt/bitnami/php/tmp/"
 		     "--xdebug-trace-file" "/tmp/xdebug.xt"

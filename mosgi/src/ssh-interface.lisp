@@ -1,17 +1,18 @@
 #|
 Author:Simon Koch <s9sikoch@stud.uni-saarland.de>
 This file contains the interface code wrapping the libssh2
-library into neat lil' calls which are less verbose and 
-handle all the nasty stuff we do not want/need to think about
+library into calls which are less verbose and 
+handle all the management/details we do not want to think about
 |#
 (in-package :de.uni-saarland.syssec.mosgi.ssh-interface)
 
-;;YEAH openssh is not thread save -.-
+;;openssh is not thread save consequently a global mutex is needed
 (defparameter *ssh-mutex* (sb-thread:make-mutex :name "ssh-mutex"))
 
 (defparameter *ssh-file-mutex* (sb-thread:make-mutex :name "ssh-mutex"))	    
 
 (defparameter *global-ssh-connection* nil)
+
 
 (defmacro with-active-ssh-connection ((username host password) &body body)
   (let ((connection (gensym)))
@@ -25,7 +26,7 @@ handle all the nasty stuff we do not want/need to think about
 (defun run-remote-shell-command (command username host password result-handler &optional (logger #'(lambda(string)
                                                                                  (FORMAT (make-broadcast-stream) "~a~%" string))))
   "executes a shell command on the given host and gives the resulting stream
-to the result handler. The result of the result-handler will be returned"  
+to the result handler. The result of the result-handler is returned"  
   (sb-thread:with-mutex (*ssh-mutex*)
     (unwind-protect
          (progn 
@@ -91,7 +92,7 @@ in folder path using ssh connection with provided username host and password"
 
 (defun get-file-as-string (file-path username host password &optional (logger #'(lambda(string)
                                                                                   (FORMAT (make-broadcast-stream) "~a~%" string))))
-  "returns the string that represents the contetn of the file specified as file-path
+  "returns the string that represents the content of the file specified as file-path
 using ssh connection with provided username host and password"
   (sb-thread:with-mutex (*ssh-file-mutex*)
     (sb-ext:gc :full t)
@@ -101,7 +102,7 @@ using ssh connection with provided username host and password"
         (let ((result (get-file-as-simple-string local-file-path)))
           (sleep 3)
           (sb-ext:gc :full t)
-          result))))) ;I MUST NOT DELETE SHIT FROM INSIDE A FILE
+          result))))) 
 
 
 (defun get-file-as-file (remote-target local-target &optional (logger #'(lambda(string)
@@ -145,7 +146,6 @@ using ssh connection with provided username host and password"
             sequence))))))
 
 
-
 (defun discard-data-lambda ()
   #'(lambda(stream)
       (do* ((line (read-line stream nil nil nil)
@@ -169,7 +169,6 @@ using ssh connection with provided username host and password"
                                                                            (FORMAT (make-broadcast-stream) "~a~%" string))))
   (run-remote-shell-command (FORMAT nil "mkdir ~a" target-folder) user host pwd (discard-data-lambda) logger)
   (run-remote-shell-command (FORMAT nil "mv ~a ~a" file target-folder) user host pwd (discard-data-lambda) logger))
-
 
 
 (defun delete-folder (folder user host pwd &optional (logger #'(lambda(string)

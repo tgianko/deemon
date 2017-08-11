@@ -18,8 +18,6 @@
     
 
 (defun create-file-query (xdebug-file-path request-db-id)
-  ;(with-open-file (stream +inbetween-buffer+ :direction :output :if-does-not-exist :create :if-exists :supersede)
-  ;  (FORMAT stream "~a" xdebug-string))
   (with-open-file (stream +inbetween-buffer-query+ :direction :output :if-does-not-exist :create :if-exists :supersede)
     (FORMAT stream "INSERT INTO XDEBUG_DUMPS (HTTP_REQUEST_ID,DUMP_CONTENT) VALUES (~a,\"" request-db-id))
   (FORMAT T "ret:~a~%"
