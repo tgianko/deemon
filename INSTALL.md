@@ -125,4 +125,4 @@ This will install py2neo within the virtual environment. From this point on, whe
 # Further dependencies
 
 - One additionally needs `libssh2-1-dev` to be installed. Also `~/.ssh` has to be existent.
-- `requests`, `lxml`, `netaddr`, `sqlparse`, `enum` module need to be installed (`sudo pip requests lxml netaddr sqlparse enum`)
+- `requests`, `lxml`, `netaddr`, `sqlparse`, `enum` module need to be installed (`pip install requests lxml netaddr sqlparse enum`)
