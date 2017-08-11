@@ -51,7 +51,7 @@ reading up on those terms and how they interact with each other before proceedin
 We assume working knowledge of those (and comparable) basic terms from 
 here on.
 
-In case of using Selenese-Runner to replay recorded traces you do not need to set a proxy because this is done by Selenese-Runner automotically. 
+In case of using Selenese-Runner to replay recorded traces you do not need to set a proxy because this is done by Selenese-Runner automatically. 
 
 ## Run mosgi and vilanoo2
 
