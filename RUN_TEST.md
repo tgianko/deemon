@@ -111,7 +111,7 @@ Now that we have the test databases we can start analyzing the test results to p
 
 ## Example
 
-./run-analyzer-2.sh -m /home/user/.vilanoo/csrf-201708141444-mosgi-0.db -d /home/user/.vilanoo/csrf-201708141444-mosgi-0-analyzed.db -S ../../data/DBSchema.sql -f 0 -e 0
+`./run-analyzer-2.sh -m /home/user/.vilanoo/csrf-201708141444-mosgi-0.db -d /home/user/.vilanoo/csrf-201708141444-mosgi-0-analyzed.db -S ../../data/DBSchema.sql -f 0 -e 0`
 
 
 # Check for Hit
