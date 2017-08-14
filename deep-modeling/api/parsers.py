@@ -152,10 +152,12 @@ def parse_body(body, ctype, projname, dm_type):
     body_n = None
 
     if "multipart/form-data" in ctype:
-        body = str(body)
-        # parse multipart/form-data body
+        # body = str(body)  # COMMENT: old code line
+        body = body.encode("utf-8")  # COMMENT: code line that does not run into encoding error
+        # COMMENT: parse multipart/form-data body
         body_n = ParseTree(projname, MULTIPART, body)
-        s_obj = StringIO(body.encode("utf-8"))
+        # s_obj = StringIO(body.encode("utf-8"))  # COMMENT: old code line
+        s_obj = StringIO(body)  # new code line reflecting previous changes
         boundary = ctype.split("; boundary=")[1]
         mp = multipart.MultipartParser(s_obj, boundary)
         pos = 0
@@ -168,7 +170,7 @@ def parse_body(body, ctype, projname, dm_type):
             kv_n.HasChild.add(k_n)
             kv_n.HasChild.add(v_n)
             body_n.HasChild.add(kv_n)
-            pos+=1
+            pos += 1
 
     elif "application/x-www-form-urlencoded" in ctype:
         body = str(body)
@@ -297,7 +299,7 @@ def parse_selcmd(command, target, value, seq, ts, projname, session, user):
 
 def visit_sql_pt(pt, i, n):
     for el in pt.tokens:
-        if el.is_group():
+        if el.is_group:  # COMMENT: changed to originial master due to version change in base library function -> attribute
             child = PTNonTerminalNode(n.projname, SQL, "token-list", i)
             n.HasChild.add(child)
             visit_sql_pt(el, 0, child)

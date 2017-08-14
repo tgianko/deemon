@@ -6,7 +6,7 @@ import urlparse
 import sqlite3 as lite
 import os
 import datetime
-import strin
+import string
 import re
 
 from Cookie import SimpleCookie

@@ -31,7 +31,7 @@ vilanoo_log_path="${vilanoo_folder}${test_name}-${timestamp}-vilanoo${log_postfi
 mosgi_log_path="${vilanoo_folder}${test_name}-${timestamp}-mosgi${log_postfix}"
 screenshot_path="${vilanoo_folder}${test_name}-${timestamp}-screenshot/"
 selense_log_path="${vilanoo_folder}${test_name}-${timestamp}-selenese${log_postfix}"
-db_dump_schema="./data/DBSchemaDump.sql"
+
 tout=10
 
 
@@ -71,6 +71,7 @@ fi
 
 
 #setup mosgi_db_path
+db_dump_schema="./data/DBSchemaDump.sql"
 cat ${db_dump_schema} | sqlite3 ${mosgi_db_path}
 
 
@@ -87,7 +88,7 @@ tmux new -s ${TMUX_SESSION} "sbcl --dynamic-space-size 10000 --noinform --non-in
                                  split-window -h "sleep 20 ; cd ${vilanoo_start_relative}; ${python} vilanoo2.py -w $tout -p ${vilanoo_listen_port} -P ${mosgi_port} -s ${vilanoo_db_path} -S ${selenese_test_file} -l ${selense_log_path} --selenese-args \"--firefox ${firefox_instance} --baseurl ${base_url} --height 2048 --width 2048 -S ${screenshot_path}\" > >(tee ${vilanoo_log_path}) 2> >(tee ${vilanoo_log_path}); sleep 30" \; attach \;
 
 
-./vilanoo-run-checker.sh ${mosgi_log_path} ${vilanoo_log_path} ${selense_log_path}
+#./vilanoo-run-checker.sh ${mosgi_log_path} ${vilanoo_log_path} ${selense_log_path}
 
 
 echo `vboxmanage controlvm ${vm_name} poweroff`

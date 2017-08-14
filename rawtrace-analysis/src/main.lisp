@@ -93,7 +93,7 @@
 	    (clsql:with-database (sink-db (list sink-database-path) :database-type :sqlite3)
 	      (database:create-database sink-db sink-database-schema)
 	      (clsql:with-database (source-db-vilanoo (list source-database-path-vilanoo) :database-type :sqlite3) ;;this is needed as vilanoo and mosgi use split db due to 
-		(database:merge-databases source-db-vilanoo source-db-mosgi)) ;;stupid datarace problems of sqlite3
+		(database:merge-databases source-db-vilanoo source-db-mosgi)) ;;datarace problems of sqlite3
 	      (let ((end-id (aif (getf options :end-id) it (+ (database:get-highest-http-request-id-entry source-db-mosgi) 1))))	    
 		(make-diff (remove-if #'(lambda(id)
                                           (or (< id start-id) 
@@ -102,6 +102,6 @@
   (unix-opts:unknown-option (err)
     (declare (ignore err))
     (opts:describe
-     :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications - kneel before thy master"
+     :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications"
      :suffix "so that's how it works…"
      :usage-of "run-analyzer.sh"))))

@@ -98,6 +98,6 @@
   (unix-opts:unknown-option (err)
     (declare (ignore err))
     (opts:describe
-     :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications - kneel before thy master"
+     :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications"
      :suffix "so that's how it works…"
      :usage-of "run-analyzer.sh"))))

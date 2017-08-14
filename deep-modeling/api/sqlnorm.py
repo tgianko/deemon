@@ -3,10 +3,10 @@ import sqlparse
 
 
 def remove_whitespaces(tree):
-    if tree.is_group():
+    if tree.is_group: # COMMENT: changed from master due to underlying library changes func -> attr
         tree.tokens = [remove_whitespaces(element)
                        for element in tree.tokens
-                       if not element.is_whitespace()]
+                       if not element.is_whitespace] # COMMENT: changed from master due to underlying library changes func -> attr
 
     return tree
 
@@ -25,12 +25,12 @@ def remove_rhs_values_sub(element):
     
 
 def remove_rhs_values(tree):
-    if tree.is_group():
+    if tree.is_group: # COMMENT: changed from master due to underlying library changes func -> attr
         tree.tokens = [remove_rhs_values(element)
                        for element in
                        [remove_rhs_values_sub(element)
                         for element in tree.tokens]]
-        return tree  # this return just looks pretty
+        return tree
 
     return tree
 
@@ -49,7 +49,7 @@ def remove_right_side_of_values(tree):
 
         
 def order_alphabetically(tree):
-    if tree.is_group():
+    if tree.is_group:  # COMMENT: changed from master due to underlying library changes func -> attr
         tree.tokens = sorted([order_alphabetically(element)
                               for element in tree.tokens],
                              key=lambda el: el.value)

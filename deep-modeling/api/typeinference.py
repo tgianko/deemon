@@ -75,6 +75,7 @@ def _do_infer(graph, var_groups, logger):
 
 
 def get_users_sessions_from_operation(graph, operation, projname):
+    print "{}/{}".format(projname, operation)
     query = """MATCH (e:Event {projname:{projname}})
                 WITH DISTINCT e.user AS user, e.session AS session
                WHERE left(session, size(session)-3) = {operation}
