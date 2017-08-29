@@ -18,11 +18,11 @@ from py2neo import watch
 import api.dm_types as dm_types
 import utils.log as log
 from utils.sqlite import *
-from shared.config import *
+from shared.config import NEO4J_HOST, NEO4J_PASSWORD, NEO4J_USERNAME
 from api.oppat import *
 
-from api.datamodel.core import *
-from api.dm_types import *
+from api.datamodel.core import PTTerminalNode, PTNonTerminalNode, ParseTree
+from api.dm_types import ABSHTTPREQ, TRACE_SINGLETON_OP, SQL
 from api.multipart import Multipart
 import api.sqlnorm as sqlnorm
 
@@ -47,26 +47,28 @@ sqlite_schema_oracle = os.path.join(os.getcwd(), "../data/DBSchemaOracle.sql")
 
 class PartialFormatter(string.Formatter):
     def __init__(self, missing='n.a.', bad_fmt='err.'):
-        self.missing, self.bad_fmt=missing, bad_fmt
+        self.missing, self.bad_fmt = missing, bad_fmt
 
     def get_field(self, field_name, args, kwargs):
         # Handle a key not found
         try:
-            val=super(PartialFormatter, self).get_field(field_name, args, kwargs)
+            val = super(PartialFormatter, self).get_field(field_name, args, kwargs)
             # Python 3, 'super().get_field(field_name, args, kwargs)' works
         except (KeyError, AttributeError):
-            val=None,field_name 
+            val = None, field_name
         return val
 
     def format_field(self, value, spec):
         # handle an invalid format
-        if value==None: 
+        if value is None:
             value = self.missing
         try:
             return super(PartialFormatter, self).format_field(value, spec)
         except ValueError:
-            if self.bad_fmt is not None: return self.bad_fmt   
-            else: raise
+            if self.bad_fmt is not None:
+                return self.bad_fmt
+            else:
+                raise
 
 
 def test_stats(args, graph, logger=None):
@@ -74,7 +76,8 @@ def test_stats(args, graph, logger=None):
     logger.info("Retrieving Ops")
     query = """MATCH (ae:AbstractEvent)
                        WITH DISTINCT ae
-                RETURN ae.projname AS projname, ae.operation AS operation, count(ae) AS ops
+                RETURN ae.projname AS projname,
+                       ae.operation AS operation, count(ae) AS ops
                 ORDER BY projname, operation"""
 
     ops = list(graph.run(query))
@@ -182,33 +185,33 @@ def pt_to_query(pt, ignore=None, replacewith=None):
     parname = None
     for child in sorted(list(pt.HasChild), key=lambda c: c.pos):
         if child.s_type == "param-name":
-            
+
             if skip(child, ignore):
-                
-                parname = None
-                
-                if replacewith:
-                    parname = replacewith.value
-            
-            elif parname is None:
-                parname = child.symbol
-            
-            else:
-                qs.setdefault(parname, []).append("")
-                parname = None
-        
-        elif child.s_type == "param-value":
-            
-            if skip(child, ignore):
-                
+
                 parname = None
 
                 if replacewith:
                     parname = replacewith.value
-            
+
+            elif parname is None:
+                parname = child.symbol
+
+            else:
+                qs.setdefault(parname, []).append("")
+                parname = None
+
+        elif child.s_type == "param-value":
+
+            if skip(child, ignore):
+
+                parname = None
+
+                if replacewith:
+                    parname = replacewith.value
+
             elif parname is None:
                 logger.warning("Ooops. Two param-values in a row? {} {}".format(child.s_type, child.symbol))
-            
+
             else:
                 qs.setdefault(parname, []).append(child.symbol)
                 parname = None
@@ -221,15 +224,15 @@ def pt_to_urlformenc(pt, ignore=None, replacewith=None):
     qs = {}
     for child in pt.HasChild:
         name, value = sorted(list(child.HasChild), key=lambda c: c.pos)
-        
+
         if skip(value, ignore):
             qs.setdefault(name.symbol, [])
-            
+
             if replacewith:
                 qs[name.symbol].append(replacewith.value)
-        
+
         else:
-            qs.setdefault(name.symbol, []).append(unicode(value.symbol).encode('utf-8'))            
+            qs.setdefault(name.symbol, []).append(unicode(value.symbol).encode('utf-8'))
     return urlencode(qs, True)
 
 
@@ -292,7 +295,8 @@ def visit_pt_json(pt, ignore=None, replacewith=None):
             if skip(pt, ignore):
                 if replacewith:
                     return int(replacewith.value)
-            else:return int(pt.symbol)
+            else:
+                return int(pt.symbol)
         elif pt.s_type == "json-number-real":
             if skip(pt, ignore):
                 if replacewith:
@@ -368,26 +372,27 @@ def pt_to_req(pt, ignore=None, replacewith=None):
                 k, v = "", ""
                 # COMMENT: Adjustment because we screwed up with the pos for URLs
                 if isinstance(name, ParseTree):
-                    name, value = value, name # SWAAAAP!
+                    name, value = value, name
 
                 if isinstance(value, ParseTree):
-                    
+
                     if value.dm_type == dm_types.URL:
-                        v = pt_to_url(value, ignore=ignore, replacewith=replacewith)
-                    
+                        v = pt_to_url(value, ignore=ignore,
+                                      replacewith=replacewith)
+
                     elif value.dm_type == dm_types.COOKIE:
-                        v = pt_to_cookie(value, ignore=ignore, replacewith=replacewith)
-                    
+                        v = pt_to_cookie(value, ignore=ignore,
+                                         replacewith=replacewith)
                     else:
                         raise Exception("Unhandled ParseTree {} {}".format(value.uuid, value.dm_type))
-                
+
                 else:
                     if skip(value, ignore):
                         if replacewith:
                             v = replacewith.value
                     else:
                         v = value.symbol
-                
+
                 k = name.symbol
 
                 headers.setdefault(k, "")
@@ -399,32 +404,34 @@ def pt_to_req(pt, ignore=None, replacewith=None):
                 Q.extend(child.HasChild)
 
         elif isinstance(child, PTTerminalNode):
-            
+
             if child.s_type == "method":
                 command = child.symbol
-            
+
             else:
-                raise Exception("Unhandled s_type {} {}".format(child.uuid, child.symbol))
-        
+                raise Exception("Unhandled s_type {} {}".format(child.uuid,
+                                                                child.symbol))
+
         elif isinstance(child, ParseTree):
-            
+
             if child.dm_type == dm_types.URL:
                 url = pt_to_url(child, ignore=ignore, replacewith=replacewith)
-            
+
             elif child.dm_type in dm_types._BODY:
-                ct, body = pt_to_body(child, ignore=ignore, replacewith=replacewith)
-            
+                ct, body = pt_to_body(child, ignore=ignore,
+                                      replacewith=replacewith)
             else:
-                raise Exception("Unhandled ParseTree {} {}".format(child.uuid, child.dm_type))
-        
+                raise Exception("Unhandled ParseTree {} {}".format(child.uuid,
+                                                                   child.dm_type))
+
         else:
-            raise Exception("Unhandled Situation {} {}".format(child.uuid, child.dm_type))
-   
-    if len(ct) > 0:  # COMMENT: we have a content type coming from body functions, we need to remove existing ones and replace
-        
+            raise Exception("Unhandled Situation {} {}".format(child.uuid,
+                                                               child.dm_type))
+    # COMMENT: we have a content type coming from body functions, we need to remove existing ones and replace
+    if len(ct) > 0:
         if "content-type" in headers:
             headers["content-type"] = ct
-    
+
     return command, url, headers, body
 
 
@@ -437,8 +444,9 @@ def sqlitedb_init(filename, sqlite_schema):
         os.makedirs(dirname)
 
     if not os.path.exists(filename):
-        logger.info("SQLite DB file {0} does not exist. Creating from {1}".format(filename, sqlite_schema))
-        
+        logger.info("SQLite DB file {0} does not exist. Creating from {1}".format(filename,
+                                                                                  sqlite_schema))
+
         f = open(sqlite_schema)
         con = lite.connect(filename)
         with con:
@@ -449,16 +457,34 @@ def sqlitedb_init(filename, sqlite_schema):
         logger.info("SQLite DB file {0} created.".format(filename))
 
 
-def store_tgen(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, dbname):
+def store_tgen(seq_id, projname, session, operation, user,
+               uuid_request, uuid_tn, uuid_src_var,
+               uuid_sink_var, method, url, headers, body, dbname):
     headers = json.dumps(headers)
-              
+
     con = lite.connect(dbname)
     con.text_factory = str
     with con:
         cur = con.cursor()
         # COMMENT: inserting the http_request that triggered the sql_queries
-        data = (seq_id, datetime.datetime.now(), projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body)
-        cur.execute("INSERT INTO CSRF_tests (seq_id, time, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        data = (seq_id, datetime.datetime.now(), projname, session,
+                operation, user, uuid_request, uuid_tn, uuid_src_var,
+                uuid_sink_var, method, url, headers, body)
+        cur.execute("""INSERT INTO CSRF_tests (seq_id,
+                                               time,
+                                               projname,
+                                               session,
+                                               operation,
+                                               user,
+                                               uuid_request,
+                                               uuid_tn,
+                                               uuid_src_var,
+                                               uuid_sink_var,
+                                               method,
+                                               url,
+                                               headers,
+                                               body)
+                    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     data)
         req_id = cur.lastrowid
 
@@ -480,7 +506,9 @@ def tgen_pchain_su_p(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
-    data = {"len": args.len, "projname": args.projname, "session": args.session}
+    data = {"len": args.len,
+            "projname": args.projname,
+            "session": args.session}
     uuids = graph.run("""MATCH acc=(sym:DFAStateTransition {projname:{projname}})-[a:ACCEPTS]->(e1:Event {dm_type:"HttpRequest", session:{session}}), 
                                 df=(e2:Event)<-[:BELONGS_TO]-(v2:Variable)<-[:PROPAGATES_TO]-(v1:Variable)-[:BELONGS_TO]->(e1),
                                 pt=(p1:ParseTree)-[:PARSES]->(e1), injpt=(p1)-[:HAS_CHILD*]->(tn1:PTTerminalNode)<-[:HAS_VALUE]-(v1)
@@ -492,15 +520,17 @@ def tgen_pchain_su_p(args, graph, logger=None):
     print "Total number of test cases to generate: {}".format(len(uuids))
     i = 1
     for res in uuids:
-       
+
         pt = ParseTree.select(graph).where(uuid=res["p1.uuid"]).first()
         tn = PTTerminalNode.select(graph).where(uuid=res["tn1.uuid"]).first()
-    
+
         logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
         if not args.simulate:
-            store_tgen(i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], command, url, headers, body, args.database)
+            store_tgen(i, res["e1.uuid"], res["tn1.uuid"],
+                       res["v1.uuid"], res["v2.uuid"],
+                       command, url, headers, body, args.database)
         else:
             print i, res["e1.uuid"], res["tn1.uuid"], res["v1.uuid"], res["v2.uuid"], url
 
@@ -530,7 +560,7 @@ def tgen_su_var(args, graph, logger=None):
     data = {
             "projname": args.projname,
             "operation": args.operation,
-            "dm_type" : ABSHTTPREQ
+            "dm_type": ABSHTTPREQ
             }
 
     uuids = graph.run(query, data)
@@ -542,12 +572,16 @@ def tgen_su_var(args, graph, logger=None):
             continue
         pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
         tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
-    
-        logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+
+        logger.info("Exporting test case {}/{} by removing {}={}".format(i, len(uuids),
+                                                                         tn.s_type, tn.symbol))
 
         command, url, headers, body = pt_to_req(pt, tn)
         if not args.simulate:
-            store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+            store_tgen(i, res["projname"], res["session"], res["operation"],
+                       res["user"], res["ae"]["uuid"], res["tn"]["uuid"],
+                       res["v"]["uuid"], "unknown", command, url,
+                       headers, body, args.database)
         else:
             print i, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
         i += 1
@@ -566,7 +600,8 @@ def _get_singleton_ops(graph, evt_uuid, projname, session, user, logger):
     out = []
     for r in rs:
         apt_uuid = r["apt_uuid"]
-        label = infer_trace_patterns(graph, apt_uuid, projname, session, user, logger)
+        label = infer_trace_patterns(graph, apt_uuid, projname,
+                                     session, user, logger)
         logger.info("   {} has abstract query {} with label {}".format(evt_uuid, apt_uuid, label))
         if label == TRACE_SINGLETON_OP:
             out.append(r["apt"])
@@ -621,7 +656,7 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
     data = {
             "projname": args.projname,
             "operation": args.operation,
-            "dm_type"  : ABSHTTPREQ
+            "dm_type": ABSHTTPREQ
             }
 
     su_uuids = graph.run(su_query, data)
@@ -652,7 +687,10 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
             logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
             if not args.simulate:
-                store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+                store_tgen(i, res["projname"], res["session"],
+                           res["operation"], res["user"], res["ae"]["uuid"],
+                           res["tn"]["uuid"], res["v"]["uuid"], "unknown",
+                           command, url, headers, body, args.database)
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
 
@@ -661,8 +699,8 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
     if not args.simulate:
         sqlitedb_init(args.database, sqlite_schema_tgen)
 
-    su_query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
-                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+    su_query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree)
+                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c
                 WHERE c = 1
                 WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
                 WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
@@ -692,8 +730,8 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
                      head(candidates)[3].user AS user,
                      head(candidates)[3].uuid AS e_uuid"""
 
-    uu_query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
-                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
+    uu_query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree)
+                WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c
                 WHERE c = 1
                 WITH DISTINCT projname, operation, apt.message AS hash, max(c) AS n_of_evt_per_ops
                 WITH DISTINCT projname, hash, sum(n_of_evt_per_ops) AS n_of_ops
@@ -744,13 +782,20 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
                 logger.info(" Skipping because is blacklisted")
                 continue
 
-            logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+            logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))
 
             if not args.simulate:
-                store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+                store_tgen(i, res["projname"], res["session"],
+                           res["operation"], res["user"],
+                           res["ae"]["uuid"], res["tn"]["uuid"],
+                           res["v"]["uuid"], "unknown", command, url,
+                           headers, body, args.database)
             else:
-                row = [i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url, res["ae"]["uuid"]]
-                csv.writer(sys.stdout, delimiter=",", quotechar="\"").writerow(row)
+                row = [i, label, res["projname"], res["operation"],
+                       res["v"]["name"], res["v"]["value"],
+                       url, res["ae"]["uuid"]]
+                csv.writer(sys.stdout,
+                           delimiter=",", quotechar="\"").writerow(row)
 
 
 def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
@@ -816,7 +861,7 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
     data = {
             "projname": args.projname,
             "operation": args.operation,
-            "dm_type"  : ABSHTTPREQ
+            "dm_type": ABSHTTPREQ
             }
 
     su_uuids = graph.run(su_query, data)
@@ -844,10 +889,13 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
                 logger.info(" Skipping because is blacklisted")
                 continue
 
-            logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+            logger.info(" => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
             if not args.simulate:
-                store_tgen(i, res["projname"], res["session"], res["operation"], res["user"], res["ae"]["uuid"], res["tn"]["uuid"], res["v"]["uuid"], "unknown", command, url, headers, body, args.database)
+                store_tgen(i, res["projname"], res["session"],
+                           res["operation"], res["user"], res["ae"]["uuid"],
+                           res["tn"]["uuid"], res["v"]["uuid"], "unknown",
+                           command, url, headers, body, args.database)
             else:
                 print i, label, res["projname"], res["operation"], res["v"]["name"], res["v"]["value"],  url          
 
@@ -878,7 +926,7 @@ def tgen_not_protected_all_new(args, graph, logger=None):
     uuids = graph.run(query)
     uuids = list(uuids)
     logger.info("Number of requests to process: {}".format(len(uuids)))
-    
+
     def _is_not_protected(res):
         V = res["vars"]
         for pt, tn, v in V:
@@ -901,11 +949,17 @@ def tgen_not_protected_all_new(args, graph, logger=None):
         pt, _, __ = res["vars"][0]
         pt = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
         command, url, headers, body = pt_to_req(pt)
-        
+
         if not args.simulate:
-            store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
+            store_tgen(i, res["projname"], res["e"]["session"],
+                       res["operation"], res["e"]["user"],
+                       res["ae"]["uuid"], "unknown", "unknown",
+                       "unknown", command, url, headers, body,
+                       args.database)
         else:
-            print "{},{},{},{},{}".format(i, res["projname"], res["operation"], url, res["ae"]["uuid"])
+            print "{},{},{},{},{}".format(i, res["projname"],
+                                          res["operation"], url,
+                                          res["ae"]["uuid"])
 
 
 def tgen_not_protected(args, graph, logger=None):
@@ -963,7 +1017,11 @@ def tgen_not_protected(args, graph, logger=None):
         command, url, headers, body = pt_to_req(pt)
         
         if not args.simulate:
-            store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
+            store_tgen(i, res["projname"], res["e"]["session"],
+                       res["operation"], res["e"]["user"],
+                       res["ae"]["uuid"], "unknown", "unknown",
+                       "unknown", command, url, headers,
+                       body, args.database)
         else:
             print i, res["projname"], res["operation"], url
 
@@ -1001,7 +1059,8 @@ def tgen_protected(args, graph, logger=None):
         for pt, tn, v in V:
             if not set([str(typeinf.SEM_TYPE_SESSION_UNIQUE), str(typeinf.SEM_TYPE_USER_UNIQUE)]).isdisjoint(set(v.get("semtype", []))):
                 """
-                This request has a UU/UG variable. We still don't know if this is a blacklisted one, e.g., session cookie.
+                This request has a UU/UG variable. We still don't know
+                if this is a blacklisted one, e.g., session cookie.
                 """
                 if not _is_var_blacklisted(v["name"]):
                     """
@@ -1021,22 +1080,52 @@ def tgen_protected(args, graph, logger=None):
         pt, _, __ = res["vars"][0]
         pt = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
         command, url, headers, body = pt_to_req(pt)
-        
+
         if not args.simulate:
-            store_tgen(i, res["projname"], res["e"]["session"], res["operation"], res["e"]["user"], res["ae"]["uuid"], "unknown", "unknown", "unknown", command, url, headers, body, args.database)
+            store_tgen(i, res["projname"], res["e"]["session"],
+                       res["operation"], res["e"]["user"],
+                       res["ae"]["uuid"], "unknown", "unknown",
+                       "unknown", command, url, headers, body,
+                       args.database)
         else:
             print i, res["projname"], res["operation"], url
 
 
-def store_oracle_output(seq_id, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern, dbname):
+def store_oracle_output(seq_id, projname, session, operation, user,
+                        uuid_request, uuid_tn, uuid_src_var,
+                        uuid_sink_var, method, url, headers,
+                        body, query_message, query_hash, apt_uuid,
+                        observed, tr_pattern, dbname):
     headers = json.dumps(headers)
-              
+
     con = lite.connect(dbname)
     con.text_factory = str
     with con:
         cur = con.cursor()
-        data = (seq_id, datetime.datetime.now(), projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern)
-        cur.execute("INSERT INTO CSRF_tests_results (seq_id, time, projname, session, operation, user, uuid_request, uuid_tn, uuid_src_var, uuid_sink_var, method, url, headers, body, query_message, query_hash, apt_uuid, observed, tr_pattern) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        data = (seq_id, datetime.datetime.now(), projname, session,
+                operation, user, uuid_request, uuid_tn, uuid_src_var,
+                uuid_sink_var, method, url, headers, body,
+                query_message, query_hash, apt_uuid, observed, tr_pattern)
+        cur.execute("""INSERT INTO CSRF_tests_results (seq_id,
+                                                       time,
+                                                       projname,
+                                                       session,
+                                                       operation,
+                                                       user,
+                                                       uuid_request,
+                                                       uuid_tn,
+                                                       uuid_src_var,
+                                                       uuid_sink_var,
+                                                       method,
+                                                       url,
+                                                       headers,
+                                                       body,
+                                                       query_message,
+                                                       query_hash,
+                                                       apt_uuid,
+                                                       observed,
+                                                       tr_pattern)
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     data)
         _id = cur.lastrowid
 
@@ -1064,10 +1153,10 @@ def _get_abs_query(graph, ae_uuid, tn_uuid, abs_message):
                 RETURN aq"""
 
     data = {
-        "ae_uuid" : ae_uuid,
-        "tn_uuid" : tn_uuid,
+        "ae_uuid": ae_uuid,
+        "tn_uuid": tn_uuid,
         "abs_message": abs_message,
-        "q_type" : SQL
+        "q_type": SQL
     }
 
     rs = graph.run(cypher, data)
@@ -1093,18 +1182,18 @@ def oracle_stats(args, graph, logger=None):
                               (e)-[:CAUSED]->(xd:Event)<-[:PARSES]-(q:ParseTree {dm_type:{q_type}}),
                           ptabs=(aq:AbstractParseTree)-[:ABSTRACTS]->(q)
                     RETURN q, aq"""
-        
+
         data = {
             "ae_uuid": t[7],
             "tn_uuid": t[8],
             "q_type": SQL,
         }
-        
+
         queries = graph.run(cypher, data)
 
         queries = list(queries)
         queries = sorted(queries, key=lambda e: e["q"]["message"])
-        
+
         Q1 = map(lambda e: e["q"]["message"], queries)
         H1 = map(lambda e: e["aq"]["message"], queries)
         h1 = "-".join(H1)
@@ -1113,19 +1202,23 @@ def oracle_stats(args, graph, logger=None):
         Patterns of abstract queries
         """
         def _extend_with_patterns(e):
-            p = infer_trace_patterns(graph, e["aq"]["uuid"], t[3], t[4], t[6], logger)
+            p = infer_trace_patterns(graph, e["aq"]["uuid"],
+                                     t[3], t[4], t[6], logger)
             return (e["aq"]["message"], (e["aq"], p))
 
         Pts = dict(map(_extend_with_patterns, queries))
-        
+
         """
         Queries and abstract observed while testing
         """
 
         Q2 = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
-        Q2 = sorted(map(lambda e: _sanitize(e[2]), Q2))  # COMMENT: e[2] is the SQL query
-        H2 = [_hash(q) for q in Q2] # abstracts
-        h2 = "-".join(H2) # chain hashes 
+        # COMMENT: e[2] is the SQL query
+        Q2 = sorted(map(lambda e: _sanitize(e[2]), Q2))
+        # abstracts
+        H2 = [_hash(q) for q in Q2]
+        # chain hashes
+        h2 = "-".join(H2)
 
         print ""
         print t[1], t[11], t[12], t[9]
@@ -1141,15 +1234,20 @@ def oracle_stats(args, graph, logger=None):
         for query_hash, query_message in zip(H2, Q2):
             observed = "OBSERVED" if query_hash in H1 else "NEW"
             
-            apt        = Pts.get(query_hash, (None, "NOT_FOUND"))[0]
-            apt_uuid   = None
+            apt = Pts.get(query_hash, (None, "NOT_FOUND"))[0]
+            apt_uuid = None
             if apt:
                 apt_uuid = apt["uuid"]
 
             tr_pattern = Pts.get(query_hash, (None, "NOT_FOUND"))[1]
-            print "     H2 = {:100} {} {} {}".format(query_message[:100], query_hash, tr_pattern, observed)
+            print "     H2 = {:100} {} {} {}".format(query_message[:100],
+                                                     query_hash,
+                                                     tr_pattern, observed)
 
-            store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t[12], t[13], t[14], query_message, query_hash, apt_uuid, observed, tr_pattern, args.output)
+            store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8],
+                                t[9], t[10], t[11], t[12], t[13], t[14],
+                                query_message, query_hash, apt_uuid,
+                                observed, tr_pattern, args.output)
 
 
 def _get_evtuuid_from_absreq(graph, ae_uuid, projname, session, user, logger):
@@ -1181,10 +1279,12 @@ def oracle_st_chng(args, graph, logger=None):
         Get SINGLETON from t
         """
 
-        e_uuid = _get_evtuuid_from_absreq(graph, t[7], t[3], t[4], t[6], logger)
+        e_uuid = _get_evtuuid_from_absreq(graph, t[7], t[3],
+                                          t[4], t[6], logger)
         ae_ops = _get_singleton_ops(graph, e_uuid, t[3], t[4], t[6], logger)
         if len(ae_ops) == 0:
-            logger.warning("No SINGLETON for {} {} {} {}".format(t[7], t[3], t[4], t[6]))
+            logger.warning("No SINGLETON for {} {} {} {}".format(t[7], t[3],
+                                                                 t[4], t[6]))
             continue
 
         H_model = map(lambda ae: ae["message"], ae_ops)
@@ -1193,7 +1293,8 @@ def oracle_st_chng(args, graph, logger=None):
         Queries and abstract observed while testing
         """
         Q_exec = load_queries_by_id_sqlite(args.analyzed, t[1], logger)
-        Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec))  # COMMENT: e[2] is the SQL query
+        # COMMENT: e[2] is the SQL query
+        Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec))
         H_exec = [_hash(q) for q in Q_exec]
 
         print ""
@@ -1202,10 +1303,15 @@ def oracle_st_chng(args, graph, logger=None):
 
         for query_hash, query_message in zip(H_exec, Q_exec):
             st_ch = "ST_CHNG" if query_hash in H_model else "NO"
-            print "    {} = {:10} {}".format(query_hash, st_ch, query_message[:40])
+            print "    {} = {:10} {}".format(query_hash, st_ch,
+                                             query_message[:40])
 
             if not args.simulate:
-                store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t[12], t[13], t[14], query_message, query_hash, ae_ops[0]["uuid"], st_ch, "NONE", args.output)
+                store_oracle_output(t[1], t[3], t[4], t[5], t[6], t[7],
+                                    t[8], t[9], t[10], t[11], t[12],
+                                    t[13], t[14], query_message,
+                                    query_hash, ae_ops[0]["uuid"],
+                                    st_ch, "NONE", args.output)
 
 
 def parse_args(args):
