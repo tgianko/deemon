@@ -102,6 +102,6 @@
   (unix-opts:unknown-option (err)
     (declare (ignore err))
     (opts:describe
-     :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications"
+     :prefix "This program extracts the relevant data previously acquired from mosgi during rawtrace acquisition"
      :suffix "so that's how it works…"
      :usage-of "run-analyzer.sh"))))

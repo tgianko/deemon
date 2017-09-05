@@ -257,6 +257,6 @@ waits/responds for commands and executes given commands
     (unix-opts:unknown-option (err)
       (declare (ignore err))
       (opts:describe
-       :prefix "This program is the badass doing all the work to differentiate state changes after actions on webapplications - kneel before thy master"
+       :prefix "This program is downloading the relevant data points from the virtual machine"
        :suffix "so that's how it works…"
        :usage-of "run.sh"))))
