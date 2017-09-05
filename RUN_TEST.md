@@ -149,16 +149,18 @@ and one to generate tests for presumably protected requests
 
 We now have a sqlite database containing the to-test urls for either protected or non-protected http requests. To execute a stored test we wrote a small handy script in the base folder called `./run-test-runner.sh` that does all the setup and initialization that is needed. It also creates the corresponding databases in `${HOME}/.vilanoo/`.
 
+
 ```
-./run-test-runner.sh <vm-name> <vm-ip> <vm-state> <login-tc> <wait-sec> <firefox> <csrf-db> <test-id>
+./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <login-tc> <firefox-path>
 ```
 
 ## Example
 
-```
-./run-test-runner.sh vilanoo-opencart 192.168.56.101 virgin-state /home/user/csrf/selenese-testcases/abantecart/Abantecart_12_user_logs_in.html 10 /home/user/csrf/firefox/firefox /home/user/.vilanoo/css-opencart-csrf-protected.db 0
 
-./run-test-runner.sh vilanoo-opencart 192.168.56.101 virgin-state /home/user/csrf/selenese-testcases/abantecart/Abantecart_12_user_logs_in.html 10 /home/user/csrf/firefox/firefox /home/user/.vilanoo/css-opencart-csrf-protected.db 0
+```
+./run-csrf-test.sh vilanoo-abantecart 192.168.56.101 css-opencart-csrf-protected virgin-state /home/user/.vilanoo/css-opencart-csrf-protected 8787 /home/user/csrf/selenese-testcases/abantecart/Abantecart_12_user_logs_in.html /home/simkoc/hiwi/csrf/firefox/firefox
+
+./run-csrf-test.sh vilanoo-abantecart 192.168.56.101 css-opencart-csrf-not-protected virgin-state /home/user/.vilanoo/css-opencart-csrf-not-protected 8787 /home/user/csrf/selenese-testcases/abantecart/Abantecart_12_user_logs_in.html /home/simkoc/hiwi/csrf/firefox/firefox
 ```
 
 
