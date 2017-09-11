@@ -1328,69 +1328,72 @@ def oracle_create_reference_query_hash_dic(tc_references,
 
     reference_dict = {}
     for ref, aref in zip(references, analyzed_references):
-        tc_reference = load_csrftests_sqlite(ref, logger)
-        queries = load_queries_by_id_sqlite(aref, tc_referencep[1],
-                                            logger)
-        for query in queries:
-            hash = _hash(_sanitize(query[2]))
-            reference_dict[hash] = True
+        tc_references= load_csrftests_sqlite(ref, logger)        
+        for tc_reference in tc_references:
+            queries = load_queries_by_id_sqlite(aref, tc_reference[1],
+                                                logger)
+            for query in queries:
+                hash = _hash(_sanitize(query[2]))
+                reference_dict[hash] = True
 
     return reference_dict
 
 
 def oracle_yes_no(args, graph, logger=None):
-    csrftest = load_csrftests_sqlite(args.tc, logger)
-    assert len(csrftest) == 1, "there must not be more than one test per db"
+    csrftests = load_csrftests_sqlite(args.tc, logger)
 
-    e_uuid = _get_evtuuid_from_absreq(graph, csrftest[7], csrftest[3],
-                                      csrftest[4], csrftest[6], logger)
-    ae_ops = _get_singleton_ops(graph, e_uuid, csrftest[3], csrftest[4],
-                                csrftest[6], logger)
-    assert len(ae_ops) != 0, "No SINGLETON for {} {} {} {}".format(csrftest[7],
-                                                                   csrftest[3],
-                                                                   csrftest[4],
-                                                                   csrftest[6])
-    # COMMENT: contains the abstract parse trees of the Xdebug related queries
-    # COMMENT: the message part of the node is the hashed (related) query
-    H_model = map(lambda ae: ae["message"], ae_ops)
+    for csrftest in csrftests:
+        e_uuid = _get_evtuuid_from_absreq(graph, csrftest[7], csrftest[3],
+                                          csrftest[4], csrftest[6], logger)
+        ae_ops = _get_singleton_ops(graph, e_uuid, csrftest[3], csrftest[4],
+                                    csrftest[6], logger)
+        assert len(ae_ops) != 0, "No SINGLETON for {} {} {} {}".format(csrftest[7],
+                                                                       csrftest[3],
+                                                                       csrftest[4],
+                                                                       csrftest[6])
+        # COMMENT: contains the abstract parse trees of the Xdebug related queries
+        # COMMENT: the message part of the node is the hashed (related) query
+        H_model = map(lambda ae: ae["message"], ae_ops)
 
-    """
-    Queries and abstract observed while testing
-    """
-    # COMMENT: load sql queries from analyzed sqlite database
-    Q_exec = load_queries_by_id_sqlite(args.tc_analyzed,
-                                       csrftest[1],
-                                       logger)
-    # COMMENT: e[2] is the SQL query
-    Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec))
-    H_exec = [_hash(q) for q in Q_exec]
+        """
+        Queries and abstract observed while testing
+        """
+        # COMMENT: load sql queries from analyzed sqlite database
+        Q_exec = load_queries_by_id_sqlite(args.tc_analyzed,
+                                           csrftest[1],
+                                           logger)
+        # COMMENT: e[2] is the SQL query
+        Q_exec = sorted(map(lambda e: _sanitize(e[2]), Q_exec))
+        H_exec = [_hash(q) for q in Q_exec]
 
-    print ""
-    print csrftest[1], csrftest[11], csrftest[12], "H_model", len(H_model)
-    print "=" * 80
+        print ""
+        print csrftest[1], csrftest[11], csrftest[12], "H_model", len(H_model)
+        print "=" * 80
 
-    """
-    COMMENT: go through all observed queries in tc_analyzed
-             (limited by analyzer to state changing only)
-    """
-    summary = []
-    reference_dict = oracle_create_reference_query_hash_dic(args.tc_references,
-                                                            args.tc_analyzed_references,
-                                                            logger)
-    for query_hash, query_message in zip(H_exec, Q_exec):
-        observed = True if query_hash in H_model else False
-        unique = True if query_hash not in reference_dict else False
-        print "    {} = {:10} {:10} {}".format(query_hash, observed,
-                                               unique, query_message[:40])
-        summary.append([query_hash, query_message, observed, unique])
+        """
+        COMMENT: go through all observed queries in tc_analyzed
+                 (limited by analyzer to state changing only)
+        """
+        summary = []
+        reference_dict = oracle_create_reference_query_hash_dic(args.tc_references,
+                                                                args.tc_analyzed_references,
+                                                                logger)
+        for query_hash, query_message in zip(H_exec, Q_exec):
+            observed = True if query_hash in H_model else False
+            unique = True if query_hash not in reference_dict else False
+            print "    {} = {:20} {:20} {}".format(query_hash,
+                                                 "observed" if observed else "not observed",
+                                                 "unique" if unique else "not unique",
+                                                 query_message[:40])
+            summary.append([query_hash, query_message, observed, unique])
 
-    hits = [T for qh, qm, ob, uni in summary if ob and uni]
-    if len(hits) > 0:
-        print "VULNERABILITY DETECTED"
-        return True
-    else:
-        print "NO VULNERABILITY DETECTED"
-        return False
+        hits = [T for qh, qm, ob, uni in summary if ob and uni]
+        if len(hits) > 0:
+            print ">>> VULNERABILITY DETECTED <<<"
+            print ""
+        else:
+            print ">>> NO VULNERABILITY DETECTED <<<"
+            print ""
 
 
 def parse_args(args):
@@ -1435,7 +1438,7 @@ def parse_args(args):
     # su_uu_var_ston_new_all_p.add_argument("database",  help="Database where to store HTTP requests")
     # su_uu_var_ston_new_all_p.add_argument('--simulate', help="Do not write to database", action="store_true")
     # su_uu_var_ston_new_all_p.set_defaults(func=tgen_su_uu_var_singleton_new_all)
-, 
+
     not_protected_p = tests_subp.add_parser("not_protected", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
     not_protected_p.add_argument("projname", help="Project name")
     not_protected_p.add_argument("operation",  help="Operation")
@@ -1468,7 +1471,7 @@ def parse_args(args):
 
     oracle_p = subp.add_parser("oracle",
                                help="Test case oracle to determine vulnerabilities")
-    oracle_p.add_argument("projname", help="Project name")
+    # oracle_p.add_argument("projname", help="Project name")
     oracle_p.add_argument("tc_references",
                           help="Database with test cases for reference")
     oracle_p.add_argument("tc_analyzed_references",
@@ -1477,11 +1480,11 @@ def parse_args(args):
                           help="Database with the test case")
     oracle_p.add_argument("tc_analyzed",
                           help="Rawtrace-analysis database")
-    oracle_p.add_argument("output",
-                          help="Output database")
-    oracle_p.add_argument('--simulate',
-                          help="Do not write to database",
-                          action="store_true")
+    # oracle_p.add_argument("output",
+    #                      help="Output database")
+    # oracle_p.add_argument('--simulate',
+    #                      help="Do not write to database",
+    #                      action="store_true")
     oracle_p.set_defaults(func=oracle_yes_no)
 
     # oracle_subp = oracle_p.add_subparsers()
