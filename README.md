@@ -56,6 +56,7 @@ We prepared a number of tutorials to start using our toolchains.
 
  1. Tutorial for the acquisition and analysis of dynamic traces is [here](docs/TRACE_ACQUISITION.md)
  2. Tutorial to use our deep modeling framework is [here](docs/DEEP_MODELING.md)
+ 3. A complete documentation of all the involved tools [here](./docs/TOOLCHAIN_ELEMENTS.md)
 
 # Quick start
 
