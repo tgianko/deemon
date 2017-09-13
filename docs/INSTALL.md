@@ -126,7 +126,8 @@ This will install py2neo within the virtual environment. From this point on, whe
 
 - One additionally needs `libssh2-1-dev` to be installed. Also `~/.ssh` has to be existent.
 - `requests`, `lxml`, `netaddr`, `sqlparse`, `enum` module need to be installed (`pip install requests lxml netaddr sqlparse enum`)
-- 
+
+
 # Setting up vilanoo certificates
 
 go into the vilanoo2 folder and run `./setup_https_intercept.sh` to generate certificates needed to intercept https requests.
