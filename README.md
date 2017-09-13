@@ -38,11 +38,6 @@ Deep Modeling is our awesome framework that allows to model and detect vulnerabi
  a new option `--interactive` or `-i` to execute Selenese HTML step-by-step
  upon user input.
 
-## Requirements
-
- * `tmux`
- * Neo4j
- * py2neo
 
 ## License
   TBD
