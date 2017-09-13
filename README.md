@@ -59,43 +59,10 @@ We prepared a number of tutorials to start using our toolchains.
 
 # Quick start
 
-боже мой - after successfully installing everything.
+боже мой - after successfully installing everything you can refer to [this documentation](./docs/RUN_TEST.md) 
+to get a quick introduction on how to conduct csrf tests using our tool chain.
 
-This is a quickstart guide to instrument a VM and use our toolset. 
 
-## Data acquisition
-
-### Step 1 - zumka and VM instrumentation
-
-Zumka documentation is [here](zumka/README.md).
-
-### Step 2 - extraction and analysis of dynamic traces
-
-The components used for this step are: vilanoo2, mosgi, and rawtrace-analysis. Tutorials are available [here](docs/TRACE_ACQUISITION.md).
-
-## Deep Modeling
-
-### Step 1 - Importing traces and Deep Model transformations
-
-Documentation is [here](deep-modeling/README.md).
-
-### Step 2 - Running Security Analyses and Tests 
-
-We implemented a wrapper that is able to run a single trace aquisition automated after the VM is set up: 
-
-`./run-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <selenese-test-file> <firefox-instance> <mosgi-port> <vilanoo-port>`
-
- * vm-name: the name of the vm that the trace shall be aquired from
- * vm-ip: the ip under which to reach the VM
- * test-name: how to name the testrun (may be chosen freely, though it is advisable that a sensible name is chosen)
- * start-state-name: the snapshot name to restore before running the acquisition
- * selenese-test-file: the file which contains the selenese file which defines the trace acquisition for selenese
- * firefox-instance: the firefox instance to run selenese with
- * mosgi-port: the port mosgi uses for communication (only used internally and has to be provided to allow for parallelism)
- * vilanoo-port: the port vilanoo uses for communication (only used internally and has to be provided to allow for parallelism)
-
-When provided with the correct parameters `run-test.sh` runs the specified test automatically and creates the resulting raw databases
-in the `~/.vilanoo/` folder.
 
 # Tested Bitnami Machines
 
