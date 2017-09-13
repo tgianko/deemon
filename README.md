@@ -59,7 +59,7 @@ We prepared a number of tutorials to start using our toolchains.
 
 # Quick start
 
-боже мой - after successfully installing everything you can refer to [this documentation](./docs/RUN_TEST.md) 
+After successfully installing everything you can refer to [this documentation](./docs/RUN_TEST.md) 
 to get a quick introduction on how to conduct csrf tests using our tool chain.
 
 
