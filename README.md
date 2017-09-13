@@ -10,8 +10,8 @@ This project consists in a number of tools that are chained in a variety of ways
 
  * [zumka](zumka/README.md): Tools to instrument VM (bitnami + vbox only)
  * [vilanoo2](vilanoo2/src/README.md): HTTP/S proxy that intercepts browser requests.
- * [mosgi](mosgi/src/README.md): Server to collect Web Application *raw* execution traces, session data, and file I/O.
- * [rawtrace-analysis] (rawtrace-analysis/src/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo2.
+ * [mosgi](mosgi/README.md): Server to collect Web Application *raw* execution traces, session data, and file I/O.
+ * [rawtrace-analysis](rawtrace-analysis/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo2.
 
 
 
