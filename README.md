@@ -66,19 +66,19 @@ to get a quick introduction on how to conduct csrf tests using our tool chain.
 
 # Tested Bitnami Machines
 
-* abantecart         1.2.4-1    working
-* cmsmadesimple      2.1.4-0    working
-* dolibarr       3.9.1-1    working
-* enanocms       1.1.8-8    working
-* horde          5.2.14-1   working
-* invoiceninja       2.5.2.2-0  working
-* joomla             3.5.1-1    working
-* magento            1.9    working 
-* mautic             1.4.1-0    not working
-* opencart       2.1.0.2-2  working
-* oxid           4.9.8-0    working
-* prestashop         1.6.1.2-1  working
-* roundcube      1.1.4-3    working
-* simpleinvoices         2013.beta.8-4  working
-* typos3             8.1.2-0    working
-* xoops          2.5.7.2-2  working
+* abantecart         1.2.4-1
+* cmsmadesimple      2.1.4-0
+* dolibarr       3.9.1-1
+* enanocms       1.1.8-8
+* horde          5.2.14-1
+* invoiceninja       2.5.2.2-0
+* joomla             3.5.1-1
+* magento            1.9
+* mautic             1.4.1-0
+* opencart       2.1.0.2-2
+* oxid           4.9.8-0
+* prestashop         1.6.1.2-1
+* roundcube      1.1.4-3
+* simpleinvoices         2013.beta.8-4
+* typos3             8.1.2-0
+* xoops          2.5.7.2-2
