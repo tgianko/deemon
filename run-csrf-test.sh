@@ -20,7 +20,7 @@ MOSGI_ROOT_PWD="bitnami"
 
 
 if [ $# -ne 8 ]; then
-    echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-file> <mosgi-port> <selenese-tc> <firefox-path>"
+    echo "usage: ./run-csrf-test.sh <vm-name> <vm-ip> <test-name> <start-state-name> <csrf-test-db> <mosgi-port> <selenese-login-tc> <firefox-path>"
     exit 1
 fi
 

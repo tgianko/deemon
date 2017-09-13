@@ -1262,6 +1262,7 @@ def _get_evtuuid_from_absreq(graph, ae_uuid, projname, session, user, logger):
 
     rs = graph.run(query, data)
     rs = list(rs)
+    print(rs)
     return rs[0]["e_uuid"]
 
 
@@ -1473,13 +1474,13 @@ def parse_args(args):
                                help="Test case oracle to determine vulnerabilities")
     # oracle_p.add_argument("projname", help="Project name")
     oracle_p.add_argument("tc_references",
-                          help="Database with test cases for reference")
+                          help="csv list of sqlite databases of test cases for reference")
     oracle_p.add_argument("tc_analyzed_references",
-                          help="Rawtrace-analysis database for reference")
+                          help="csv list of rawtrace-analysis sqlite databases of the test cases for reference")
     oracle_p.add_argument("tc",
-                          help="Database with the test case")
+                          help="database with the test case")
     oracle_p.add_argument("tc_analyzed",
-                          help="Rawtrace-analysis database")
+                          help="rawtrace-analysis database of the test case")
     # oracle_p.add_argument("output",
     #                      help="Output database")
     # oracle_p.add_argument('--simulate',

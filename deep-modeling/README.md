@@ -67,3 +67,53 @@ Here is a mapping of the above analyses with `dbmanager` commands. If you want t
 * `dbmanager.py analysis all`: analyses number 1, 2, 3, and 4 (it is not really ALL)
 * `dbmanager.py type`: analysis 5
 * `dbmanager.py analysis inference`: analysis 6
+
+
+# Testermanager
+
+The Testermanager is the tool that is used to generate and later on evaluate the actual csrf tests. The generation is solely based on the deep model of an 
+operation whereas the test evaluation also requires the results of other tests to distinguish between a success and a probable failure.
+
+
+## Testgeneration
+
+We define two different type of csrf tests. Tests that test forms that apparently have no csrf protection, called unprotected, and tests that test
+forms that apparently have a csrf protection, called protected. The derived tests are stored in a sqlite database. Both, the generation of protected
+and the generation of unprotected tests are based on the same call with only one keyword changed.
+
+``` testermanager.py tgen [not_]protected [-h] [--simulate]
+                                           projname operation database
+
+positional arguments:
+  projname    Project name
+  operation   Operation
+  database    Database where to store HTTP requests
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --simulate  Do not write to database
+```
+
+
+## Testevaluation
+
+The testevaluation (ie. the call of the oracle) is based on the deep model of the to be evaluated operation as well as other test results and cosequently
+requires that multiple different csrf tests have been conducted beforehand. The results are directly displayed.
+
+
+```testermanager.py oracle [-h]
+                               tc_references tc_analyzed_references tc
+                               tc_analyzed
+
+positional arguments:
+  tc_references         csv list of sqlite databases of test cases for
+                        reference
+  tc_analyzed_references
+                        csv list of rawtrace-analysis sqlite databases of the
+                        test cases for reference
+  tc                    database with the test case
+  tc_analyzed           rawtrace-analysis database of the test case
+
+optional arguments:
+  -h, --help            show this help message and exit
+``` 
