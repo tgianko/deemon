@@ -49,7 +49,7 @@ Deep Modeling is our awesome framework that allows to model and detect vulnerabi
 
 # Installation
 
-Requirements and installation of internal component are [here](INSTALL.md).
+Requirements and installation of internal component are [here](./docs/INSTALL.md).
 For the external ones, please refer to the documentation of each project.
 
 *Note*: A standalone .jar file of the interactive selenese-runner is in our 
