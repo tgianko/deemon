@@ -25,7 +25,7 @@ strokes.*
 
 # ANALYZER
 
-[README](./rawtrace-analysis/src/README.md)
+[README](./rawtrace-analysis/README.md)
 
 # DBMANAGER
 
