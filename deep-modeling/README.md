@@ -41,7 +41,8 @@ To import dynamic traces into Neo4j, you will need the vilanoo2 SQLite database,
 To import all data type the following:
 
 ```bash
-$ ./dbmanager.py import all $path_to_vilanoo_sqlite $path_to_mosgi_sqlite $path_to_rawtrace_sqlite $projname $session $user```
+$ ./dbmanager.py import all $path_to_vilanoo_sqlite $path_to_mosgi_sqlite $path_to_rawtrace_sqlite $projname $session $user
+```
 
 You can import traces one by one. Have a look at the help page of dbmanager (`--help`).
 
@@ -80,7 +81,8 @@ We define two different type of csrf tests. Tests that test forms that apparentl
 forms that apparently have a csrf protection, called protected. The derived tests are stored in a sqlite database. Both, the generation of protected
 and the generation of unprotected tests are based on the same call with only one keyword changed.
 
-```testermanager.py tgen [not_]protected [-h] [--simulate]
+```bash
+testermanager.py tgen [not_]protected [-h] [--simulate]
                                            projname operation database
 
 positional arguments:
@@ -90,7 +92,8 @@ positional arguments:
 
 optional arguments:
   -h, --help  show this help message and exit
-  --simulate  Do not write to database```
+  --simulate  Do not write to database
+```
 
 
 ## Testevaluation
@@ -99,7 +102,8 @@ The testevaluation (ie. the call of the oracle) is based on the deep model of th
 requires that multiple different csrf tests have been conducted beforehand. The results are directly displayed.
 
 
-```testermanager.py oracle [-h]
+```
+testermanager.py oracle [-h]
                                tc_references tc_analyzed_references tc
                                tc_analyzed
 
@@ -113,4 +117,5 @@ positional arguments:
   tc_analyzed           rawtrace-analysis database of the test case
 
 optional arguments:
-  -h, --help            show this help message and exit``` 
+  -h, --help            show this help message and exit
+``` 
