@@ -41,8 +41,7 @@ To import dynamic traces into Neo4j, you will need the vilanoo2 SQLite database,
 To import all data type the following:
 
 ```bash
-$ ./dbmanager.py import all $path_to_vilanoo_sqlite $path_to_mosgi_sqlite $path_to_rawtrace_sqlite $projname $session $user
-```
+$ ./dbmanager.py import all $path_to_vilanoo_sqlite $path_to_mosgi_sqlite $path_to_rawtrace_sqlite $projname $session $user```
 
 You can import traces one by one. Have a look at the help page of dbmanager (`--help`).
 
@@ -78,7 +77,7 @@ operation whereas the test evaluation also requires the results of other tests t
 ## Testgeneration
 
 We define two different type of csrf tests. Tests that test forms that apparently have no csrf protection, called unprotected, and tests that test
-forms that apparently have a csrf protection, called protected. The derived tests are stored in a sqlite database. Both, the generation of protecte```d```
+forms that apparently have a csrf protection, called protected. The derived tests are stored in a sqlite database. Both, the generation of protected
 and the generation of unprotected tests are based on the same call with only one keyword changed.
 
 ```testermanager.py tgen [not_]protected [-h] [--simulate]
