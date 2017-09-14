@@ -78,10 +78,10 @@ operation whereas the test evaluation also requires the results of other tests t
 ## Testgeneration
 
 We define two different type of csrf tests. Tests that test forms that apparently have no csrf protection, called unprotected, and tests that test
-forms that apparently have a csrf protection, called protected. The derived tests are stored in a sqlite database. Both, the generation of protected
+forms that apparently have a csrf protection, called protected. The derived tests are stored in a sqlite database. Both, the generation of protecte```d```
 and the generation of unprotected tests are based on the same call with only one keyword changed.
 
-``` testermanager.py tgen [not_]protected [-h] [--simulate]
+```testermanager.py tgen [not_]protected [-h] [--simulate]
                                            projname operation database
 
 positional arguments:
@@ -114,5 +114,4 @@ positional arguments:
   tc_analyzed           rawtrace-analysis database of the test case
 
 optional arguments:
-  -h, --help            show this help message and exit
-``` 
+  -h, --help            show this help message and exit``` 
