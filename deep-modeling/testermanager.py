@@ -1388,7 +1388,7 @@ def oracle_yes_no(args, graph, logger=None):
                                                  query_message[:40])
             summary.append([query_hash, query_message, observed, unique])
 
-        hits = [T for qh, qm, ob, uni in summary if ob and uni]
+        hits = [True for qh, qm, ob, uni in summary if ob and uni]
         if len(hits) > 0:
             print ">>> VULNERABILITY DETECTED <<<"
             print ""
