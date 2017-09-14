@@ -1,0 +1,1831 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_buy_stuff_S1.user_crashtes2.56.2016-11-28 12:01:53.129346')]
+
+0 GET https://192.168.56.101/index.php?rt=extension%2Fdefault_cod%2Fconfirm H_model 4
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_address_S1.user_crashtes2.52.2016-11-28 12:24:00.861617')]
+
+0 POST https://192.168.56.101/index.php?rt=account%2Faddress%2Fupdate H_model 2
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    1b32a54548f98ca08b582e4dce83c1dc = observed             unique               UPDATE ac_addresses SET company = 'Saarl
+    ca2a9603256e4154db424d5649636b58 = observed             unique               UPDATE ac_customers SET address_id = '0 
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_order_status_S2.admin.7.2016-11-28 12:34:30.367588')]
+
+0 GET http://192.168.56.101/index.php?rt=sale%2Forder&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_order_status_S2.admin.10.2016-11-28 12:35:05.406432')]
+
+1 POST http://192.168.56.101/index.php?rt=listing_grid%2Forder%2Fupdate&s=admin H_model 1
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_product_price_S1.admin.7.2016-11-28 11:13:55.946232')]
+
+0 GET http://192.168.56.101/index.php?rt=catalog%2Fproduct&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_product_price_S2.admin.10.2016-11-28 12:38:33.506208')]
+
+1 POST http://192.168.56.101/index.php?rt=listing_grid%2Fproduct%2Fupdate&s=admin H_model 6
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_store_settings_S1.admin.12.2016-11-28 11:18:13.384281')]
+
+0 POST http://192.168.56.101/index.php?rt=setting%2Fsetting_quick_form&active=api-config_storefront_api_status-0&s=admin&target=edit_dialog H_model 2
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_delete_category_S1.admin.10.2016-11-28 11:21:37.876476')]
+
+0 POST http://192.168.56.101/index.php?rt=listing_grid%2Fcategory%2Fupdate&s=admin H_model 5
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_delete_category_S1.admin.7.2016-11-28 11:21:10.725129')]
+
+1 GET http://192.168.56.101/index.php?rt=catalog%2Fcategory&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - horde.login_and_add_address_to_whitelist_S2.admin.6.2016-12-01 21:33:58.540452')]
+
+0 POST http://192.168.56.101/ingo/basic.php?page=whitelist H_model 3
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - horde.login_and_add_user_S1.admin.6.2016-12-01 21:08:19.877206')]
+
+0 POST http://192.168.56.101/admin/user.php H_model 3
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - horde.login_and_delete_table_S2.admin.6.2016-12-01 21:30:25.227184')]
+
+0 POST http://192.168.56.101/admin/sqlshell.php H_model 1
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.add_new_default_tax_rate_S2.admin_admin.2.2016-12-02 13:33:15.960179')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.add_new_default_tax_rate_S2.admin_admin.9.2016-12-02 13:34:35.052637')]
+
+1 POST http://192.168.56.101/tax_rates H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.add_new_default_tax_rate_S2.admin_admin.12.2016-12-02 13:35:00.784980')]
+
+2 POST http://192.168.56.101/settings/tax_rates H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.add_payment_S1.admin_admin.2.2016-12-02 12:44:49.060454')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.add_payment_S2.admin_admin.7.2016-12-02 13:27:34.022406')]
+
+1 POST http://192.168.56.101/payments H_model 4
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.change_smtp_config_S2.admin_admin.2.2016-12-02 13:37:18.341288')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_client_S2.admin_admin.2.2016-12-02 13:02:49.671347')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_client_S2.admin_admin.7.2016-12-02 13:04:15.988132')]
+
+1 POST http://192.168.56.101/clients H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_expense_S2.admin_admin.2.2016-12-02 13:16:55.657932')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_expense_S2.admin_admin.7.2016-12-02 13:18:42.580631')]
+
+1 POST http://192.168.56.101/expenses H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_expense_S1.admin_admin.9.2016-12-02 12:37:54.478386')]
+
+2 POST http://192.168.56.101/expenses/2 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_invoice_S2.admin_admin.2.2016-12-02 13:21:02.737412')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_invoice_S2.admin_admin.7.2016-12-02 13:23:35.794554')]
+
+1 POST http://192.168.56.101/invoices H_model 9
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_invoice_S2.admin_admin.7.2016-12-02 13:23:35.794554')]
+
+2 POST http://192.168.56.101/invoices H_model 9
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_new_user_S1.admin_admin.2.2016-12-02 12:48:26.948081')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_new_user_S2.admin_admin.9.2016-12-02 13:31:09.256139')]
+
+1 POST http://192.168.56.101/users H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_task_S2.admin_admin.2.2016-12-02 13:12:39.812662')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.create_task_S2.admin_admin.7.2016-12-02 13:14:53.354153')]
+
+1 POST http://192.168.56.101/tasks H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.delete_client_S1.admin_admin.8.2016-12-02 12:26:24.085865')]
+
+0 POST http://192.168.56.101/clients/bulk H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.delete_client_S1.admin_admin.2.2016-12-02 12:25:30.084803')]
+
+1 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.deletes_task_S1.admin_admin.2.2016-12-02 12:59:30.662051')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.deletes_task_S1.admin_admin.7.2016-12-02 13:00:42.754919')]
+
+1 POST http://192.168.56.101/tasks/bulk H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - invoiceninja.update_client_S2.admin_admin.2.2016-12-02 13:09:22.496232')]
+
+0 POST http://192.168.56.101/login H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - invoiceninja.update_client_S2.admin_admin.9.2016-12-02 13:10:29.108327')]
+
+1 POST http://192.168.56.101/clients/1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S2.admin_user.7.2017-02-02 22:28:59.834473')]
+
+0 GET http://192.168.56.101/s/pages/edit/1?mauticUserLastActive=1&mauticLastNotificationId=21 H_model 1
+================================================================================
+    9051ca8140c21d3d831fe684e258ebf0 = observed             unique               UPDATE ma_pages SET checked_out = '2016-
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S1.admin_kasperle.2.2017-02-02 22:01:20.286629')]
+
+5 POST http://192.168.56.101/s/login_check H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S1.admin_kasperle.9.2017-02-02 22:03:00.348300')]
+
+6 POST http://192.168.56.101/s/pages/edit/1?mauticUserLastActive=1 H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S2.admin_user.7.2017-02-02 22:28:59.834473')]
+
+3 GET http://192.168.56.101/s/pages/edit/1?mauticUserLastActive=1&_=1486070872700 H_model 1
+================================================================================
+    9051ca8140c21d3d831fe684e258ebf0 = observed             unique               UPDATE ma_pages SET checked_out = '2016-
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S1.admin_kasperle.9.2017-02-02 22:03:00.348300')]
+
+5 POST http://192.168.56.101/s/pages/edit/1 H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S2.admin_kasperle.2.2017-02-02 22:57:59.486104')]
+
+0 POST http://192.168.56.101/s/login_check H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+0 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+1 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+5 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+6 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+7 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+9 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+11 POST http://192.168.56.101/s/account H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_user.5.2017-02-02 21:39:36.664384')]
+
+14 POST http://192.168.56.101/s/account?mauticUserLastActive=1&mauticLastNotificationId=21 H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S1.admin_kasperle.5.2017-02-02 22:06:42.496962')]
+
+15 POST http://192.168.56.101/s/account?mauticUserLastActive=1 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.create_contact_S2.admin_user.2.2017-02-02 22:13:58.834528')]
+
+1 POST http://192.168.56.101/s/login_check H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.create_contact_S1.admin_user.11.2017-02-02 21:22:54.488142')]
+
+2 GET http://192.168.56.101/s/ajax?action=lead%3AfieldList&field=city&filter=London&mauticUserLastActive=1&mauticLastNotificationId=21 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.create_contact_S2.admin_kasperle.13.2017-02-02 22:43:40.830825')]
+
+5 POST http://192.168.56.101/s/contacts/new?mauticUserLastActive=1 H_model 4
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.create_contact_S2.admin_kasperle.13.2017-02-02 22:43:40.830825')]
+
+3 POST http://192.168.56.101/s/contacts/new H_model 4
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.create_contact_S1.admin_user.11.2017-02-02 21:22:54.488142')]
+
+4 GET http://192.168.56.101/s/ajax?action=lead%3AfieldList&field=city&mauticUserLastActive=1&filter=London&_=1486066838732 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.delete_campaign_S2.admin_user.2.2017-02-02 22:24:07.110765')]
+
+1 POST http://192.168.56.101/s/login_check H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.delete_campaign_S1.admin_kasperle.7.2017-02-02 21:58:58.071539')]
+
+0 POST http://192.168.56.101/s/campaigns/delete/1 H_model 4
+================================================================================
+    353dc5999fc8e3de2c749aa363745d31 = observed             unique               DELETE FROM ma_campaigns WHERE id = 1
+    2980b4d46001b8648477e9178cde6062 = observed             not unique           INSERT INTO ma_audit_log (user_id, user_
+    92f2907e306a4ccbb3d672c5b8acff28 = observed             not unique           INSERT INTO ma_notifications (type, head
+    974c63dda872ef3b45921984f7111b29 = observed             unique               UPDATE ma_campaign_events SET parent_id 
+    974c63dda872ef3b45921984f7111b29 = observed             unique               UPDATE ma_campaign_events SET parent_id 
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.delete_contact_S2.admin_user.2.2017-02-02 22:20:19.000366')]
+
+1 POST http://192.168.56.101/s/login_check H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mautic.delete_contact_S2.admin_user.8.2017-02-02 22:21:37.395875')]
+
+0 POST http://192.168.56.101/s/contacts/delete/1?mauticUserLastActive=1 H_model 3
+================================================================================
+    d13c6440e6436c036bacbaf6050a215b = observed             unique               DELETE FROM ma_leads WHERE id = 1
+    2980b4d46001b8648477e9178cde6062 = observed             not unique           INSERT INTO ma_audit_log (user_id, user_
+    92f2907e306a4ccbb3d672c5b8acff28 = observed             not unique           INSERT INTO ma_notifications (type, head
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S1.user_user1.18.2016-12-01 11:48:54.634458')]
+
+0 POST http://192.168.56.104/editpost.php?action=deletepost&ajax=1&pid=4&delete=1 H_model 6
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         unique                UPDATE mybb_sessions SET `uid`= '3 ', `
+    c4772524f5e6a83d69f5bb3b1c4c4217 = not observed         unique               UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_buy_stuff_S1.user_seasurf@seasurf.de.30.2016-11-28 18:27:00.222753')]
+
+0 GET https://192.168.56.102/index.php?route=payment%2Fcod%2Fconfirm H_model 3
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = '9ojn00q
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_address_S2.user_seasur2@seasur2.de.11.2016-11-28 18:55:57.106063')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Faddress%2Fedit H_model 2
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         unique               INSERT INTO `oc_customer_activity` SET `
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1654efd63aa8f6b4795ace5f76ec62ea = observed             unique               UPDATE oc_address SET firstname = 'New f
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'sr3f0nk
+    59f7232928d2dc5f88b75d0ef55aeda1 = observed             unique               UPDATE oc_customer SET address_id = '0 '
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.buy_stuff_S1.user_info@oxid_esales.com.3.2016-11-29 07:29:37.435544')]
+
+0 POST https://192.168.56.101/index.php H_model 6
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.buy_stuff_S1.user_info@oxid_esales.com.11.2016-11-29 07:31:04.496727')]
+
+1 POST https://192.168.56.101/index.php H_model 12
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.buy_stuff_S1.user_info@oxid_esales.com.11.2016-11-29 07:31:04.496727')]
+
+2 POST https://192.168.56.101/index.php H_model 12
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_category_S1.admin_user@example.com.11.2016-11-29 06:51:11.126824')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=6C29D0E5&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_category_S1.admin_user@example.com.11.2016-11-29 06:51:11.126824')]
+
+1 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=29rek8it5kjqrd6topmacbn9m1 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.15.2016-11-29 06:54:26.459740')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.13.2016-11-29 06:54:04.376261')]
+
+1 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.13.2016-11-29 06:54:04.376261')]
+
+2 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.13.2016-11-29 06:54:04.376261')]
+
+3 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.15.2016-11-29 06:54:26.459740')]
+
+4 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.15.2016-11-29 06:54:26.459740')]
+
+5 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.15.2016-11-29 06:54:26.459740')]
+
+6 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.13.2016-11-29 06:54:04.376261')]
+
+7 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.15.2016-11-29 06:54:26.459740')]
+
+8 POST http://192.168.56.101/admin/index.php?stoken=336D88FF&editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S1.admin_user@example.com.15.2016-11-29 06:54:26.459740')]
+
+9 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=6qpb7b04hfgnpmq9rhsg1laav3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_series_S1.admin_user@example.com.11.2016-11-29 06:57:54.835971')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=24DDA937&editlanguage=0&force_admin_sid=apbut1rl0q0gpvp6h8rmjmeb46 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_series_S1.admin_user@example.com.11.2016-11-29 06:57:54.835971')]
+
+1 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=apbut1rl0q0gpvp6h8rmjmeb46 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_series_S1.admin_user@example.com.11.2016-11-29 06:57:54.835971')]
+
+2 POST http://192.168.56.101/admin/index.php?stoken=24DDA937&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_series_S1.admin_user@example.com.11.2016-11-29 06:57:54.835971')]
+
+3 POST http://192.168.56.101/admin/index.php?stoken=24DDA937&editlanguage=0&force_admin_sid=apbut1rl0q0gpvp6h8rmjmeb46 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_product_S2.admin_user@example.com.11.2016-11-29 08:13:06.575721')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=27EBF20E&editlanguage=0 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_product_S2.admin_user@example.com.11.2016-11-29 08:13:06.575721')]
+
+1 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=0fo5fo086jetmfac919l3riuv0 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_product_S2.admin_user@example.com.11.2016-11-29 08:13:06.575721')]
+
+2 POST http://192.168.56.101/admin/index.php?stoken=27EBF20E&editlanguage=0&force_admin_sid=0fo5fo086jetmfac919l3riuv0 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_product_S2.admin_user@example.com.11.2016-11-29 08:13:06.575721')]
+
+3 POST http://192.168.56.101/admin/index.php?stoken=27EBF20E&editlanguage=0&force_admin_sid=0fo5fo086jetmfac919l3riuv0 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.11.2016-11-29 08:15:44.137218')]
+
+0 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:16:05.999736')]
+
+1 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:16:05.999736')]
+
+2 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:16:05.999736')]
+
+3 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.11.2016-11-29 08:15:44.137218')]
+
+4 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.11.2016-11-29 08:15:44.137218')]
+
+5 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:16:05.999736')]
+
+6 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.11.2016-11-29 08:15:44.137218')]
+
+7 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:16:05.999736')]
+
+8 POST http://192.168.56.101/admin/index.php?stoken=38611C11&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:16:05.999736')]
+
+9 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=5dinogc8tfi6q45gadjj2eqpt3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_user_S1.admin_user@example.com.11.2016-11-29 07:07:01.825478')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=84EE8881&editlanguage=0&force_admin_sid=oikfnf45g33sqprnrm3so1dee2 H_model 2
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_user_S1.admin_user@example.com.11.2016-11-29 07:07:01.825478')]
+
+1 POST http://192.168.56.101/admin/index.php?stoken=84EE8881&editlanguage=0 H_model 2
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_user_S1.admin_user@example.com.11.2016-11-29 07:07:01.825478')]
+
+2 POST http://192.168.56.101/admin/index.php?stoken=84EE8881&editlanguage=0&force_admin_sid=oikfnf45g33sqprnrm3so1dee2 H_model 2
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.create_user_S1.admin_user@example.com.11.2016-11-29 07:07:01.825478')]
+
+3 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=oikfnf45g33sqprnrm3so1dee2 H_model 2
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_buys_stuff_S1.user_info@oxid_esales.com.10.2016-11-29 10:06:01.702616')]
+
+0 POST https://192.168.56.101/index.php H_model 12
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_buys_stuff_S1.user_info@oxid_esales.com.10.2016-11-29 10:06:01.702616')]
+
+1 POST https://192.168.56.101/index.php H_model 12
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+0 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+1 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+2 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+3 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+4 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+5 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+6 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S1.user_info@oxid_esales.com.7.2016-11-29 22:26:23.710246')]
+
+7 POST https://192.168.56.101/index.php H_model 4
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+8 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+9 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+10 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+11 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+12 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+13 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+14 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S1.user_info@oxid_esales.com.7.2016-11-29 22:26:23.710246')]
+
+15 POST https://192.168.56.101/index.php H_model 4
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+16 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+17 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+18 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S2.user_user@example.com.7.2016-11-29 09:10:41.889657')]
+
+19 POST https://192.168.56.101/index.php H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_password_S2.user_user@example.com.7.2016-11-29 09:01:04.490839')]
+
+0 POST https://192.168.56.101/index.php H_model 2
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.run_sql_S2.admin_user@example.com.11.2016-11-29 08:28:01.501370')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=E1536974&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.run_sql_S2.admin_user@example.com.11.2016-11-29 08:28:01.501370')]
+
+1 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=gakec7ua3clourgmns8pggref3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.update_category_S2.admin_user@example.com.13.2016-11-29 08:30:57.884575')]
+
+0 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=19s3svrce956tpd7dnultvup44 H_model 4
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_category_S2.admin_user@example.com.13.2016-11-29 08:30:57.884575')]
+
+1 POST http://192.168.56.101/admin/index.php?stoken=345CEA7C&editlanguage=0 H_model 4
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.update_product_S2.admin_user@example.com.13.2016-11-29 08:33:55.812329')]
+
+0 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=3tu2rlcn8dl69dh1fop029ucn6 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_product_S2.admin_user@example.com.13.2016-11-29 08:33:55.812329')]
+
+1 POST http://192.168.56.101/admin/index.php?stoken=47AF34F9&editlanguage=0&force_admin_sid=3tu2rlcn8dl69dh1fop029ucn6 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_product_S2.admin_user@example.com.13.2016-11-29 08:33:55.812329')]
+
+2 POST http://192.168.56.101/admin/index.php?stoken=47AF34F9&editlanguage=0&force_admin_sid=3tu2rlcn8dl69dh1fop029ucn6 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_product_S2.admin_user@example.com.13.2016-11-29 08:33:55.812329')]
+
+3 POST http://192.168.56.101/admin/index.php?stoken=47AF34F9&editlanguage=0 H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.update_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:36:57.991441')]
+
+0 POST http://192.168.56.101/admin/index.php?stoken=FCF02277&editlanguage=0&force_admin_sid=5ftc65s7g99kla1kl4vui74vd3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:36:57.991441')]
+
+1 POST http://192.168.56.101/admin/index.php?stoken=FCF02277&editlanguage=0&force_admin_sid=5ftc65s7g99kla1kl4vui74vd3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:36:57.991441')]
+
+2 POST http://192.168.56.101/admin/index.php?stoken=FCF02277&editlanguage=0 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.update_shipping_rule_S2.admin_user@example.com.13.2016-11-29 08:36:57.991441')]
+
+3 POST http://192.168.56.101/admin/index.php?editlanguage=0&force_admin_sid=5ftc65s7g99kla1kl4vui74vd3 H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.create_category_S1.admin_admin1.20.2016-11-28 20:33:53.199136')]
+
+0 GET http://192.168.56.103/administration/index.php?rand=1480361630639&ajax=1&controller=AdminStats&token=177ca5f7f3288c00418f374d252f667b&action=getKpi&kpi=top_category H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.create_category_S1.admin_admin1.20.2016-11-28 20:33:53.199136')]
+
+1 GET http://192.168.56.103/administration/index.php?ajax=1&controller=AdminStats&token=177ca5f7f3288c00418f374d252f667b&action=getKpi&kpi=top_category&_=1480361630522 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.create_product_S2.admin_admin1.3.2016-11-29 17:18:30.901268')]
+
+0 POST http://192.168.56.103/administration/ajax-tab.php H_model 1
+================================================================================
+    ba075f508aabfaf8335df8df732c31d3 = not observed         not unique            UPDATE `ps_employee` SET `last_connecti
+    1f4b122b3d57584696be5f87bcad2e9d = observed             not unique           INSERT INTO `ps_log` (`severity`, `error
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.disable_module_S1.admin_admin1.3.2016-11-28 21:14:20.108246')]
+
+0 POST http://192.168.56.103/administration/ajax-tab.php H_model 1
+================================================================================
+    ba075f508aabfaf8335df8df732c31d3 = not observed         not unique            UPDATE `ps_employee` SET `last_connecti
+    1f4b122b3d57584696be5f87bcad2e9d = observed             not unique           INSERT INTO `ps_log` (`severity`, `error
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.disable_some_prefs_S2.admin_admin1.3.2016-11-28 23:21:34.565740')]
+
+0 POST http://192.168.56.103/administration/ajax-tab.php H_model 1
+================================================================================
+    ba075f508aabfaf8335df8df732c31d3 = not observed         not unique            UPDATE `ps_employee` SET `last_connecti
+    1f4b122b3d57584696be5f87bcad2e9d = observed             not unique           INSERT INTO `ps_log` (`severity`, `error
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.erase_logs_S1.admin_admin1.3.2016-11-28 21:21:59.341333')]
+
+0 POST http://192.168.56.103/administration/ajax-tab.php H_model 1
+================================================================================
+    ba075f508aabfaf8335df8df732c31d3 = not observed         not unique            UPDATE `ps_employee` SET `last_connecti
+    1f4b122b3d57584696be5f87bcad2e9d = observed             not unique           INSERT INTO `ps_log` (`severity`, `error
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_buy_stuff_S1.user_user1.11.2016-11-29 18:22:47.260520')]
+
+0 POST http://192.168.56.103/ H_model 1
+================================================================================
+    92ba670e8304c9b95d91054b749d04dc = observed             unique               INSERT INTO `ps_cart_product` (`id_produ
+    204fed27681d313727418abb55bf6884 = not observed         unique               UPDATE `ps_cart` SET `id_cart` = '11 ',`
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_buy_stuff_S1.user_user1.11.2016-11-29 18:22:47.260520')]
+
+1 POST http://192.168.56.103/?rand=1480440166642 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_buy_stuff_S2.user_user1.23.2016-11-29 18:35:32.520540')]
+
+2 GET https://192.168.56.103/order-confirmation?id_order=6&id_cart=11&id_module=30 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_change_email_S2.user_user2.16.2016-11-29 00:11:48.115666')]
+
+0 POST https://192.168.56.103/identity H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_change_email_S2.user_user2.16.2016-11-29 00:11:48.115666')]
+
+1 POST https://192.168.56.103/identity H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_change_email_S1.user_user1.16.2016-11-28 22:00:48.227482')]
+
+2 POST https://192.168.56.103/identity H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_change_email_S2.user_user2.16.2016-11-29 00:11:48.115666')]
+
+3 POST https://192.168.56.103/identity H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_change_email_S1.user_user1.16.2016-11-28 22:00:48.227482')]
+
+4 POST https://192.168.56.103/identity H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_create_new_address_S1.user_user1.15.2016-11-28 22:16:33.183080')]
+
+0 POST https://192.168.56.103/address H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_create_new_address_S1.user_user1.15.2016-11-28 22:16:33.183080')]
+
+1 POST https://192.168.56.103/address H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_create_new_address_S1.user_user1.15.2016-11-28 22:16:33.183080')]
+
+2 POST https://192.168.56.103/address H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.toggle_demomode_S2.admin_admin1.3.2016-11-28 23:32:01.373170')]
+
+0 POST http://192.168.56.103/administration/ajax-tab.php H_model 1
+================================================================================
+    ba075f508aabfaf8335df8df732c31d3 = not observed         not unique            UPDATE `ps_employee` SET `last_connecti
+    1f4b122b3d57584696be5f87bcad2e9d = observed             not unique           INSERT INTO `ps_log` (`severity`, `error
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.3.2016-12-01 09:31:00.499063')]
+
+0 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=e0cep1fb5kgo1q39jddtnqu5e1 H_model 8
+================================================================================
+    0951878368e2df347aa07092fc6e0f77 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.2.2016-12-01 09:30:28.662704')]
+
+1 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.13.2016-12-01 09:32:23.592700')]
+
+2 POST http://192.168.56.101/index.php?action=admin&sa=general&area=securitysettings H_model 2
+================================================================================
+    0b4c9499023360d382bd1c8f07b90506 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.3.2016-12-01 09:31:00.499063')]
+
+3 POST http://192.168.56.101/index.php?action=login2 H_model 8
+================================================================================
+    fd6fd486672201fd01a384aec518f542 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.17.2016-12-01 09:29:13.875329')]
+
+0 POST http://192.168.56.101/index.php?action=admin&sa=board2&area=manageboards H_model 6
+================================================================================
+    8c08c898b7d1195c78dd956cc6a9abeb = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.17.2016-12-01 09:29:13.875329')]
+
+1 POST http://192.168.56.101/index.php?action=admin&sa=board2&area=manageboards H_model 6
+================================================================================
+    b2bee40dda6680486db275d88202a2bd = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.17.2016-12-01 09:51:22.660275')]
+
+2 POST http://192.168.56.101/index.php?action=admin&sa=board2&area=manageboards H_model 6
+================================================================================
+    3c20cf8fb82fb0db9623efa2a12495bd = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.17.2016-12-01 09:29:13.875329')]
+
+3 POST http://192.168.56.101/index.php?action=admin&sa=board2&area=manageboards H_model 6
+================================================================================
+    4cede543755e1e0ba8edd70a21202cdb = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.13.2016-12-01 09:49:48.617229')]
+
+4 POST http://192.168.56.101/index.php?action=admin&sa=newboard&area=manageboards&cat=1 H_model 1
+================================================================================
+    a55ad31db2365f51f7dc9847de1f62b8 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.2.2016-12-01 09:26:02.354329')]
+
+5 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.3.2016-12-01 09:48:47.740432')]
+
+6 POST http://192.168.56.101/index.php?action=login2 H_model 8
+================================================================================
+    3af6329de3507758b0369bdc56307fda = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.3.2016-12-01 09:48:47.740432')]
+
+7 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=7mnld3u4qho9chfh10eo8g5pg4 H_model 8
+================================================================================
+    6bb9745fb89485d0062027971205e3b7 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.3.2016-12-01 09:37:41.925195')]
+
+0 POST http://192.168.56.101/index.php?action=login2 H_model 6
+================================================================================
+    5be07c00c4073dea4626d24b96d62a43 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.2.2016-12-01 09:37:10.288600')]
+
+1 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.3.2016-12-01 09:37:41.925195')]
+
+2 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=2gth7h9q6et9vfoj2c39jhs577 H_model 6
+================================================================================
+    ab9c5403b32171b04f4c7d263526c4a8 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S1.admin_user.2.2016-12-01 09:17:46.370071')]
+
+0 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S2.admin_user.3.2016-12-01 09:40:28.575475')]
+
+1 POST http://192.168.56.101/index.php?action=login2 H_model 8
+================================================================================
+    e40978ad68e7c547d19b94037fb1a8d2 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S2.admin_user.3.2016-12-01 09:40:28.575475')]
+
+2 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=e7kfrmksn7p156kd4vb66vluk4 H_model 8
+================================================================================
+    406f47915195dc0d69523272f7594194 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S2.admin_user.3.2016-12-01 09:45:39.435244')]
+
+0 POST http://192.168.56.101/index.php?action=login2 H_model 8
+================================================================================
+    17896a1f906aa08e2294ce08b106861b = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S2.admin_user.3.2016-12-01 09:45:39.435244')]
+
+1 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=89o30lkvpm65q67o1gdo02m746 H_model 8
+================================================================================
+    7a9dd7d2e8ebaf0980f6dd5d762abd6d = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.2.2016-12-01 09:22:53.734204')]
+
+2 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.2.2016-12-01 09:19:59.871674')]
+
+0 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.3.2016-12-01 09:20:31.543564')]
+
+1 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=rrjh5u78ng35vsdtbqql1qbto2 H_model 6
+================================================================================
+    54b40586dc69ffa17176e7bc163a6178 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.3.2016-12-01 09:20:31.543564')]
+
+2 POST http://192.168.56.101/index.php?action=login2 H_model 6
+================================================================================
+    74db6184528552301abb88088a14c399 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.3.2016-12-01 09:56:17.368353')]
+
+0 POST http://192.168.56.101/index.php?action=login2&PHPSESSID=qe41nk02she9ugd97079l0f050 H_model 8
+================================================================================
+    5cf9a3f0fc9c10a223232e17debb9def = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.2.2016-12-01 09:33:38.650426')]
+
+1 GET http://192.168.56.101/index.php?scheduled=task&ts=1479218400 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.3.2016-12-01 09:56:17.368353')]
+
+2 POST http://192.168.56.101/index.php?action=login2 H_model 8
+================================================================================
+    701730b172a3ccef8ede8fa3508d8ad6 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
