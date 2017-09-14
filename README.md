@@ -62,24 +62,3 @@ We prepared a number of tutorials to start using our toolchains.
 
 After successfully installing everything you can refer to [this documentation](./docs/RUN_TEST.md) 
 to get a quick introduction on how to conduct csrf tests using our tool chain.
-
-
-
-# Tested Bitnami Machines
-
-* abantecart         1.2.4-1
-* cmsmadesimple      2.1.4-0
-* dolibarr       3.9.1-1
-* enanocms       1.1.8-8
-* horde          5.2.14-1
-* invoiceninja       2.5.2.2-0
-* joomla             3.5.1-1
-* magento            1.9
-* mautic             1.4.1-0
-* opencart       2.1.0.2-2
-* oxid           4.9.8-0
-* prestashop         1.6.1.2-1
-* roundcube      1.1.4-3
-* simpleinvoices         2013.beta.8-4
-* typos3             8.1.2-0
-* xoops          2.5.7.2-2
