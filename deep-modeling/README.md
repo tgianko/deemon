@@ -91,8 +91,7 @@ positional arguments:
 
 optional arguments:
   -h, --help  show this help message and exit
-  --simulate  Do not write to database
-```
+  --simulate  Do not write to database```
 
 
 ## Testevaluation
