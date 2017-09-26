@@ -7,7 +7,7 @@ class TypeEnum:
 
     def __int__(self):
         return self._id
-    
+
     def __str__(self):
         return self._string_rep
 
@@ -23,7 +23,7 @@ class TypeEnum:
     def reset():
         TypeEnum._instance_count = 0
         TypeEnum._instances = []
-        
+
 
 TypeEnum._instance_count = 0
 TypeEnum._instances = []

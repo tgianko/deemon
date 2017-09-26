@@ -3,12 +3,14 @@ from dm_types import *
 
 
 def insert_propagates_to(graph, rs, logger):
+    if logger is not None:
+        logger.info("inserting relationships...")
 
     rs = list(rs)
     i = 1
     for e in rs:
         if logger is not None:
-            logger.info("Inserting relationship {}/{}".format(i, len(rs)))
+            logger.debug("Inserting relationship {}/{}".format(i, len(rs)))
         var1 =  Variable.select(graph).where(uuid=e[0]).first()
         var2 =  Variable.select(graph).where(uuid=e[1]).first()
 
@@ -49,6 +51,8 @@ def insert_vertical_chains(graph, projname, session, user, logger):
 
 
 def insert_variables(graph, projname, session, user, logger):
+    if logger is not None:
+        logger.info("Deriving Variables from PTs...")
 
     BLACKLIST = ["command-name", "command-value",
                  "target-name", "target-value",
@@ -62,9 +66,6 @@ def insert_variables(graph, projname, session, user, logger):
                  "Token.Keyword", "Token.Keyword.DML",
                  "Token.Name.Builtin"]
 
-    if logger is not None:
-        logger.info("Deriving Variables from PTs...")
-    
     query = """MATCH p1=(pt:ParseTree)-[:HAS_CHILD*]->(d:PTTerminalNode),
                      p2=(pt)-[par:PARSES]->(e:Event {projname: {projname}, session:{session}, user:{user}}) 
                WHERE size(d.symbol) > 0
@@ -87,14 +88,14 @@ def insert_variables(graph, projname, session, user, logger):
         return e["s_type"] not in BLACKLIST
 
     if logger is not None:
-        logger.info("Applying blacklist of s_type")
+        logger.debug("Applying blacklist of s_type")
     rs = filter(do_blacklist, rs)
 
     i = 1
     for e in rs:
         if e["s_type"] in BLACKLIST:
             if logger is not None:
-                logger.info("Ignoring s_type {} {}/{}".format(e["s_type"], i, len(rs)))
+                logger.debug("Ignoring s_type {} {}/{}".format(e["s_type"], i, len(rs)))
             continue
         if logger is not None:
             logger.info("Inserting variable {}/{}".format(i, len(rs)))
@@ -108,5 +109,3 @@ def insert_variables(graph, projname, session, user, logger):
 
         graph.push(var)
         i += 1
-
-

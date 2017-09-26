@@ -3,7 +3,7 @@ import sqlparse
 
 
 def remove_whitespaces(tree):
-    if tree.is_group: # COMMENT: changed from master due to underlying library changes func -> attr
+    if tree.is_group:  # COMMENT: changed from master due to underlying library changes func -> attr
         tree.tokens = [remove_whitespaces(element)
                        for element in tree.tokens
                        if not element.is_whitespace] # COMMENT: changed from master due to underlying library changes func -> attr

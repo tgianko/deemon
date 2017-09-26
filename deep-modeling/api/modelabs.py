@@ -136,6 +136,8 @@ def get_hash_to_transition(event_hash_list, projname):
 
 
 def create_dfa(projname, event_hash_list, logger):
+    if logger is not None:
+        logger.info("creating the dfa...")
     state_to_cluster = create_state_cluster_list(event_hash_list, projname)
     hash_to_transition = get_hash_to_transition(event_hash_list, projname)
 
@@ -144,11 +146,11 @@ def create_dfa(projname, event_hash_list, logger):
     current_state = state_to_cluster[state_counter]
 
     for i, cons in enumerate(event_hash_list):
-        logger.info("Processing {} / {}".format(i, len(event_hash_list)))
-        logger.info("In state {}".format(current_state.uuid))
+        logger.debug("Processing {} / {}".format(i, len(event_hash_list)))
+        logger.debug("In state {}".format(current_state.uuid))
         state_counter += 1
         transition_node = hash_to_transition[cons[1]]
-        logger.info("Using transition {}".format(transition_node))
+        logger.debug("Using transition {}".format(transition_node))
         current_state.HasTransition.add(transition_node)
         transition_node.To.add(state_to_cluster[state_counter])
         current_state = state_to_cluster[state_counter]
@@ -157,9 +159,11 @@ def create_dfa(projname, event_hash_list, logger):
 
 
 def magic_mike(graph, projname, session, user, logger=None):
-    logger.info("Retrieveing HTTP requests and clustering by state-changing operations...")
-    l_event_hash_tuple = get_l_http_event_hash_tuple(graph, projname, session, user, logger)
-    logger.info("Creating DFA...")
+    if logger is not None:
+        logger.info("Retrieveing HTTP requests and clustering by state-changing operations...")
+
+    l_event_hash_tuple = get_l_http_event_hash_tuple(graph, projname,
+                                                     session, user, logger)
     dfa_start = create_dfa(projname, l_event_hash_tuple, logger)
     graph.push(dfa_start)
 
@@ -179,6 +183,9 @@ def hash_to_state(event_hash_list, clusterList):
 
 def insert_intracausality(graph, projname, session, user, logger=None):
 
+    if logger is not None:
+        logger.info("Adding Intra-causality Edges {}".format(len(rs)))
+
     query = """MATCH (e1:Event {dm_type:"HttpRequest", projname:{projname}, session:{session}, user:{user}})<-[]-(pt1:ParseTree), 
                      (pt1)-[:HAS_CHILD*]->(nt:PTNonTerminalNode)-[:HAS_CHILD]->(ref1:PTTerminalNode {symbol:"referer"}), 
                      (nt)-[:HAS_CHILD]->(url_ref1:ParseTree {dm_type:"URL"}),
@@ -194,16 +201,13 @@ def insert_intracausality(graph, projname, session, user, logger=None):
     rs = graph.run(query, projname=projname, session=session, user=user)
     rs = list(rs)
 
-    if logger is not None:
-        logger.info("Adding Intra-causality Edges {}".format(len(rs)))
-
     i = 1
     for e in rs:
         e1 = Event.select(graph).where(seq=e["e1.seq"], dm_type=HTTPREQ, projname=projname, session=session, user=user).first()
         e2 = Event.select(graph).where(seq=e["prev"], dm_type=HTTPREQ, projname=projname, session=session, user=user).first()
 
         if logger is not None:
-            logger.info("Adding intra-causality {}-[IS_GENERATED_BY]->{} ({}/{})".format(e1.seq, e2.seq, i, len(rs)))
+            logger.debug("Adding intra-causality {}-[IS_GENERATED_BY]->{} ({}/{})".format(e1.seq, e2.seq, i, len(rs)))
 
         e1.IsGeneratedBy.add(e2)
 
@@ -235,7 +239,7 @@ def add_abstract_sql_queries_for_session_trace(graph, projname, session, user, l
     for i, kv in enumerate(dictionary.iteritems()):
         key, value = kv
         if logger is not None:
-            logger.info("Adding abstract parse tree ({}/{})".format(i, len(dictionary)))
+            logger.debug("Adding abstract parse tree ({}/{})".format(i, len(dictionary)))
 
         apt = AbstractParseTree(projname, ABSQUERY, key)
         for pt in value:

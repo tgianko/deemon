@@ -16,7 +16,7 @@ def analysis_oppat_bulk(arg, graph, logger):
         user = r["user"]
 
         label = infer_trace_patterns(graph, abspt_uuid, projname, session, user, logger)
-        logger.info("Adding operation pattern {} for {} {} {} {} ({}/{})".format(label, abspt_uuid, projname, session, user, i, len(rs)))
+        logger.debug("Adding operation pattern {} for {} {} {} {} ({}/{})".format(label, abspt_uuid, projname, session, user, i, len(rs)))
 
 
 def infer_event_patterns(abspt_uuid):

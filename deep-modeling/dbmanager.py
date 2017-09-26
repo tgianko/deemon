@@ -17,11 +17,11 @@ from api.oppat import *
 
 from shared.config import *
 
-if DEBUG:
-    log.LEVEL = log.LEVELS[-1]
-    watch("neo4j.bolt")
-else:
-    log.LEVEL = log.LEVELS[0]
+# if DEBUG:
+#    log.LEVEL = log.LEVELS[-1]
+#    watch("neo4j.bolt")
+# else:
+#    log.LEVEL = log.LEVELS[0]
 
 
 UNIQUENESS = [(DFAState.__name__,
@@ -140,6 +140,7 @@ def show_stats_database(args, graph, logger=None):
     for s in stats:
         print "| {:<20} | {:>20} |".format(s["t"], s["c"])
     print "\r\n\r\n"
+
 
 def show_csrf(args, graph, logger=None):
 
@@ -353,6 +354,10 @@ def oppat_bulk(arg, graph, logger=None):
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='dbmanager parameters')
+    p.add_argument("-v", "--verbose",
+                   dest="verbose",
+                   action="store_true",
+                   help="if flag is set debug output is displayed")
     subp = p.add_subparsers()
 
     init_p = subp.add_parser("init", help="Initialize the database")
@@ -563,9 +568,15 @@ def parse_args(args):
 
 def main(args):
     logger = log.getdebuglogger("dbmanager")
-    graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME,
+    graph = Graph(host=NEO4J_HOST,
+                  user=NEO4J_USERNAME,
                   password=NEO4J_PASSWORD)
     args_obj = parse_args(args)
+
+    if args_obj.verbose:
+        logger.setLevel(log.LEVELS[-1])
+    else:
+        logger.setLevel(log.LEVELS[0])
 
     args_obj.func(args_obj, graph, logger)
 

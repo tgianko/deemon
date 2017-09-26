@@ -29,8 +29,8 @@ def insert_selenese(graph, cmdlist, projname,
     prev_evt = None
     for cmd in cmdlist:
         if logger is not None:
-            logger.info("Adding Selenese Command (PT and Trace) {} / {}".format(cmd[0],
-                                                                                len(cmdlist)))
+            logger.debug("Adding Selenese Command (PT and Trace) {} / {}".format(cmd[0],
+                                                                                 len(cmdlist)))
         seq = cmd[0]
 
         command = cmd[2]
@@ -63,10 +63,11 @@ def insert_http(graph, reqlist, resplist, projname, session, user, logger=None):
     i = 1
     for hreq, hres in zip(reqlist, resplist):
         seq = hreq[0]
-        logger.info("Adding HTTP Messages (PT and Trace) {} ({}/{})".format(hreq[0], i,
-                                                                            len(reqlist)))
+        logger.debug("Adding HTTP Messages (PT and Trace) {} ({}/{})".format(hreq[0], i,
+                                                                             len(reqlist)))
         message = "{} {}".format(hreq[6], hreq[3])
-        evt_req = Event(projname, HTTPREQ, session, user, hreq[0], hreq[2], message)
+        evt_req = Event(projname, HTTPREQ, session,
+                        user, hreq[0], hreq[2], message)
         pt_req = parse_httpreq(hreq[6], hreq[3], hreq[5],
                                hreq[4], hreq[0], hreq[2],
                                projname, session, user)
@@ -76,7 +77,8 @@ def insert_http(graph, reqlist, resplist, projname, session, user, logger=None):
         graph.push(pt_req)
 
         message = "{}".format(hres[3])
-        evt_res = Event(projname, HTTPRESP, session, user, hres[0], hres[2], message)
+        evt_res = Event(projname, HTTPRESP, session,
+                        user, hres[0], hres[2], message)
         pt_res = parse_httpres(hres[3], hres[4], hres[5],
                                hres[0], hres[2], projname,
                                session, user)
@@ -89,14 +91,15 @@ def insert_http(graph, reqlist, resplist, projname, session, user, logger=None):
         if prev_evt_res:
             prev_evt_res.IsFollowedBy.add(evt_req)
             graph.push(prev_evt_res)
-        
+
         graph.push(evt_req)
 
         prev_evt_res = evt_res
         i += 2
 
 
-def insert_causality_selhttp(graph, idlist, projname, session, user, logger=None):
+def insert_causality_selhttp(graph, idlist, projname,
+                             session, user, logger=None):
     if logger is not None:
         logger.info("Importing {} causality between Selenese\
  commands and HTTP requests...".format(len(idlist)))
@@ -119,7 +122,7 @@ def insert_causality_selhttp(graph, idlist, projname, session, user, logger=None
     i = 1
     for rid, cmdid in idlist:
         if logger is not None:
-            logger.info("Processing Selense command ID {} ->\
+            logger.debug("Processing Selense command ID {} ->\
  HTTP request ID {} ({}/{})".format(cmdid, rid, i, len(idlist)))
         evt_cmd = Event.select(graph).where(seq=cmdid,
                                             projname=projname,
@@ -147,10 +150,11 @@ def insert_xdebug(graph, xdebugs, projname, session, user, logger=None):
     for rs in xdebugs:
         x_id = rs[0]
         if logger is not None:
-            logger.info("Processing XDEBUG trace ID {} ({}/{})"
-                        .format(x_id, i, len(xdebugs)))
+            logger.debug("Processing XDEBUG trace ID {} ({}/{})"
+                         .format(x_id, i, len(xdebugs)))
 
-        evt_xdebug = Event(projname, XDEBUG, session, user, x_id, None, "XDEBUG {} TOO HUGE TO STAY HERE.".format(x_id))
+        evt_xdebug = Event(projname, XDEBUG, session, user, x_id, None,
+                           "XDEBUG {} TOO HUGE TO STAY HERE.".format(x_id))
         graph.push(evt_xdebug)
 
         evt_req = Event.select(graph).where(seq=x_id,
@@ -177,8 +181,8 @@ def insert_queries(graph, queries, projname, session, user, logger=None):
     i = 1
     for x_id, q_id, sql in queries:
         if logger is not None:
-            logger.info("Processing SQL query ID {}-{} ({}/{})"
-                        .format(q_id, x_id, i, len(queries)))
+            logger.debug("Processing SQL query ID {}-{} ({}/{})"
+                         .format(q_id, x_id, i, len(queries)))
         
         evt_xdebug = Event.select(graph).where(seq=x_id,
                                                projname=projname,
@@ -191,7 +195,8 @@ def insert_queries(graph, queries, projname, session, user, logger=None):
         i += 1
 
 
-def insert_session_dumps(graph, sessions, projname, session, user, logger=None):
+def insert_session_dumps(graph, sessions, projname,
+                         session, user, logger=None):
     if logger is not None:
         logger.info("Importing {} sessions and relationships\
  with HTTP requests...".format(len(sessions)))
@@ -200,10 +205,11 @@ def insert_session_dumps(graph, sessions, projname, session, user, logger=None):
     i = 1
     for evt_id, sessnum in sessions:
         if logger is not None:
-            logger.info("Processing session {}/{}"
-                        .format(i, len(sessions)))
+            logger.debug("Processing session {}/{}"
+                         .format(i, len(sessions)))
 
-        evt_ses = Event(projname, PHPSESSION, session, user, evt_id, None, "{} PHP sessions".format(sessnum))
+        evt_ses = Event(projname, PHPSESSION, session, user,
+                        evt_id, None, "{} PHP sessions".format(sessnum))
         graph.push(evt_ses)
 
         evt_xdebug = Event.select(graph).where(seq=evt_id,
@@ -230,14 +236,14 @@ def insert_sessions(graph, sessions, projname, session, user, logger=None):
     i = 1
     for evt_id, ses_id, ses_string in sessions:
         if logger is not None:
-            logger.info("Processing session {}/{}"
-                        .format(i, len(sessions)))
+            logger.debug("Processing session {}/{}"
+                         .format(i, len(sessions)))
 
         ses_string = b64decode(ses_string)
         try:
             ses_string = b64decode(ses_string)
         except:
-            logger.info("Second base64 decoding no longer needed")
+            logger.debug("Second base64 decoding no longer needed")
             pass
 
         ses_id = ses_id.split("_")[-1]  # ses_id can be /tmp/sess_

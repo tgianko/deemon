@@ -6,7 +6,7 @@ from urllib import urlencode
 
 
 def insert_user_generated_chains(graph, projname, session, user, logger):
-    
+
     query = """MATCH chain=(src:Variable)-[:PROPAGATES_TO*]->(dst:Variable),
                      constr=(src {session: {session}, projname:{projname}, user:{user}})-[:HAS_VALUE]->(tn:PTTerminalNode {s_type:"value-value", dm_type:"SeleneseCommand"}) 
                 WITH nodes(chain) AS vlist, src, dst UNWIND vlist AS v
@@ -40,6 +40,9 @@ def insert_user_generated_chains(graph, projname, session, user, logger):
 
 def _do_infer(graph, var_groups, logger):
 
+    if logger is not None:
+        logger.info("infering variable types...")
+
     for j, v_g in enumerate(var_groups):
 
         syninf_pars = [v["value"] for v in v_g]
@@ -57,9 +60,9 @@ def _do_infer(graph, var_groups, logger):
             if syn_type not in v_node.syntype:
                 v_node.syntype.append(syn_type)
                 if logger is not None:
-                    logger.info("Adding SYN {} type to variable ({}/{} {}/{})".format(syn_type, i, len(v_g), j, len(var_groups)))
+                    logger.debug("Adding SYN {} type to variable ({}/{} {}/{})".format(syn_type, i, len(v_g), j, len(var_groups)))
             else:
-                logger.info("Skipping SYN {} type. Already in variable ({}/{} {}/{})".format(syn_type, i, len(v_g), j, len(var_groups)))
+                logger.debug("Skipping SYN {} type. Already in variable ({}/{} {}/{})".format(syn_type, i, len(v_g), j, len(var_groups)))
 
             if v_node.semtype is None:
                 v_node.semtype = list()
@@ -67,9 +70,9 @@ def _do_infer(graph, var_groups, logger):
             if sem_type not in v_node.semtype:
                 v_node.semtype.append(sem_type)
                 if logger is not None:
-                    logger.info("Adding SEM {} type to variable ({}/{} {}/{})".format(sem_type, i, len(v_g), j, len(var_groups)))
+                    logger.debug("Adding SEM {} type to variable ({}/{} {}/{})".format(sem_type, i, len(v_g), j, len(var_groups)))
             else:
-                logger.info("Skipping SEM {} type. Already in variable ({}/{} {}/{})".format(sem_type, i, len(v_g), j, len(var_groups)))
+                logger.debug("Skipping SEM {} type. Already in variable ({}/{} {}/{})".format(sem_type, i, len(v_g), j, len(var_groups)))
 
             graph.push(v_node)
 
@@ -136,32 +139,35 @@ def align_sequences(seqs, graph, logger):
     seq1, seq2 = seqs
 
     maxlen = len(seq1)+len(seq2)
-    logger.info("Len(seq1)={}, Len(seq2)={}".format(len(seq1), len(seq2)))
+
+    if logger is not None:
+        logger.info("infering sequences...")
+        logger.debug("Len(seq1)={}, Len(seq2)={}".format(len(seq1), len(seq2)))
+
     for i in range(0, maxlen):
 
         if i >= len(seq1) or i >= len(seq2):
             break
 
         if None in [seq1[i], seq2[i]]:
-            logger.info("One is none")
+            logger.debug("One is none")
             continue
         elif _equal(seq1[i], seq2[i]):
-            logger.info("Equal")
-            logger.info(" = {}".format(seq1[i].message))
-            logger.info(" = {}".format(seq2[i].message))
+            logger.debug("Equal")
+            logger.debug(" = {}".format(seq1[i].message))
+            logger.debug(" = {}".format(seq2[i].message))
             continue
         else:
-            logger.info("Different. Need to shift.")
-            logger.info(" ? {}".format(seq1[i].message))
-            logger.info(" ? {}".format(seq2[i].message))
-
+            logger.debug("Different. Need to shift.")
+            logger.debug(" ? {}".format(seq1[i].message))
+            logger.debug(" ? {}".format(seq2[i].message))
 
             # COMMENT: how far is the first element in seq2 equal to seq1[i]?
             pos1 = _index(seq2[i+1:], seq1[i])
             # COMMENT: how far is the first element in seq1 equal to seq2[i]?
             pos2 = _index(seq1[i+1:], seq2[i])
 
-            logger.info("  - Distances: pos1={} pos2={}".format(pos1, pos2))
+            logger.debug("  - Distances: pos1={} pos2={}".format(pos1, pos2))
 
             if pos1 >= 0 and pos2 >= 0:
                 """
@@ -169,38 +175,38 @@ def align_sequences(seqs, graph, logger):
                 """
                 if pos2 > pos1:  # COMMENT: pos1 is closer => shift S2
 
-                    logger.info("    > pos1 is closer => Shift seq2 of {}".format(pos1+1))
+                    logger.debug("    > pos1 is closer => Shift seq2 of {}".format(pos1+1))
                     seq2 = seq2[0:i] + [None]*(pos1+1) + seq2[i:]
 
                 elif pos2 < pos1:  # COMMENT: pos2 is closer => shift S1
 
-                    logger.info("    > pos2 is closer => Shift seq1 of {}".format(pos2+1))
+                    logger.debug("    > pos2 is closer => Shift seq1 of {}".format(pos2+1))
                     seq1 = seq1[0:i] + [None]*(pos2+1) + seq1[i:]
 
                 elif pos1 in range(0, 2):  # COMMENT: they are at the same distance (we use a tollerance of 1, i.e., 0, 1)
 
-                    logger.info("    > pos1 and pos2 are inverted and very close => swap seq1")
+                    logger.debug("    > pos1 and pos2 are inverted and very close => swap seq1")
                     seq1[i], seq1[i+pos1+1] = seq1[i+pos1+1], seq1[i]
 
                 else:  # COMMENT: they are too far, we shift ahead
 
-                    logger.info("    > pos1 and pos2 are inverted but distant => Shift seq1")
+                    logger.debug("    > pos1 and pos2 are inverted but distant => Shift seq1")
                     seq1 = seq1[0:i] + [None]*(pos2+1) + seq1[i:]
 
             elif pos1 < 0 and pos2 < 0: # both do not exist in the remainig on the sequences. We misalign both and move on.
 
-                logger.info("    > pos1 and pos2 are both null => misalign both of 1")
+                logger.debug("    > pos1 and pos2 are both null => misalign both of 1")
                 seq1 = seq1[0:i] + [None] + seq1[i:]
                 seq2 = seq2[0:i+1] + [None] + seq2[i+1:]
                 
             elif pos1 < 0:  # COMMENT: we shift the non null one
 
-                logger.info("    > only pos1 is null => shift pos2 of {}".format(pos2+1))
+                logger.debug("    > only pos1 is null => shift pos2 of {}".format(pos2+1))
                 seq2 = seq2[0:i] + [None]*(pos2+1) + seq2[i:]
 
             elif pos2 < 0:  # COMMENT: we shift the non null one
 
-                logger.info("    > only pos2 is null => shift pos1 of {}".format(pos1+1))
+                logger.debug("    > only pos2 is null => shift pos1 of {}".format(pos1+1))
                 seq1 = seq1[0:i] + [None]*(pos1+1) + seq1[i:]
 
             else:
@@ -220,7 +226,7 @@ def align_sequences(seqs, graph, logger):
     seq1 = n_seq1
     seq2 = n_seq2
 
-    logger.info("Len(seq1)={}, Len(seq2)={}".format(len(seq1), len(seq2)))
+    logger.debug("Len(seq1)={}, Len(seq2)={}".format(len(seq1), len(seq2)))
 
     return [seq1, seq2]
 
@@ -241,7 +247,7 @@ def _get_and_group_vars(sequence, graph, logger):
                 var_name = v["name"]
                 req_groups.setdefault(var_name, []).append(v)
             else:
-                logger.info("{} element".format(v))
+                logger.debug("{} element".format(v))
         var_groups.extend(req_groups.itervalues())
 
     return var_groups
@@ -262,7 +268,7 @@ def _get_aligned_sequences(graph, logger, operation, projname):
         else:
             logger.warning("Unknown session {}".format(se))
 
-    logger.info("Length of sequences: S1={} S1={}".format(len(seqs_S1), len(seqs_S2)))
+    logger.debug("Length of sequences: S1={} S1={}".format(len(seqs_S1), len(seqs_S2)))
     sequences = []
     if len(seqs_S1) > 1 and len(seqs_S2) > 1:
         seqs_S1 = align_sequences(seqs_S1, graph, logger)
@@ -290,13 +296,13 @@ def insert_abstract_events(graph, logger, operation, projname):
         a_req = next(req for req in reqs if req is not None)  # COMMENT: a request not null
         abs_evt = AbstractEvent(projname, ABSHTTPREQ, operation, pos, _abs_url(a_req.message))
         if logger is not None:
-            logger.info("Adding abstract event of position {}/{}".format(pos, len(reqs_by_pos)))
-        
+            logger.debug("Adding abstract event of position {}/{}".format(pos, len(reqs_by_pos)))
+
         for req in reqs:
             if req:
                 abs_evt.Abstracts.add(req)
                 if logger is not None:
-                    logger.info("  - abs evt message {} -> evt message {}".format(abs_evt.message, req.message))
+                    logger.debug("  - abs evt message {} -> evt message {}".format(abs_evt.message, req.message))
 
         if prev_abs_evt:
             prev_abs_evt.IsFollowedBy.add(abs_evt)
@@ -317,7 +323,8 @@ def insert_synsem_type_by_op(graph, logger, operation, projname):
     rs = list(graph.run(query, projname=projname, operation=operation))
 
     if logger is not None:
-        logger.info("Grouping variables by AbstractEvent...")
+        logger.debug("Grouping variables by AbstractEvent...")
+
     var_groups = []
     for pos, el in enumerate(rs):
         uuid = el["e"]["uuid"]
@@ -332,7 +339,7 @@ def insert_synsem_type_by_op(graph, logger, operation, projname):
                 var_name = v["name"]
                 req_groups.setdefault(var_name, []).append(v)
             else:
-                logger.info("{} element".format(v))
+                logger.debug("{} element".format(v))
         var_groups.extend(req_groups.itervalues())
 
     _do_infer(graph, var_groups, logger)

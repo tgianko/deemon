@@ -536,20 +536,20 @@ class Multipart(object):
  
     Watch http://bugs.python.org/issue3244 to see if this is fixed in the
     Python libraries.
- 
+
     @return: content type, body
     @rtype: tuple
     '''
- 
+
     def __init__(self):
         self.parts = []
         return
- 
+
     def field(self, name, value, headers={}):
         '''
         Create and append a field part.  This kind of part has a field name
         and value.
- 
+
         @param name: The field name.
         @type name: str
         @param value: The field value.
@@ -559,12 +559,12 @@ class Multipart(object):
         '''
         self.parts.append(Part(name, None, value, headers))
         return
- 
+
     def file(self, name, filename, value, headers={}):
         '''
         Create and append a file part.  THis kind of part has a field name,
         a filename, and a value.
- 
+
         @param name: The field name.
         @type name: str
         @param value: The field value.
@@ -574,13 +574,13 @@ class Multipart(object):
         '''
         self.parts.append(Part(name, filename, value, headers))
         return
- 
+
     def get(self):
         '''
         Get the multipart form data.  This returns the content type, which
         specifies the boundary marker, and also returns the body containing
         all parts and bondary markers.
- 
+
         @return: content type, body
         @rtype: tuple
         '''
@@ -589,6 +589,6 @@ class Multipart(object):
             all += part.get()
         all.append('--' + Part.BOUNDARY + '--')
         all.append('')
-        # COMMENT: We have to return the content type, since it specifies the boundary.
+        # COMMENT: have to return content type, as it specifies the boundary.
         content_type = 'multipart/form-data; boundary=%s' % Part.BOUNDARY
         return content_type, Part.CRLF.join(all)
