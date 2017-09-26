@@ -14,8 +14,6 @@ This project consists in a number of tools that are chained in a variety of ways
  * [rawtrace-analysis](rawtrace-analysis/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo2.
 
 
-
- 
 ### The Deep Modeling Framework  (UNDER DEVELOPMENT)
 
 Deep Modeling is our awesome framework that allows to model and detect vulnerabilities. Its home is [here](deep-modeling/README.md). Our framework is based on Neo4j and it composed of three type of tools:
@@ -52,13 +50,6 @@ repository.
 
 # Tutorials
 
-We prepared a number of tutorials to start using our toolchains. 
-
- 1. Tutorial for the acquisition and analysis of dynamic traces is [here](docs/TRACE_ACQUISITION.md)
- 2. Tutorial to use our deep modeling framework is [here](docs/DEEP_MODELING.md)
- 3. A complete documentation of all the involved tools [here](./docs/TOOLCHAIN_ELEMENTS.md)
-
-# Quick start
-
-After successfully installing everything you can refer to [this documentation](./docs/RUN_TEST.md) 
-to get a quick introduction on how to conduct csrf tests using our tool chain.
+We prepared a quick tutorial to get into the testing for CSRF vulnerabilities right away 
+[here](./docs/RUN_TEST.md) as well as a more extensive documentation of each tool involved
+[here](./docs/TOOLCHAIN_ELEMENTS.md).
