@@ -200,7 +200,7 @@ class VilanooProxyRequestHandler(BaseHTTPRequestHandler, ProxyRequestHandler):
         if external_request(self):
             ProxyRequestHandler.do_GET(self)
         else:
-            v_logger.info("Waiting for lock {}".format(self.path))
+            v_logger.debug("Waiting for lock {}".format(self.path))
             with lock:
                 ProxyRequestHandler.do_GET(self)
 
@@ -330,9 +330,9 @@ def start_selenese_runner(fname, selenese_log):
                     sel_cmd_id += 1
 
                     # COMMENT: Resume Selenese runner
-                    s_logger.info("Pressing ENTER")
+                    s_logger.debug("Pressing ENTER")
                     proc.stdin.write("\n")
-                    s_logger.info("Pressed  ENTER")
+                    s_logger.debug("Pressed  ENTER")
 
         if proc.returncode != "0":
             s_logger.error("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.poll()))
@@ -350,6 +350,12 @@ def start_selenese_runner(fname, selenese_log):
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description='Main vilanoo2 proxy parameters')
+
+    parser.add_argument("-v", "--verbose",
+                        dest="verbose",
+                        help="if set this flag enables debug output",
+                        action="store_true")
+
     parser.add_argument("-b", "--bind",
                         dest="bind",
                         help="Vilanoo proxy binding IPv4 address. This address is also used for the proxy configuration of selenese-runner.",       
@@ -428,6 +434,11 @@ def main(args):
     if args_obj.selenese:
         store_sel_commands(args_obj.selenese)
         start_selenese_runner(args_obj.selenese, args_obj.selenese_log)
+
+    if args_obj.verbose:
+        s_logger.setLevel(log.LEVELS[-1])
+        m_logger.setLevel(log.LEVELS[-1])
+        v_logger.setLevel(log.LEVELS[-1])
 
     start_proxy(args_obj.bind, args_obj.port)
 
