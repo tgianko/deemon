@@ -12,12 +12,12 @@ import Cookie
 from urlparse import urlparse, urlunparse
 import re
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-#from urlparse import urlunparse, urlparse
-
 import utils.log as log
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from utils.cookie import BetterCookie
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+# from urlparse import urlunparse, urlparse
+
 
 DEBUG = False
 TIMEOUT = 120
@@ -30,28 +30,29 @@ else:
 
 logger = log.getdebuglogger("csrf-test-runner")
 
-# Selenese runner 
-s_logger   = log.getdebuglogger("selenese")
+# Selenese runner
+s_logger = log.getdebuglogger("selenese")
 selrun_thr = None
 
 # MOSGI STUFF
 
 # MOSGI logger
-m_logger  = log.getdebuglogger("mosgi")
+m_logger = log.getdebuglogger("mosgi")
 
 # MOSGI connection
 mosgi_connection = None
-mosgi_start_command_byte=0
-mosgi_finish_response_byte=2    
+mosgi_start_command_byte = 0
+mosgi_finish_response_byte = 2
+
 
 def connect_to_mosgi(address, port):
     global mosgi_connection
-    m_logger.info("Connecting to MOSGI: {}:{}".format(address, port))
+    m_logger.debug("Connecting to MOSGI: {}:{}".format(address, port))
     for i in range(0, MAX_RETRY):
         try:
             mosgi_connection = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             mosgi_connection.connect((address, port))
-            m_logger.info("Connected to MOSGI")
+            m_logger.debug("Connected to MOSGI")
             return
         except Exception as e:
             m_logger.warning("Connection to MOSGI failed (attempt {} of {}): {} {}".format(i+1, MAX_RETRY+1, type(e), e))
@@ -65,9 +66,9 @@ def connect_to_mosgi(address, port):
 def send_start_to_mosgi(db_id):
     command = bytearray([mosgi_start_command_byte])
     logger.debug("Passing {0} to MOSGI".format(command))
-    
+
     mosgi_connection.send(command)
-    #this should explode (booooom!) the int into 4 bytes and transmit them to mosgi
+    # COMMENT: this explodes the int into 4 bytes and transmit them to mosgi
     request_id = bytearray( [ ((db_id>>24) & 0xff) ,
                               ((db_id>>16) & 0xff), 
                               ((db_id>>8) & 0xff), 
@@ -87,6 +88,7 @@ def fetch_requests(filename):
         reqs = list(rs)
     return reqs
 
+
 def fetch_request_by_id(filename, seq_id):
     logger.info("Loading testcases...")
 
@@ -98,90 +100,92 @@ def fetch_request_by_id(filename, seq_id):
         reqs = list(rs)
     return reqs
 
+
 def store_httpresp(req_id, response, filename):
 
     headers = json.dumps(dict(response.headers))
 
-    con = lite.connect(filename)   
-    con.text_factory = str     
-    with con:            
-        cur = con.cursor()           
+    con = lite.connect(filename)
+    con.text_factory = str
+    with con:
+        cur = con.cursor()
         data = (req_id, datetime.datetime.now(), response.status_code, headers, response.content)
         cur.execute("INSERT INTO http_responses (req_id, time, status_code, headers, content) VALUES(?,?,?,?,?)",
                     data)
 
-    return 
+    return
+
 
 def do_send_req(command, url, headers, body, c_obj=None, proxy=None):
     """
     This function turns a ParseTree in an actual HTTP request. All
     values are used except the one un TN.
-    """    
+    """
 
     proxies = {}
     if proxy:
         proxies = {
             "https": proxy,
-            #"http": proxy
+            #  "http": proxy
         }
-
 
     if c_obj and "cookie" in headers:
         if args_obj.replcookie:
             logger.info("Replacing test case cookies with fresh ones")
-            headers["cookie"]= _inline_cookie(c_obj)
+            headers["cookie"] = _inline_cookie(c_obj)
         else:
             logger.info("Updating test case cookies with fresh ones")
             old_c_obj = Cookie.SimpleCookie()
             old_c_obj.load(str(headers["cookie"]))
             old_c_obj.update(c_obj)
-            headers["cookie"]= _inline_cookie(old_c_obj)
+            headers["cookie"] = _inline_cookie(old_c_obj)
 
-
-    logger.info("URL {}, HEADERS {}".format(url, headers))
+    logger.debug("URL {}, HEADERS {}".format(url, headers))
     sess = requests.Session()
     reqobj = requests.Request(command, url, data=body, headers=headers)
     prep_reqobj = reqobj.prepare()
     respobj = sess.send(
         prep_reqobj,
         proxies=proxies,
-        timeout=TIMEOUT, 
-        stream=True, 
-        allow_redirects=False, 
+        timeout=TIMEOUT,
+        stream=True,
+        allow_redirects=False,
         verify=False
     )
     sess.close()
     return reqobj, respobj
 
+
 class SeleneseRunnerThread(threading.Thread):
 
     def run(self):
         self.stdout = []
-        cmdline = ["java", 
-                    "-jar",
-                    "../selenese-runner/selenese-runner.jar",
-                "--driver", "firefox", 
-                    "--no-proxy","*.com,*.net,*.org", 
-                    "-t", "640000",
-                    "-i",
-                    "--baseurl", args_obj.baseurl,
-                    "{}".format(args_obj.selenese)]
+        cmdline = ["java",
+                   "-jar",
+                   "../selenese-runner/selenese-runner.jar",
+                   "--driver", "firefox",
+                   "--no-proxy","*.com,*.net,*.org", 
+                   "-t", "640000",
+                   "-i",
+                   "--baseurl", args_obj.baseurl,
+                   "{}".format(args_obj.selenese)]
         if args_obj.selenese_args:
             for p in args_obj.selenese_args.split(" "):
-                cmdline.insert(-1, p) # w/ -1 inserts at the last but one position
+                cmdline.insert(-1, p)  # COMMENT: w/ -1 inserts at the last but one position
 
         s_logger.info(cmdline)
 
-        proc = subprocess.Popen(cmdline, bufsize=0, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmdline, bufsize=0, stdin=subprocess.PIPE,
+                                stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         time.sleep(0.5)
 
         with open(args_obj.selenese_log, "a") as f:
             """
             Read stdout
-            """            
-            s_logger.info("Start running the show")
+            """
+            s_logger.debug("Start running selenese")
             for line in iter(proc.stdout.readline, b""):
-                self.stdout.append(line) # create a copy
+                self.stdout.append(line)  # COMMENT: create a copy
                 f.write(line)
 
                 if proc.poll() is not None:
@@ -192,100 +196,108 @@ class SeleneseRunnerThread(threading.Thread):
                     Next command
                     """
                     # Let's sleep a bit to flush pending HTTPr requests
-                    s_logger.info("Selenese ready for next command. Waiting for {}s...".format(args_obj.wait))
+                    s_logger.debug("Selenese ready for next command. Waiting for {}s...".format(args_obj.wait))
                     time.sleep(args_obj.wait)
 
                     # Resume Selenese runner
-                    s_logger.info("Pressing ENTER")
+                    s_logger.debug("Pressing ENTER")
                     proc.stdin.write("\n")
-                    s_logger.info("Pressed  ENTER")
+                    s_logger.debug("Pressed  ENTER")
         
         time.sleep(args_obj.wait)
 
         if proc.returncode != "0":
             s_logger.warning("Selenese-runner-java terminated unexpectedly with code {}. Sending SIGTERM.".format(proc.returncode))
         else:
-            s_logger.info("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.returncode))
-     
+            s_logger.debug("Selenese-runner-jar terminated with code {}. Sending SIGTERM.".format(proc.returncode))
+
+
 def parse_args(args):
     p = argparse.ArgumentParser(description='CSRF test runner')
+
+    p.add_argument("-v", "--verbose",
+                   dest="verbose",
+                   action="store_true",
+                   help="if this flag is set additional debug information is printed")
+
     p.add_argument("-b", "--base-url",
-                   dest="baseurl",                      
-                   help="Base URL for the generation of testcases",       
-                   default='127.0.0.1', 
-                   metavar="IP",   
+                   dest="baseurl",
+                   help="Base URL for the generation of testcases",
+                   default='127.0.0.1',
+                   metavar="IP",
                    type=str)
     
     p.add_argument("-t", "--test_id",
                    dest="test_id",
-                   required=True,                   
+                   required=True,
                    help="ID of the test to run",
-                   metavar="INT",   
+                   metavar="INT",
                    type=int)
 
     p.add_argument("-p", "--proxy",
-                   dest="proxy",                      
-                   help="HTTP Proxy, e.g., 127.0.0.1:8080",       
-                   default=None, 
-                   metavar="IP[:PORT]",   
+                   dest="proxy",
+                   help="HTTP Proxy, e.g., 127.0.0.1:8080",
+                   default=None,
+                   metavar="IP[:PORT]",
                    type=str)
     
-    p.add_argument("-M", "--mosgi-address", 
-                   dest="mosgi_addr",                
-                   help="MOSGI listening address.",      
-                   default='127.0.0.1',            
-                   metavar="IP",   
+    p.add_argument("-M", "--mosgi-address",
+                   dest="mosgi_addr",
+                   help="MOSGI listening address.",
+                   default='127.0.0.1',
+                   metavar="IP",
                    type=str)
     
     p.add_argument("-P", "--mosgi-port",
                    dest="mosgi_port",
-                   help="MOSGI TCP port.",         
-                   default=8844,      
-                   metavar="PORT", 
+                   help="MOSGI TCP port.",
+                   default=8844,
+                   metavar="PORT",
                    type=int)
     
-    p.add_argument("--no-mosgi",      
-                   dest="dismosgi",                  
+    p.add_argument("--no-mosgi",
+                   dest="dismosgi",
                    help="By default, MOSGI is enabled. Use this option to disable MOSGI.",      
-                   action="store_false") 
+                   action="store_false")
     
-    p.add_argument("--replace-cookie",      
-                   dest="replcookie",                  
+    p.add_argument("--replace-cookie",
+                   dest="replcookie",
                    help="Replace test cases cookies with freshes. When not used, test cases cookies are updated.",
-                   action="store_true") 
+                   action="store_true")
 
     p.add_argument("-d", "--database",
-                   dest="database",                      
+                   dest="database",
                    help="Database containing test cases",
                    required=True,
-                   metavar="PATH",   
+                   metavar="PATH",
                    type=str)
     
-    p.add_argument("-S", "--selenese",      
+    p.add_argument("-S", "--selenese",
                    dest="selenese",
-                   required=True,         
-                   help="Specify the Selenese test case to login",            
-                   metavar="PATH", type=str)  
+                   required=True,
+                   help="Specify the Selenese test case to login",
+                   metavar="PATH", type=str)
 
     p.add_argument("-l", "--selenese-log",
                    dest="selenese_log",
                    help="the file which is the selense log for the current run",
                    metavar="PATH", type=str)
 
-    p.add_argument(      "--selenese-args", 
-                   dest="selenese_args",             
+    p.add_argument("--selenese-args",
+                   dest="selenese_args",
                    help="Use this parameter to pass additional CLI arguments to selenese-runner-java",            
-                   metavar="ARGS", 
-                   type=str)  
+                   metavar="ARGS",
+                   type=str)
 
-    p.add_argument("-w", "--wait",          
-                    dest="wait",                      
-                    help="Waiting time in seconds before the next Selenese command is executed.",  
-                    default='2',    
-                    metavar="SEC", 
-                    type=float)
+    p.add_argument("-w", "--wait",
+                   dest="wait",
+                   help="Waiting time in seconds before the next Selenese command is executed.",  
+                   default='2',
+                   metavar="SEC",
+                   type=float)
 
     return p.parse_args(args)
+
 
 def _parse_cookie(c):
     pattern = """(.*)=\[(.*)\] \(domain=(.*), path=(.*), expire=(.*)\)"""
@@ -297,19 +309,21 @@ def _parse_cookie(c):
     expires = result.group(5)
     return key, value, domain, path, expires
 
+
 def _inline_cookie(cookie):
     """Return an inline cookie string"""
     result = []
     items = cookie.items()
     items.sort()
-    for K,V in items:
-        result.append( V.OutputString() )
+    for K, V in items:
+        result.append(V.OutputString())
     return "; ".join(result)
+
 
 def _selout_to_cookie(buf):
     aux = [line.split("Cookie: ")[1] for line in buf if "Cookie" in line]
-    
-    cookie = BetterCookie() # this one can handle cookie names with "[]"
+
+    cookie = BetterCookie()  # COMMENT: this one can handle cookie names with "[]"
     for line in aux:
         if line[0:5] in ["[add]", "[del]", "[mod]"]:
             key, value, domain, path, expires = _parse_cookie(line[6:])
@@ -318,7 +332,7 @@ def _selout_to_cookie(buf):
 
         if line[0:5] == "[del]":
             del cookie[key]
-        else: # line[0:5] in ["[add]", "[mod]"] or line does not start with none of them
+        else:  # line[0:5] in ["[add]", "[mod]"] or line does not start with none of them
             cookie[key] = value
             cookie[key]["domain"] = domain
             cookie[key]["path"] = path
@@ -329,22 +343,34 @@ def _selout_to_cookie(buf):
     
 
 def login_and_get_cookie():
-    logger.info("Running selenese-runner.jar")
-    selrun_thr = SeleneseRunnerThread() # install a global thread
-    selrun_thr.start() 
+    logger.debug("Running selenese-runner.jar")
+    selrun_thr = SeleneseRunnerThread()  # COMMENT: install a global thread
+    selrun_thr.start()
 
-    logger.info("Waiting selenese-runner to be done")
+    logger.debug("Waiting selenese-runner to be done")
     selrun_thr.join()
 
-    logger.info("selenese-runner.jar has finished. No. of lines {}".format(len(selrun_thr.stdout)))
-    logger.info("Parsing cookies...")
+    logger.info("selenese runner has finished")
+    logger.debug("No. of lines {}".format(len(selrun_thr.stdout)))
+
+    logger.debug("Parsing cookies...")
     c_obj = _selout_to_cookie(selrun_thr.stdout)
-    logger.info("Fresh cookies: {}".format(c_obj.output(header="Cookie: ")))
+    logger.debug("Fresh cookies: {}".format(c_obj.output(header="Cookie: ")))
     return c_obj
 
+
 def main(args):
-    global args_obj # global variables are the devils tool
+    global args_obj  # COMMENT: global variables should be purged later on
     args_obj = parse_args(args)
+
+    if args_obj.verbose:
+        logger.setLevel(log.LEVELS[-1])
+        s_logger.setLevel(log.LEVELS[-1])
+        m_logger.setLevel(log.LEVELS[-1])
+    else:
+        logger.setLevel(log.LEVELS[0])
+        s_logger.setLevel(log.LEVELS[-1])
+        m_logger.setLevel(log.LEVELS[-1])
 
     test = fetch_request_by_id(args_obj.database, str(args_obj.test_id))
     if len(test) == 0:
@@ -355,31 +381,31 @@ def main(args):
     command, url, headers, body = test[11:]
 
     logger.info("Test case test {}: {}, {}".format(seq_id, command, url))
-    
-    logger.info("Retrieving fresh cookies")
+
+    logger.debug("Retrieving fresh cookies")
     c_obj = login_and_get_cookie()
 
-    # MOSGI needs to be run AFTER login.
+    # COMMENT: MOSGI needs to be run AFTER login.
     if args_obj.dismosgi:
         connect_to_mosgi(args_obj.mosgi_addr, args_obj.mosgi_port)
 
     headers = json.loads(headers)
-    # Correct URL 
+    # Correct URL
     if args_obj.baseurl:
         baseurl_p = urlparse(args_obj.baseurl)
         urlp = urlparse(url)
         repl_urlp = urlp._replace(netloc=baseurl_p.netloc)
         url = urlunparse(repl_urlp)
-    
-    logger.info("Sending HTTP request")
+
+    logger.debug("Sending HTTP request")
     reqobj, respobj = do_send_req(command, url, headers, body, c_obj=c_obj)
     logger.info("Received {}".format(respobj.status_code))
 
-    logger.info("Storing HTTP response")
+    logger.debug("Storing HTTP response")
     store_httpresp(seq_id, respobj, args_obj.database)
 
     if args_obj.dismosgi:
-        logger.info("Waiting for MOSGI")
+        logger.debug("Waiting for MOSGI")
         send_start_to_mosgi(seq_id)
 
     logger.info("Done")

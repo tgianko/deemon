@@ -73,7 +73,9 @@ class PartialFormatter(string.Formatter):
 
 def test_stats(args, graph, logger=None):
 
-    logger.info("Retrieving Ops")
+    if logger is not None:
+        logger.debug("Retrieving Ops")
+
     query = """MATCH (ae:AbstractEvent)
                        WITH DISTINCT ae
                 RETURN ae.projname AS projname,
@@ -82,7 +84,8 @@ def test_stats(args, graph, logger=None):
 
     ops = list(graph.run(query))
 
-    logger.info("Retrieving stchreqs_tr")
+    if logger is not None:
+        logger.debug("Retrieving stchreqs_tr")
 
     # COMMENT: This query counts state-changing operation using the singleton on a per-trace.
     query = """MATCH (sql:ParseTree)<-[:ABSTRACTS]-(abssql:AbstractParseTree)
@@ -95,7 +98,9 @@ def test_stats(args, graph, logger=None):
 
     stchreqs_tr = list(graph.run(query))
 
-    logger.info("Retrieving stchreqs_tr_ston")
+    if logger is not None:
+        logger.debug("Retrieving stchreqs_tr_ston")
+
     query = """MATCH (ae:AbstractEvent)-[:ABSTRACTS]->(e:Event)-[:CAUSED]->(xd)<-[PARSES]-(pt)<-[:ABSTRACTS]-(apt:AbstractParseTree) 
                 WITH DISTINCT ae.projname AS projname, ae.operation AS operation, e.uuid AS e_uuid, apt, count(e) AS c 
                 WHERE c = 1
@@ -152,28 +157,28 @@ def skip(n, ignore):
 
 def pt_to_url(pt, ignore=None, replacewith=None):
     scheme, netloc, path, qs = "", "", "", ""
-    
+
     for child in sorted(list(pt.HasChild), key=lambda c: c.pos):
-        
+
         if isinstance(child, PTTerminalNode):
-            
+
             if child.s_type == "path":
                 path = child.symbol
-            
+
             elif child.s_type == "scheme":
                 scheme = child.symbol
-            
+
             elif child.s_type == "netloc":
                 netloc = child.symbol
-            
+
             else:
                 raise Exception("Unhandled URL component {} {}".format(child.uuid, child.s_type))
-        
+
         if isinstance(child, PTNonTerminalNode):
-            
+
             if child.s_type == "query-string":
                 qs = pt_to_query(child, ignore, replacewith=replacewith)
-            
+
             else:
                 raise Exception("Unhandled NonTerminal component {} {}".format(child.uuid, child.s_type))
 
@@ -524,7 +529,7 @@ def tgen_pchain_su_p(args, graph, logger=None):
         pt = ParseTree.select(graph).where(uuid=res["p1.uuid"]).first()
         tn = PTTerminalNode.select(graph).where(uuid=res["tn1.uuid"]).first()
 
-        logger.info( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
+        logger.debug( "Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
 
         command, url, headers, body = pt_to_req(pt, tn)
         if not args.simulate:
@@ -568,13 +573,13 @@ def tgen_su_var(args, graph, logger=None):
     print "Total number of test cases to generate: {}".format(len(uuids))
     for i, res in enumerate(uuids):
         if _is_var_blacklisted(res["v"]["name"]):
-            logger.info("Skipping {} because is blacklisted".format(res["v"]["name"]))
+            logger.debug("Skipping {} because is blacklisted".format(res["v"]["name"]))
             continue
         pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
         tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
 
-        logger.info("Exporting test case {}/{} by removing {}={}".format(i, len(uuids),
-                                                                         tn.s_type, tn.symbol))
+        logger.debug("Exporting test case {}/{} by removing {}={}".format(i, len(uuids),
+                                                                          tn.s_type, tn.symbol))
 
         command, url, headers, body = pt_to_req(pt, tn)
         if not args.simulate:
@@ -602,7 +607,7 @@ def _get_singleton_ops(graph, evt_uuid, projname, session, user, logger):
         apt_uuid = r["apt_uuid"]
         label = infer_trace_patterns(graph, apt_uuid, projname,
                                      session, user, logger)
-        logger.info("   {} has abstract query {} with label {}".format(evt_uuid, apt_uuid, label))
+        logger.debug("   {} has abstract query {} with label {}".format(evt_uuid, apt_uuid, label))
         if label == TRACE_SINGLETON_OP:
             out.append(r["apt"])
 
@@ -661,23 +666,23 @@ def tgen_su_uu_var_singleton(args, graph, logger=None):
 
     su_uuids = graph.run(su_query, data)
     su_uuids = list(su_uuids)
-    logger.info("Max number of SU test cases to generate: {}".format(len(su_uuids)))
+    logger.debug("Max number of SU test cases to generate: {}".format(len(su_uuids)))
 
     uu_uuids = graph.run(uu_query, data)
     uu_uuids = list(uu_uuids)
-    logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
+    logger.debug("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
     
     for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
-        logger.info("Generating tests for {} variables".format(label))
+        logger.debug("Generating tests for {} variables".format(label))
         for i, res in enumerate(uuids):
             pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
             tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
             command, url, headers, body = pt_to_req(pt, tn)
 
-            logger.info("Variable {} is {}".format(res["v"]["name"], label))
-            logger.info("  Request {} {}".format(command, url))
+            logger.debug("Variable {} is {}".format(res["v"]["name"], label))
+            logger.debug("  Request {} {}".format(command, url))
             if not _has_singleton_op(graph, res["e_uuid"], res["projname"], res["session"], res["user"], logger):
-                logger.info(" Skipping because does not result in a SINGLETON operation")
+                logger.debug(" Skipping because does not result in a SINGLETON operation")
                 continue
 
             if _is_var_blacklisted(res["v"]["name"]):
@@ -762,24 +767,24 @@ def tgen_su_uu_var_singleton_new_all(args, graph, logger=None):
 
     su_uuids = graph.run(su_query)
     su_uuids = list(su_uuids)
-    logger.info("Max number of SU test cases to generate: {}".format(len(su_uuids)))
+    logger.debug("Max number of SU test cases to generate: {}".format(len(su_uuids)))
 
     uu_uuids = graph.run(uu_query)
     uu_uuids = list(uu_uuids)
-    logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
+    logger.debug("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
 
     for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
-        logger.info("Generating tests for {} variables".format(label))
+        logger.debug("Generating tests for {} variables".format(label))
         for i, res in enumerate(uuids):
             pt = ParseTree.select(graph).where(uuid=res["pt"]["uuid"]).first()
             tn = PTTerminalNode.select(graph).where(uuid=res["tn"]["uuid"]).first()
             command, url, headers, body = pt_to_req(pt, tn)
 
-            logger.info("Variable {} is {}".format(res["v"]["name"], label))
-            logger.info("  Request {} {}".format(command, url))
+            logger.debug("Variable {} is {}".format(res["v"]["name"], label))
+            logger.debug("  Request {} {}".format(command, url))
 
             if _is_var_blacklisted(res["v"]["name"]):
-                logger.info(" Skipping because is blacklisted")
+                logger.debug(" Skipping because is blacklisted")
                 continue
 
             logger.info( " => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))
@@ -866,11 +871,11 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
 
     su_uuids = graph.run(su_query, data)
     su_uuids = list(su_uuids)
-    logger.info("Max number of SU test cases to generate: {}".format(len(su_uuids)))
+    logger.debug("Max number of SU test cases to generate: {}".format(len(su_uuids)))
 
     uu_uuids = graph.run(uu_query, data)
     uu_uuids = list(uu_uuids)
-    logger.info("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
+    logger.debug("Max number of UU test cases to generate: {}".format(len(uu_uuids)))
     
     for label, uuids in [(typeinf.SEM_TYPE_SESSION_UNIQUE, su_uuids), (typeinf.SEM_TYPE_USER_UNIQUE, uu_uuids)]:
         logger.info("Generating tests for {} variables".format(label))
@@ -882,11 +887,11 @@ def tgen_replay_su_uu_var_singleton(args, graph, logger=None):
             logger.info("Variable {} is {}".format(res["v"]["name"], label))
             logger.info("  Request {} {}".format(command, url))
             if not _has_singleton_op(graph, res["e_uuid"], res["projname"], res["session"], res["user"], logger):
-                logger.info(" Skipping because does not result in a SINGLETON operation")
+                logger.debug(" Skipping because does not result in a SINGLETON operation")
                 continue
 
             if _is_var_blacklisted(res["v"]["name"]):
-                logger.info(" Skipping because is blacklisted")
+                logger.debug(" Skipping because is blacklisted")
                 continue
 
             logger.info(" => Exporting test case {}/{} by removing {}={}".format(i, len(uuids), tn.s_type, tn.symbol))        
@@ -925,7 +930,7 @@ def tgen_not_protected_all_new(args, graph, logger=None):
 
     uuids = graph.run(query)
     uuids = list(uuids)
-    logger.info("Number of requests to process: {}".format(len(uuids)))
+    logger.debug("Number of requests to process: {}".format(len(uuids)))
 
     def _is_not_protected(res):
         V = res["vars"]
@@ -988,8 +993,8 @@ def tgen_not_protected(args, graph, logger=None):
 
     uuids = graph.run(query, data)
     uuids = list(uuids)
-    logger.info("Number of requests to process: {}".format(len(uuids)))
-    
+    logger.debug("Number of requests to process: {}".format(len(uuids)))
+
     def _is_not_protected(res):
         V = res["vars"]
         for pt, tn, v in V:
@@ -1006,7 +1011,7 @@ def tgen_not_protected(args, graph, logger=None):
         return True
 
     st_ch_ops = [res for res in uuids if _has_singleton_op(graph, res["e"]["uuid"], res["projname"], res["e"]["session"], res["e"]["user"], logger)]
-    logger.info("N.ro of state changing operations: {}".format(len(st_ch_ops)))
+    logger.debug("N.ro of state changing operations: {}".format(len(st_ch_ops)))
 
     not_protected = filter(_is_not_protected, st_ch_ops)
     logger.info("No. of NON protected state changing operations: {}".format(len(not_protected)))
@@ -1015,7 +1020,7 @@ def tgen_not_protected(args, graph, logger=None):
         pt, _, __ = res["vars"][0]
         pt = ParseTree.select(graph).where(uuid=pt["uuid"]).first()
         command, url, headers, body = pt_to_req(pt)
-        
+
         if not args.simulate:
             store_tgen(i, res["projname"], res["e"]["session"],
                        res["operation"], res["e"]["user"],
@@ -1052,7 +1057,7 @@ def tgen_protected(args, graph, logger=None):
 
     uuids = graph.run(query, data)
     uuids = list(uuids)
-    logger.info("Number of requests to process: {}".format(len(uuids)))
+    logger.debug("Number of requests to process: {}".format(len(uuids)))
     
     def _is_protected(res):
         V = res["vars"]
@@ -1071,7 +1076,7 @@ def tgen_protected(args, graph, logger=None):
         return False
 
     st_ch_ops = [res for res in uuids if _has_singleton_op(graph, res["e"]["uuid"], res["projname"], res["e"]["session"], res["e"]["user"], logger)]
-    logger.info("N.ro of state changing operations: {}".format(len(st_ch_ops)))
+    logger.debug("N.ro of state changing operations: {}".format(len(st_ch_ops)))
 
     protected = filter(_is_protected, st_ch_ops)
     logger.info("No. of protected state changing operations: {}".format(len(protected)))
@@ -1399,6 +1404,11 @@ def oracle_yes_no(args, graph, logger=None):
 
 def parse_args(args):
     p = argparse.ArgumentParser(description='tester parameters')
+    p.add_argument("-v", "--verbose",
+                   dest="verbose",
+                   action="store_true",
+                   help="if this flag is set additional debug information is printed")
+
     subp = p.add_subparsers()
 
     stats_p = subp.add_parser("stats", help="Get some statistics about the testing phase") 
@@ -1412,45 +1422,18 @@ def parse_args(args):
 
     tests_p = subp.add_parser("tgen", help="Test case generator functions")
     tests_subp = tests_p.add_subparsers()
-    
-    # pchain_su_p = tests_subp.add_parser("pchain_su", help="Generate a test by breaking a session unique propagation chain") 
-    # pchain_su_p.add_argument("len",      help="Minimum value length", type=int)
-    # pchain_su_p.add_argument("projname", help="Project name")
-    # pchain_su_p.add_argument("session",  help="Session")
-    # pchain_su_p.add_argument("database",  help="Database where to store HTTP requests")
-    # pchain_su_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    # pchain_su_p.set_defaults(func=tgen_pchain_su_p)
 
-    # su_var_p = tests_subp.add_parser("su_var", help="Generate a test by neglecting session unique HTTP request variables")
-    # su_var_p.add_argument("projname", help="Project name")
-    # su_var_p.add_argument("operation",  help="Operation")
-    # su_var_p.add_argument("database",  help="Database where to store HTTP requests")
-    # su_var_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    # su_var_p.set_defaults(func=tgen_su_var)
-
-    # su_uu_var_ston_p = tests_subp.add_parser("su_uu_var_singleton", help="Generate a test by neglecting session unique HTTP request variables on HTTP requests that lead to a SINGLETON operation")
-    # su_uu_var_ston_p.add_argument("projname", help="Project name")
-    # su_uu_var_ston_p.add_argument("operation",  help="Operation")
-    # su_uu_var_ston_p.add_argument("database",  help="Database where to store HTTP requests")
-    # su_uu_var_ston_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    # su_uu_var_ston_p.set_defaults(func=tgen_su_uu_var_singleton)
-
-    # su_uu_var_ston_new_all_p = tests_subp.add_parser("su_uu_var_singleton_new_all", help="Generate a test by neglecting session unique HTTP request variables on HTTP requests that lead to a SINGLETON operation")
-    # su_uu_var_ston_new_all_p.add_argument("database",  help="Database where to store HTTP requests")
-    # su_uu_var_ston_new_all_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    # su_uu_var_ston_new_all_p.set_defaults(func=tgen_su_uu_var_singleton_new_all)
-
-    not_protected_p = tests_subp.add_parser("not_protected", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
+    not_protected_p = tests_subp.add_parser("not_protected",
+                                            help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
     not_protected_p.add_argument("projname", help="Project name")
     not_protected_p.add_argument("operation",  help="Operation")
-    not_protected_p.add_argument("database",  help="Database where to store HTTP requests")
-    not_protected_p.add_argument('--simulate', help="Do not write to database", action="store_true")
+    not_protected_p.add_argument("database",
+                                 help="Database where to store HTTP requests")
+    not_protected_p.add_argument('--simulate',
+                                 help="Do not write to database",
+                                 action="store_true")
     not_protected_p.set_defaults(func=tgen_not_protected)
 
-    # not_protected_all_new_p = tests_subp.add_parser("not_protected_all_new", help="Generate a test for each non protected HTTP requests that lead to a SINGLETON operation")
-    # not_protected_all_new_p.add_argument("database",  help="Database where to store HTTP requests")
-    # not_protected_all_new_p.add_argument('--simulate', help="Do not write to database", action="store_true")
-    # not_protected_all_new_p.set_defaults(func=tgen_not_protected_all_new)
 
     protected_p = tests_subp.add_parser("protected",
                                         help="Generate a test for each protected HTTP requests that lead to a SINGLETON operation")
@@ -1461,7 +1444,8 @@ def parse_args(args):
     protected_p.add_argument("database",
                              help="Database where to store HTTP requests")
     protected_p.add_argument('--simulate',
-                             help="Do not write to database", action="store_true")
+                             help="Do not write to database",
+                             action="store_true")
     protected_p.set_defaults(func=tgen_protected)
 
     """
@@ -1472,7 +1456,6 @@ def parse_args(args):
 
     oracle_p = subp.add_parser("oracle",
                                help="Test case oracle to determine vulnerabilities")
-    # oracle_p.add_argument("projname", help="Project name")
     oracle_p.add_argument("tc_references",
                           help="csv list of sqlite databases of test cases for reference")
     oracle_p.add_argument("tc_analyzed_references",
@@ -1481,39 +1464,7 @@ def parse_args(args):
                           help="database with the test case")
     oracle_p.add_argument("tc_analyzed",
                           help="rawtrace-analysis database of the test case")
-    # oracle_p.add_argument("output",
-    #                      help="Output database")
-    # oracle_p.add_argument('--simulate',
-    #                      help="Do not write to database",
-    #                      action="store_true")
     oracle_p.set_defaults(func=oracle_yes_no)
-
-    # oracle_subp = oracle_p.add_subparsers()
-
-    # stats_p = oracle_subp.add_parser("oracle",
-    #                                   help="Stats on the execution results")
-    # stats_p.add_argument("projname"   , help="Project name")
-    # stats_p.add_argument("testcases"  , help="Database with test cases")
-    # stats_p.add_argument("analyzed"   , help="Rawtrace-analysis database")
-    # stats_p.add_argument("output"     , help="Output database")
-    # stats_p.set_defaults(func=oracle_stats)
-
-    # oracle_st_chng_p = oracle_subp.add_parser("st_chng", help="Verify whether a test caused the same change of state of the model")
-    # oracle_st_chng_p.add_argument("projname", help="Project name")
-    # oracle_st_chng_p.add_argument("tc_references",
-    #                              help="Database with test cases for reference")
-    # oracle_st_chng_p.add_argument("tc_analyzed_references",
-    #                              help="Rawtrace-analysis database for reference")
-    # oracle_st_chng_p.add_argument("tc",
-    #                              help="Database with the test case")
-    # oracle_st_chng_p.add_argument("tc_analyzed",
-    #                              help="Rawtrace-analysis database")
-    # oracle_st_chng_p.add_argument("output",
-    #                              help="Output database")
-    # oracle_st_chng_p.add_argument('--simulate',
-    #                              help="Do not write to database",
-    #                              action="store_true")
-    # oracle_st_chng_p.set_defaults(func=oracle_st_chng)
 
     return p.parse_args(args)
 
@@ -1522,6 +1473,11 @@ def main(args):
     graph = Graph(host=NEO4J_HOST, user=NEO4J_USERNAME,
                   password=NEO4J_PASSWORD)
     args_obj = parse_args(args)
+
+    if args_obj.verbose:
+        logger.setLevel(log.LEVELS[-1])
+    else:
+        logger.setLevel(log.LEVELS[0])
 
     args_obj.func(args_obj, graph, logger)
 
