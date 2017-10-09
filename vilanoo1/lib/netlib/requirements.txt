@@ -1,2 +1,0 @@
-pyasn1>=0.1.7
-pyOpenSSL>=0.13

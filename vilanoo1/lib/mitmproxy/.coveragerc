@@ -1,6 +1,0 @@
-[rum]
-branch = True
-
-[report]
-omit = *contrib*, *tnetstring*, *platform*, *console*
-include = *libmproxy*
