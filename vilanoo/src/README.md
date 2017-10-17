@@ -60,7 +60,7 @@ $ ./vilanoo2.py -s sqlite_file.db --no-mosgi
 
 where `sqlite_file.db` is the SQLite3 database. You can use a absolute or relative path. If the path does not exist, vilanoo creates it.
 
-## Running vilanoo2 with mosgi
+## Running Vilanoo with mosgi
 
 Vilanoo sets up a TCP connection with mosgi. Accordingly, you will need to run mosgi before running vilanoo.
 Then, type the following:
@@ -71,7 +71,7 @@ $./vilanoo2.py -s sqlite_file.db
 
 Vilanoo will connect to the default port and IP where mosgi should be already listeining to. If this fails, vilanoo will shutdown. 
 
-## Running vilanoo2 with selenese-runner
+## Running Vilanoo with selenese-runner
 
 Here, we show how to use vilanoo with selenese-runner. To simplify the example, we will not use mosgi.
 
