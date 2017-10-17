@@ -2,7 +2,7 @@
 
 ## Building a Deep Model
 
-We assume that you have prepared already a vilanoo2 SQLite DB and a rawtrace-analysis SQLite DB. These two databases are imported in Neo4j with `dbmanager.py`.
+We assume that you have prepared already a vilanoo SQLite DB and a rawtrace-analysis SQLite DB. These two databases are imported in Neo4j with `dbmanager.py`.
 
 `dbmanager.py` allows to initialize, reset, and import the above databases.
 
@@ -36,7 +36,7 @@ $ ./dbmanager.py reset
 
 ### Import data
 
-To import dynamic traces into Neo4j, you will need the vilanoo2 SQLite database, the rawtrace-analysis database, a project name, a session ID, and username. The project name can be, for example, the name of the web application. The session ID can be a number. If you import two traces for the same web application you may want to use two numbers in order to distinguish them. Finally, the username can be the name of the account that you used in the web application under test. 
+To import dynamic traces into Neo4j, you will need the vilanoo SQLite database, the rawtrace-analysis database, a project name, a session ID, and username. The project name can be, for example, the name of the web application. The session ID can be a number. If you import two traces for the same web application you may want to use two numbers in order to distinguish them. Finally, the username can be the name of the account that you used in the web application under test. 
 
 To import all data type the following:
 
