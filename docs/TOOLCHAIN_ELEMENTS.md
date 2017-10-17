@@ -17,7 +17,7 @@ strokes.*
 
 # VILANOO
 
-[README](./vilanoo2/src/README.md)
+[README](./vilanoo/src/README.md)
 
 # MOSGI
 
