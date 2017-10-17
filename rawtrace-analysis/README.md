@@ -1,4 +1,4 @@
-# RAWTRACE-ANALYZER
+# Rawtrace Analyzer
 
 The Rawtrace analyze is the tool used to convert the raw data extracted by mosgi into into usable information (i.e. extract SQL queries) by parsing the downloaded
 Xdebug files. The resulting data is stored in a sqlite database. This holds both for the data extracted before the generation of the deep-model as well as
