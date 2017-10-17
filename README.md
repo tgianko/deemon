@@ -1,6 +1,6 @@
-# Vilanoo Project
+# Deemon Project
 
-This is the code base for the Vilanoo project. The goal of this project is study and detection of CSRF vulnerabilities.
+This is the code base for the Deemon project. The goal of this project is study and detection of CSRF vulnerabilities.
 
 ## Components
 
@@ -9,12 +9,12 @@ This project consists in a number of tools that are chained in a variety of ways
 ### Dynamic Trace Acquisition Toolchain
 
  * [zumka](zumka/README.md): Tools to instrument VM (bitnami + vbox only)
- * [vilanoo2](vilanoo2/src/README.md): HTTP/S proxy that intercepts browser requests.
+ * [vilanoo](vilanoo/src/README.md): HTTP/S proxy that intercepts browser requests.
  * [mosgi](mosgi/README.md): Server to collect Web Application *raw* execution traces, session data, and file I/O.
- * [rawtrace-analysis](rawtrace-analysis/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo2.
+ * [rawtrace-analysis](rawtrace-analysis/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo.
 
 
-### The Deep Modeling Framework  (UNDER DEVELOPMENT)
+### The Deep Modeling Framework
 
 Deep Modeling is our awesome framework that allows to model and detect vulnerabilities. Its home is [here](deep-modeling/README.md). Our framework is based on Neo4j and it composed of three type of tools:
 
