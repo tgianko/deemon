@@ -18,7 +18,14 @@ Download and install:
 
 The other required component is `selenese-runner`. The original project is on GitHub,
 but we modified with a new feature to run test cases/suites generated with Selenese IDE
-in an interactive mode (See vilanoo2).
+in an interactive mode (See vilanoo) which is however now part of the main repository as well.
+We compiled the shipped binary ourselfes but compiling the source code provided by the
+[repository](https://github.com/vmi/selenese-runner-java) should lead to the same binary.
+
+# Licence
+
+As we did not write selenese-runner ourselves our licence does not apply but theirs which
+can be found [here](https://github.com/vmi/selenese-runner-java/blob/master/LICENSE).
 
 # Generate trace files
 
