@@ -63,3 +63,9 @@ repository.
 We prepared a quick tutorial to get into the testing for CSRF vulnerabilities right away 
 [here](./docs/RUN_TEST.md) as well as a more extensive documentation of each tool involved
 [here](./docs/TOOLCHAIN_ELEMENTS.md).
+
+
+# Authors
+
+Giancarlo Pellegrino <gpellegrino[at]cispa.saarland>
+Simon Koch <s9sikoch[at]stud.uni-saarland.de>
