@@ -48,7 +48,7 @@ This project consists in a number of tools that are chained in a variety of ways
 
 
 ## License
-  TBD
+[GPL v3](./docs/COPYING)
 
 # Installation
 
