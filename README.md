@@ -4,30 +4,20 @@ This is the code base for the Deemon project. The goal of this project is study 
 
 ## Components
 
-This project consists in a number of tools that are chained in a variety of ways. It also uses a number of existing tools.
-
-### Dynamic Trace Acquisition Toolchain
+This project consists in a number of tools that are chained in a variety of ways. It also uses a number of existing tools:
 
  * [zumka](zumka/README.md): Tools to instrument VM (bitnami + vbox only)
  * [vilanoo](vilanoo/src/README.md): HTTP/S proxy that intercepts browser requests.
  * [mosgi](mosgi/README.md): Server to collect Web Application *raw* execution traces, session data, and file I/O.
  * [rawtrace-analysis](rawtrace-analysis/README.md): A tool that extracts SQL traces, session data snapshots, and file I/O operations from raw traces of mosgi and vilanoo.
-
-
-### The Deep Modeling Framework
-
-Deep Modeling is our framework that allows to model and detect vulnerabilities. Its home is [here](deep-modeling/README.md). Our framework is based on Neo4j and it composed of three type of tools:
-
- * [dbmanager](deep-modeling/README.md): currently, dbmanager can initiate and reset the Neo4J database. Dbmanager is also responsible to import the data acquired with dynamic trace acquisition tools to Neo4J.
- * *analysis* algorithms: these algorithms can be
-   * clustering algorithms
-   * model inference algorithms
-   * data flow analysis algorithms
-   * vulnerability detection algorithms (in cases where the presence of the vulnerability can be verified in the model)
-   * test case generation algorithms (in cases where the presence of the vulnerability need to be verified with a test against the real system)
+ * [dbmanager](deep-modeling/README.md): The tool create a property graph of the web application. It imports dynamic traces and infers (1) finate-state machines, (2) data-flow models, and (3) data types. 
+ * [testermanager](deep-modeling/README.md): The tool to generate tests to detect CSRF vulnerabilities
+ * [csrf-test-runner](csrf-test-runner/README.md): The tool to execute tests against a web application
 
 
 ## External components
+ 
+ Deemon relies on two external tools:
  
  * [Selenium IDE](http://www.seleniumhq.org/download/): Tool to capture 
  user-generated Selenese HTML
