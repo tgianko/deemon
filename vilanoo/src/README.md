@@ -1,6 +1,8 @@
 # vilanoo
 
-Vilanoo is based on proxy2 which can be found in `proxy2/`. As it extends proxy2, the documentation below is derived from the one of proxy2.
+Vilanoo is based on proxy2 which can be found in `proxy2/`. As it extends proxy2, 
+the documentation below is derived from the one of proxy2. The license of proxy2 
+can be found [here](vilanoo/src/proxy2/LICENSE). 
 
 # Features
 
