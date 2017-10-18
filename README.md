@@ -1,6 +1,26 @@
 # Deemon Project
 
-This is the code base for the Deemon project. The goal of this project is study and detection of CSRF vulnerabilities.
+This is the code base of Deemon, a tool to detect CSRF in web applications. 
+Deemon is an application-agnostic, automated framework designed to be used by 
+developers and security analysts during the security testing phase of the 
+software development life-cycle. The current version of Deemon supports 
+PHP-based web applications that use MySQL databases.
+
+Deemon has been used for the paper [Deemon: Detecting CSRF with Dynamic Analysis and Property Graphs](http://trouge.net/gp/papers/csrf_ccs2017.pdf) *by G. Pellegrino, M. Johns, S. Koch, M. Backes, and C. Rossow.*
+
+### Bibtex:
+
+
+```
+@inproceedings{deemon2017,
+  title={{\textsc{Deemon}: Detecting CSRF with Dynamic Analysis and Property Graphs}},
+  author={Pellegrino, Giancarlo and Johns, Martin and Koch, Simon and Backes, Michael and Rossow, Christian},
+  booktitle={{Proceedings of the 2017 ACM Conference on Computer and Communications Security}},
+  year={2017},
+  organization={ACM}
+}
+```
+
 
 ## Components
 
