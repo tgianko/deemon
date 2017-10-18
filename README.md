@@ -39,12 +39,14 @@ This project consists in a number of tools that are chained in a variety of ways
  
  Deemon relies on two external tools:
  
- * [Selenium IDE](http://www.seleniumhq.org/download/): Tool to capture 
+ * [Selenium IDE](http://www.seleniumhq.org/download/): (not included in Deemon) Tool to capture 
  user-generated Selenese HTML
- * [selenese-runner-java](https://github.com/tgianko/selenese-runner-java/tree/newfeat/interactive): 
+ * [selenese-runner-java](https://github.com/tgianko/selenese-runner-java/tree/newfeat/interactive): (included in Deemon)
  Tool to run Selenese HTML. This is a forked version by Giancarlo which feature
  a new option `--interactive` or `-i` to execute Selenese HTML step-by-step
  upon user input.
+ * [proxy2](https://github.com/inaz2/proxy2): (included in Deemon) HTTP/HTTPS proxy in a single
+ python script.
 
 
 ## License
