@@ -16,7 +16,7 @@ This project consists in a number of tools that are chained in a variety of ways
 
 ### The Deep Modeling Framework
 
-Deep Modeling is our awesome framework that allows to model and detect vulnerabilities. Its home is [here](deep-modeling/README.md). Our framework is based on Neo4j and it composed of three type of tools:
+Deep Modeling is our framework that allows to model and detect vulnerabilities. Its home is [here](deep-modeling/README.md). Our framework is based on Neo4j and it composed of three type of tools:
 
  * [dbmanager](deep-modeling/README.md): currently, dbmanager can initiate and reset the Neo4J database. Dbmanager is also responsible to import the data acquired with dynamic trace acquisition tools to Neo4J.
  * *analysis* algorithms: these algorithms can be
