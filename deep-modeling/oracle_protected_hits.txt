@@ -1,0 +1,72 @@
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_address_S1.user_crashtes2.52.2016-11-28 12:24:00.861617')]
+
+0 POST https://192.168.56.101/index.php?rt=account%2Faddress%2Fupdate H_model 2
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    1b32a54548f98ca08b582e4dce83c1dc = observed             unique               UPDATE ac_addresses SET company = 'Saarl
+    ca2a9603256e4154db424d5649636b58 = observed             unique               UPDATE ac_customers SET address_id = '0 
+>>> VULNERABILITY DETECTED <<<
+
+
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S2.admin_user.7.2017-02-02 22:28:59.834473')]
+
+0 GET http://192.168.56.101/s/pages/edit/1?mauticUserLastActive=1&mauticLastNotificationId=21 H_model 1
+================================================================================
+    9051ca8140c21d3d831fe684e258ebf0 = observed             unique               UPDATE ma_pages SET checked_out = '2016-
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - mautic.delete_campaign_S1.admin_kasperle.7.2017-02-02 21:58:58.071539')]
+
+0 POST http://192.168.56.101/s/campaigns/delete/1 H_model 4
+================================================================================
+    353dc5999fc8e3de2c749aa363745d31 = observed             unique               DELETE FROM ma_campaigns WHERE id = 1
+    2980b4d46001b8648477e9178cde6062 = observed             not unique           INSERT INTO ma_audit_log (user_id, user_
+    92f2907e306a4ccbb3d672c5b8acff28 = observed             not unique           INSERT INTO ma_notifications (type, head
+    974c63dda872ef3b45921984f7111b29 = observed             unique               UPDATE ma_campaign_events SET parent_id 
+    974c63dda872ef3b45921984f7111b29 = observed             unique               UPDATE ma_campaign_events SET parent_id 
+>>> VULNERABILITY DETECTED <<<
+
+
+[(u'e_uuid': u'HttpRequest - mautic.delete_contact_S2.admin_user.8.2017-02-02 22:21:37.395875')]
+
+0 POST http://192.168.56.101/s/contacts/delete/1?mauticUserLastActive=1 H_model 3
+================================================================================
+    d13c6440e6436c036bacbaf6050a215b = observed             unique               DELETE FROM ma_leads WHERE id = 1
+    2980b4d46001b8648477e9178cde6062 = observed             not unique           INSERT INTO ma_audit_log (user_id, user_
+    92f2907e306a4ccbb3d672c5b8acff28 = observed             not unique           INSERT INTO ma_notifications (type, head
+>>> VULNERABILITY DETECTED <<<
+
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_address_S2.user_seasur2@seasur2.de.11.2016-11-28 18:55:57.106063')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Faddress%2Fedit H_model 2
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         unique               INSERT INTO `oc_customer_activity` SET `
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1654efd63aa8f6b4795ace5f76ec62ea = observed             unique               UPDATE oc_address SET firstname = 'New f
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'sr3f0nk
+    59f7232928d2dc5f88b75d0ef55aeda1 = observed             unique               UPDATE oc_customer SET address_id = '0 '
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_buy_stuff_S1.user_user1.11.2016-11-29 18:22:47.260520')]
+
+0 POST http://192.168.56.103/ H_model 1
+================================================================================
+    92ba670e8304c9b95d91054b749d04dc = observed             unique               INSERT INTO `ps_cart_product` (`id_produ
+    204fed27681d313727418abb55bf6884 = not observed         unique               UPDATE `ps_cart` SET `id_cart` = '11 ',`
+>>> VULNERABILITY DETECTED <<<
+
+
+

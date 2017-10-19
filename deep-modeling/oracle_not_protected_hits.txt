@@ -1,0 +1,123 @@
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_new_address_S1.user_crashtest.40.2016-11-28 11:55:44.331774')]
+
+2 POST https://192.168.56.101/index.php?rt=account%2Faddress%2Finsert H_model 1
+================================================================================
+    41dd969ba218dd575e5f233ed2afbbcf = observed             unique               INSERT INTO `ac_addresses` SET customer_
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_add_new_address_S2.user_seasurf@seasurf.de.11.2016-11-28 20:07:57.501170')]
+
+1 POST https://192.168.56.102/index.php?route=account%2Faddress%2Fadd H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         not unique           INSERT INTO `oc_customer_activity` SET `
+    743d5dacc0c7d595743bbc5dc4229b76 = observed             unique               INSERT INTO oc_address SET customer_id =
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = '3totoc2
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_buy_stuff_S2.user_seasurf@seasurf.de.8.2016-11-28 19:02:58.873358')]
+
+2 POST http://192.168.56.102/index.php?route=checkout%2Fcart%2Fadd H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    c774033809e9cc7600eb2f788c530ad4 = observed             unique               INSERT oc_cart SET customer_id = '1 ', s
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'dn4lop5
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+
+
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_email_S1.user_seasurf@seasurf.de.9.2016-11-28 18:30:55.198656')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Fedit H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         not unique           INSERT INTO `oc_customer_activity` SET `
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'qp2mcur
+    f63977dbd1d5f62361cbbcb4e6199fe5 = observed             unique               UPDATE oc_customer SET firstname = 'seas
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_password_S1.user_seasur2@seasur2.de.9.2016-11-28 18:14:02.027229')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Fpassword H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         not unique           INSERT INTO `oc_customer_activity` SET `
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'ups11cc
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+    90865accbca2c9ea663ad919a2589c57 = observed             unique               UPDATE oc_customer SET salt = 'm9uDNpVsl
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_add_second_admin_S2.admin.10.2016-11-30 19:06:31.543282')]
+
+0 POST http://192.168.56.101/index.php?module=user&view=add H_model 1
+================================================================================
+    eb83b6b76c7db8ad24a92ef11f0cc445 = observed             unique               INSERT INTO si_user ( email, password, r
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_change_default_tax_S1.admin.9.2016-11-30 18:06:21.894344')]
+
+0 POST http://192.168.56.101/index.php?module=system_defaults&view=save H_model 1
+================================================================================
+    ac6d7dc1b4919764a3f97cd81713c122 = observed             unique               INSERT INTO `si_system_defaults` ( `name
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_change_tax_rate_S1.admin.10.2016-11-30 18:09:11.500906')]
+
+0 POST http://192.168.56.101/index.php?id=1&module=tax_rates&view=save H_model 1
+================================================================================
+    6e9e18440c59e83c3481404b56c91dbf = observed             unique               UPDATE si_tax SET tax_description = 'GST
+>>> VULNERABILITY DETECTED <<<
+
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_enable_paypal_S2.admin.16.2016-11-30 19:00:13.920068')]
+
+0 POST http://192.168.56.101/index.php?id=1&module=preferences&view=save H_model 1
+================================================================================
+    7188ca62713211b6ccf4fbaab8dd2d3c = observed             unique               UPDATE si_preferences SET pref_descripti
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_new_customer_S1.admin.8.2016-11-30 18:19:06.003491')]
+
+0 POST http://192.168.56.101/index.php?module=customers&view=add H_model 1
+================================================================================
+    aa26d9d32bb8ec18c1489a978dfbcae4 = observed             unique               INSERT INTO si_customers ( domain_id, at
+>>> VULNERABILITY DETECTED <<<
+
+
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_new_invoice_S2.admin.9.2016-11-30 18:41:33.798832')]
+
+0 POST http://192.168.56.101/index.php?module=invoices&view=save H_model 4
+================================================================================
+    e01006c461ad0b8e17ceabde79eefc23 = observed             unique               INSERT INTO si_index (id, node, sub_node
+    4808f225bbc0676200357cf125ee06fb = observed             unique               INSERT INTO si_invoice_item_tax ( invoic
+    129d6f80978ab1c6d8458e7255875075 = observed             unique               INSERT INTO si_invoice_items ( invoice_i
+    7e37b18f4922488c43f17446dcece10d = observed             unique               INSERT INTO si_invoices ( id, index_id, 
+>>> VULNERABILITY DETECTED <<<

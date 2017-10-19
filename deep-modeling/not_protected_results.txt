@@ -1,0 +1,2115 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_new_address_S1.user_crashtest.24.2016-11-28 11:53:29.400768')]
+
+0 POST https://192.168.56.101/index.php?rt=account%2Flogin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_new_address_S1.user_crashtes2.37.2016-11-28 15:21:01.096615')]
+
+1 GET http://192.168.56.101/index.php?rt=account%2Faddress H_model 1
+================================================================================
+    66d596136257d499a6c88fc134e90916 = not observed         not unique           DELETE FROM `ac_online_customers` WHERE 
+    534e7cebaa4ae2bc28f276c8e4055697 = observed             not unique           INSERT INTO ac_language_definitions (lan
+    79e7501c7c1dc445b9d4a1afd637dc4d = not observed         not unique           REPLACE INTO `ac_online_customers` SET `
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_new_address_S1.user_crashtest.40.2016-11-28 11:55:44.331774')]
+
+2 POST https://192.168.56.101/index.php?rt=account%2Faddress%2Finsert H_model 1
+================================================================================
+    41dd969ba218dd575e5f233ed2afbbcf = observed             unique               INSERT INTO `ac_addresses` SET customer_
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_second_admin_S1.admin.7.2016-11-28 12:29:33.227275')]
+
+0 GET http://192.168.56.101/index.php?rt=user%2Fuser&s=admin&token=56d42fbaa03f659983c9dc7d99be81c8 H_model 1
+================================================================================
+    2c7031bf3fe3ad5753763193cd291272 = not observed         unique               DELETE FROM ac_ant_messages WHERE end_da
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_second_admin_S2.admin.12.2016-11-28 13:55:19.102545')]
+
+1 POST http://192.168.56.101/index.php?rt=user%2Fuser%2Finsert&s=admin&token=56d42fbaa03f659983c9dc7d99be81c8 H_model 1
+================================================================================
+    2c7031bf3fe3ad5753763193cd291272 = not observed         unique               DELETE FROM ac_ant_messages WHERE end_da
+    aee1d054b4dfa273389531d525950ddb = not observed         unique               INSERT INTO ac_messages SET `title` = 'F
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_add_second_admin_S2.admin.2.2016-11-28 13:52:56.812995')]
+
+2 POST http://192.168.56.101/index.php?rt=index%2Flogin&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+    0eb400c8dd597e28ed3d815334f38e5a = observed             not unique           UPDATE ac_users SET last_login = NOW() W
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_buy_stuff_S1.user_crashtest.55.2016-11-28 11:26:44.084785')]
+
+0 GET https://192.168.56.101/index.php?rt=checkout%2Fconfirm H_model 3
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_address_S1.user_crashtest.49.2016-11-28 11:47:17.767745')]
+
+0 GET https://192.168.56.101/index.php?rt=account%2Faddress H_model 1
+================================================================================
+    66d596136257d499a6c88fc134e90916 = not observed         not unique           DELETE FROM `ac_online_customers` WHERE 
+    534e7cebaa4ae2bc28f276c8e4055697 = observed             not unique           INSERT INTO ac_language_definitions (lan
+    79e7501c7c1dc445b9d4a1afd637dc4d = not observed         not unique           REPLACE INTO `ac_online_customers` SET `
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_address_S2.user_crashtest.24.2016-11-28 13:10:11.623965')]
+
+1 POST https://192.168.56.101/index.php?rt=account%2Flogin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_email_S1.user_crashtest.39.2016-11-28 11:33:37.240771')]
+
+0 GET https://192.168.56.101/index.php?rt=account%2Fedit H_model 1
+================================================================================
+    66d596136257d499a6c88fc134e90916 = not observed         not unique           DELETE FROM `ac_online_customers` WHERE 
+    534e7cebaa4ae2bc28f276c8e4055697 = observed             not unique           INSERT INTO ac_language_definitions (lan
+    79e7501c7c1dc445b9d4a1afd637dc4d = not observed         not unique           REPLACE INTO `ac_online_customers` SET `
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_email_S2.user_crashtest.40.2016-11-28 12:58:20.611755')]
+
+1 POST https://192.168.56.101/index.php?rt=account%2Fedit H_model 1
+================================================================================
+    534e7cebaa4ae2bc28f276c8e4055697 = not observed         not unique           INSERT INTO ac_language_definitions (lan
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    97606f2f5c042521eb3ee01e07ced388 = observed             unique               UPDATE ac_customers SET firstname = 'Cra
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_email_S1.user_crashtest.24.2016-11-28 11:32:32.086592')]
+
+2 POST https://192.168.56.101/index.php?rt=account%2Flogin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_order_status_S2.admin.2.2016-11-28 12:33:50.275449')]
+
+0 POST http://192.168.56.101/index.php?rt=index%2Flogin&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+    0eb400c8dd597e28ed3d815334f38e5a = observed             not unique           UPDATE ac_users SET last_login = NOW() W
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_password_S1.user_crashtes2.49.2016-11-28 12:14:55.747500')]
+
+0 GET https://192.168.56.101/index.php?rt=account%2Fpassword H_model 1
+================================================================================
+    66d596136257d499a6c88fc134e90916 = not observed         not unique           DELETE FROM `ac_online_customers` WHERE 
+    534e7cebaa4ae2bc28f276c8e4055697 = observed             not unique           INSERT INTO ac_language_definitions (lan
+    79e7501c7c1dc445b9d4a1afd637dc4d = not observed         not unique           REPLACE INTO `ac_online_customers` SET `
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_product_price_S2.admin.2.2016-11-28 12:37:33.623407')]
+
+0 POST http://192.168.56.101/index.php?rt=index%2Flogin&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+    0eb400c8dd597e28ed3d815334f38e5a = observed             not unique           UPDATE ac_users SET last_login = NOW() W
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_change_store_settings_S1.admin.2.2016-11-28 11:16:55.221684')]
+
+0 POST http://192.168.56.101/index.php?rt=index%2Flogin&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+    0eb400c8dd597e28ed3d815334f38e5a = observed             not unique           UPDATE ac_users SET last_login = NOW() W
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - abantecart.login_and_delete_category_S2.admin.2.2016-11-28 12:44:49.585065')]
+
+0 POST http://192.168.56.101/index.php?rt=index%2Flogin&s=admin H_model 1
+================================================================================
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION=utf8
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    82e3d61df1fefb4d7e2846e116fccce5 = not observed         not unique           SET session wait_timeout=60;
+    d65ff894cef7433e132401656701ebe8 = not observed         not unique           UPDATE ac_users SET ip = '192.168.56.1 '
+    0eb400c8dd597e28ed3d815334f38e5a = observed             not unique           UPDATE ac_users SET last_login = NOW() W
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - horde.login_and_add_address_to_whitelist_S1.admin.3.2016-12-01 21:14:57.531465')]
+
+0 GET http://192.168.56.101/services/portal/ H_model 17
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - horde.login_and_add_address_to_whitelist_S2.admin.5.2016-12-01 21:33:35.932496')]
+
+1 GET http://192.168.56.101/ingo/basic.php?page=whitelist H_model 1
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - horde.login_and_add_user_S1.admin.3.2016-12-01 21:06:47.233864')]
+
+0 GET http://192.168.56.101/services/portal/ H_model 17
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - horde.login_and_delete_table_S2.admin.3.2016-12-01 21:29:09.593445')]
+
+0 GET http://192.168.56.101/services/portal/ H_model 17
+================================================================================
+    dd48fe726996b107f533ebc1e4551bb0 = not observed         not unique           SET NAMES 'utf8 '
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.change_landing_page_S2.admin_kasperle.1.2017-02-02 22:53:15.034377')]
+
+0 GET http://192.168.56.101/s/login H_model 1
+================================================================================
+    affa68307f66de9b6e353b73fdbfce18 = observed             not unique           UPDATE ma_users SET online_status = 'off
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.change_password_S2.admin_user.1.2017-02-02 22:31:26.005347')]
+
+0 GET http://192.168.56.101/s/login H_model 1
+================================================================================
+    affa68307f66de9b6e353b73fdbfce18 = observed             not unique           UPDATE ma_users SET online_status = 'off
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.create_contact_S2.admin_kasperle.1.2017-02-02 22:39:32.473956')]
+
+0 GET http://192.168.56.101/s/login H_model 1
+================================================================================
+    affa68307f66de9b6e353b73fdbfce18 = observed             not unique           UPDATE ma_users SET online_status = 'off
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.delete_campaign_S1.admin_kasperle.1.2017-02-02 21:57:05.742346')]
+
+0 GET http://192.168.56.101/s/login H_model 1
+================================================================================
+    affa68307f66de9b6e353b73fdbfce18 = observed             not unique           UPDATE ma_users SET online_status = 'off
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.delete_contact_S2.admin_kasperle.1.2017-02-02 22:45:49.769199')]
+
+0 GET http://192.168.56.101/s/login H_model 1
+================================================================================
+    affa68307f66de9b6e353b73fdbfce18 = observed             not unique           UPDATE ma_users SET online_status = 'off
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mautic.embed_analytics_S2.admin_kasperle.1.2017-02-02 23:00:55.713943')]
+
+0 GET http://192.168.56.101/s/login H_model 1
+================================================================================
+    affa68307f66de9b6e353b73fdbfce18 = observed             not unique           UPDATE ma_users SET online_status = 'off
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.add_word_to_filter_S1.admin_admin1.5.2016-12-01 00:24:02.574327')]
+
+0 POST http://192.168.56.104/admin/index.php?action=add&module=config-badwords H_model 3
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    442f5d6aee1ded2c49e4c84699a5898e = observed             unique                INSERT INTO mybb_badwords (`badword`,`r
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.add_word_to_filter_S2.admin_admin1.2.2016-12-01 01:23:15.613379')]
+
+1 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.add_word_to_filter_S2.admin_admin1.1.2016-12-01 01:22:43.942183')]
+
+2 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.change_gravatar_S1.user_user2.2.2016-12-01 00:57:55.243545')]
+
+0 GET http://192.168.56.104/task.php H_model 3
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = not observed         not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = not observed         not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = not observed         not unique           DELETE FROM mybb_joinrequests WHERE date
+    bf75ac5acf6ffbbf661baf2a86058c0a = not observed         unique               DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = not observed         not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.change_gravatar_S2.user_user2.4.2016-12-01 01:58:47.699770')]
+
+1 GET http://192.168.56.104/index.php H_model 2
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '3 ', `
+    c4772524f5e6a83d69f5bb3b1c4c4217 = not observed         not unique           UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.change_gravatar_S2.user_user2.7.2016-12-01 01:59:06.972682')]
+
+2 GET http://192.168.56.104/task.php H_model 5
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = observed             not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = observed             not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = observed             not unique           DELETE FROM mybb_joinrequests WHERE date
+    20574f875dd7c35369a2d21716279759 = not observed         not unique           DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = observed             not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.change_gravatar_S2.user_user2.10.2016-12-01 01:59:40.162320')]
+
+3 POST http://192.168.56.104/usercp.php H_model 1
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '3 ', `
+    c4772524f5e6a83d69f5bb3b1c4c4217 = not observed         not unique           UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.change_gravatar_S2.user_user2.1.2016-12-01 01:58:01.035887')]
+
+4 GET http://192.168.56.104/index.php H_model 2
+================================================================================
+    35aed1eba018adcc8278e27ff2d99863 = observed             not unique           DELETE FROM mybb_sessions WHERE ip=X 'c0
+    4f5ac870207f999f09558e0d5430943e = observed             not unique           REPLACE INTO mybb_sessions SET `uid`=0,`
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.create_forum_announcement_S1.admin_admin1.6.2016-12-01 00:21:26.403575')]
+
+0 POST http://192.168.56.104/admin/index.php?action=add&module=forum-announcements H_model 3
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    c9a6d133a64b923533ed66bf303b2080 = observed             unique                INSERT INTO mybb_announcements (`fid`,`
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_forum_announcement_S1.admin_admin1.2.2016-12-01 00:18:27.580456')]
+
+1 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_forum_announcement_S2.admin_admin1.1.2016-12-01 01:18:04.553660')]
+
+2 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S1.user_user2.2.2016-12-01 11:50:14.433702')]
+
+0 GET http://192.168.56.104/task.php H_model 3
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = not observed         not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = not observed         not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = not observed         not unique           DELETE FROM mybb_joinrequests WHERE date
+    20574f875dd7c35369a2d21716279759 = not observed         not unique           DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = not observed         not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S2.user_user2.14.2016-12-01 12:06:14.487123')]
+
+1 GET http://192.168.56.104/task.php H_model 6
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = not observed         not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = not observed         not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = not observed         not unique           DELETE FROM mybb_joinrequests WHERE date
+    20574f875dd7c35369a2d21716279759 = not observed         not unique           DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = not observed         not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S2.user_user2.4.2016-12-01 12:03:15.263123')]
+
+2 GET http://192.168.56.104/index.php H_model 2
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '3 ', `
+    c4772524f5e6a83d69f5bb3b1c4c4217 = not observed         not unique           UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S1.user_user1.7.2016-12-01 11:45:11.477831')]
+
+3 GET http://192.168.56.104/task.php H_model 5
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = observed             not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = observed             not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = observed             not unique           DELETE FROM mybb_joinrequests WHERE date
+    20574f875dd7c35369a2d21716279759 = not observed         not unique           DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = observed             not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S2.user_user2.10.2016-12-01 12:05:42.149118')]
+
+4 POST http://192.168.56.104/newthread.php?processed=1&fid=2 H_model 6
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '3 ', `
+    c4772524f5e6a83d69f5bb3b1c4c4217 = not observed         not unique           UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S2.user_user1.1.2016-12-01 11:56:21.044966')]
+
+5 GET http://192.168.56.104/index.php H_model 2
+================================================================================
+    35aed1eba018adcc8278e27ff2d99863 = observed             not unique           DELETE FROM mybb_sessions WHERE ip=X 'c0
+    4f5ac870207f999f09558e0d5430943e = observed             not unique           REPLACE INTO mybb_sessions SET `uid`=0,`
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_modify_delete_post_S1.user_user1.15.2016-12-01 11:48:22.562828')]
+
+6 POST http://192.168.56.104/editpost.php?pid=4&processed=1 H_model 4
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '3 ', `
+    c4772524f5e6a83d69f5bb3b1c4c4217 = not observed         not unique           UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.create_new_admin_S1.admin_admin1.2.2016-12-01 00:14:58.057533')]
+
+0 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_new_admin_S2.admin_admin1.5.2016-12-01 01:16:53.691059')]
+
+1 POST http://192.168.56.104/admin/index.php?action=add&module=user-users H_model 5
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    983f26e4afb898b4935944432fad8e20 = observed             unique                INSERT INTO mybb_userfields (`fid1`,`fi
+    bb3b919968979d7ab1db122041f8ed54 = observed             unique                INSERT INTO mybb_users (`username`,`pas
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    fd7784714236331aff3e5542c5b68c94 = observed             not unique           REPLACE INTO mybb_stats SET `dateline`=1
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.create_new_admin_S2.admin_admin1.1.2016-12-01 01:14:36.119803')]
+
+2 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.delete_forum_S1.admin_admin1.2.2016-12-01 00:39:33.050570')]
+
+0 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.delete_forum_S1.admin_admin1.1.2016-12-01 00:39:00.702741')]
+
+1 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.delete_forum_S2.admin_admin1.4.2016-12-01 01:40:13.331943')]
+
+2 POST http://192.168.56.104/admin/index.php?action=delete&my_post_key=99fbedaaffbacf6e6ecbcf5cc5785460&module=forum-management&fid=2 H_model 10
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    2cdb3f3aab02d8d3e8b2e39f05967197 = observed             unique               DELETE FROM mybb_forumpermissions WHERE 
+    557d5a8e23a0f697e0f7b64fd7aeeb96 = observed             unique               DELETE FROM mybb_forums WHERE CONCAT( ',
+    374be76ef0674889c82618459f366117 = observed             unique               DELETE FROM mybb_forums WHERE fid= '2 '
+    174f68f8a7ae4a4f238d1aaaf230c2dc = observed             unique               DELETE FROM mybb_forumsubscriptions WHER
+    f0052c89b16a0fb7f1d1e0ca8a239c0c = observed             unique               DELETE FROM mybb_moderators WHERE fid= '
+    865ac22650c199ccc9cf943dedea37b5 = observed             unique               DELETE FROM mybb_posts WHERE fid= '2 ' 
+    a422de7fd32e43a2ea6df3e3a57361f4 = observed             unique               DELETE FROM mybb_threads WHERE fid= '2 '
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    fd7784714236331aff3e5542c5b68c94 = observed             not unique           REPLACE INTO mybb_stats SET `dateline`=1
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.delete_user_S1.admin_admin1.1.2016-12-01 00:12:00.265047')]
+
+0 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.delete_user_S1.admin_admin1.4.2016-12-01 00:13:06.078648')]
+
+1 POST http://192.168.56.104/admin/index.php?action=delete&my_post_key=99fbedaaffbacf6e6ecbcf5cc5785460&uid=3&module=user-users H_model 38
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    ade26988a9699d292f4bd60f80e1638e = observed             unique                UPDATE mybb_announcements SET `uid`=0 W
+    c711a29510554794b828fe2098229f09 = observed             unique                UPDATE mybb_attachments SET `uid`=0 WHE
+    6fbbbf0a27344268b3ef04a2666d81ab = observed             unique                UPDATE mybb_forums SET `lastposteruid`=
+    535f2d574bd1998346df83124ba9c3c9 = observed             unique                UPDATE mybb_pollvotes SET `uid`=0 WHERE
+    7f13d9d4220ecc2e09bdc1d557fd0d13 = observed             unique                UPDATE mybb_posts SET `uid`=0 WHERE uid
+    d6059e45241642441f7bc163c097a1b2 = observed             unique                UPDATE mybb_privatemessages SET `fromid
+    bad36bd742b8a5f8638d139bbb5f06b4 = observed             unique                UPDATE mybb_reportedcontent SET `uid`=0
+    60a3b735184bebeffdc245250fa1edbc = observed             unique                UPDATE mybb_threads SET `lastposteruid`
+    64c518f455c78506015f1229a737c352 = observed             unique                UPDATE mybb_threads SET `uid`=0 WHERE u
+    50153f13042e07cae3f0d52ebf80757e = observed             unique                UPDATE mybb_users SET `referrer`=0 WHER
+    9ec041b38dea8aee9f6d10a93deecf09 = observed             unique               DELETE FROM mybb_adminoptions WHERE uid 
+    fd5bda6fe1de479dc1bf85618c02a502 = observed             unique               DELETE FROM mybb_adminsessions WHERE uid
+    d570c8c32c3d521966b2ddc8e558a9a0 = observed             unique               DELETE FROM mybb_adminviews WHERE uid IN
+    08d6e9f7355b71b2536fc5a462ef547f = observed             unique               DELETE FROM mybb_awaitingactivation WHER
+    a1920bedcab802fb98f5756b8fc1e5c0 = observed             unique               DELETE FROM mybb_banned WHERE uid IN(3)
+    89702c15c3f2b6604f56849de74b6cdf = observed             unique               DELETE FROM mybb_buddyrequests WHERE uid
+    8653d12039e0a1c696daaf0003b6579c = observed             unique               DELETE FROM mybb_events WHERE uid IN(3)
+    afc7d716a6bdd935cf7a95a1b80784cc = observed             unique               DELETE FROM mybb_forumsread WHERE uid IN
+    3f6b65d3e1e902a229cc248e80b273e8 = observed             unique               DELETE FROM mybb_forumsubscriptions WHER
+    999c548f7c02909c550a27865d6a9b0a = observed             unique               DELETE FROM mybb_groupleaders WHERE uid 
+    e70b99fa39055640d55b6a9ff1f31dd6 = observed             unique               DELETE FROM mybb_joinrequests WHERE uid 
+    1c21b108dc20bf7507416dc16a560e0f = observed             unique               DELETE FROM mybb_moderators WHERE id IN(
+    de067352360bf8ca86ad024acf509d84 = observed             unique               DELETE FROM mybb_posts WHERE uid IN(3) A
+    ccc6743575c67c270ed91a451db05d47 = observed             unique               DELETE FROM mybb_privatemessages WHERE u
+    76d1197c4af52a771467eda81d228694 = observed             unique               DELETE FROM mybb_reportedcontent WHERE t
+    1cbcdce0ac2e278534600c50682ed0c2 = observed             unique               DELETE FROM mybb_reportedcontent WHERE t
+    23d230d80af10b4f10c5720190d8da9c = observed             unique               DELETE FROM mybb_reputation WHERE uid IN
+    062ae1fff136614a1744f53e82569e32 = observed             unique               DELETE FROM mybb_sessions WHERE uid IN(3
+    2b03297c683aeed0072ee4e38db00b12 = observed             unique               DELETE FROM mybb_threadratings WHERE uid
+    3a8ec22ccd61bcb718a642938517626a = observed             unique               DELETE FROM mybb_threads WHERE uid IN(3)
+    e4b3b37e69b64d471a42aff0a0ddeed9 = observed             unique               DELETE FROM mybb_threadsread WHERE uid I
+    ebc6199cb20541a79340d2c39f9746c0 = observed             unique               DELETE FROM mybb_threadsubscriptions WHE
+    07d1ef7ede00654565336e4f03810030 = observed             unique               DELETE FROM mybb_userfields WHERE ufid I
+    82826a4083799bac85e7fc5e112e1559 = observed             unique               DELETE FROM mybb_users WHERE uid IN(3)
+    877695983c95a30339305854e293500b = observed             unique               DELETE FROM mybb_warnings WHERE uid IN(3
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    fd7784714236331aff3e5542c5b68c94 = observed             not unique           REPLACE INTO mybb_stats SET `dateline`=1
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.delete_user_S1.admin_admin1.2.2016-12-01 00:12:32.212106')]
+
+2 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.make_user_admin_S2.admin_admin1.5.2016-12-01 01:04:44.824799')]
+
+0 POST http://192.168.56.104/admin/index.php?action=edit&uid=3&module=user-users H_model 4
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    0000f342c6af8621855dd851826b7fb1 = observed             unique                UPDATE mybb_userfields SET `fid1`= ' ',
+    7cb9d91836d17ecdbb9051867a15497b = observed             unique                UPDATE mybb_users SET `email`= 'user1@e
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = observed             not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.make_user_admin_S1.admin_admin1.2.2016-12-01 00:03:39.699767')]
+
+1 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.make_user_admin_S2.admin_admin1.1.2016-12-01 01:03:17.474559')]
+
+2 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S1.admin_admin1.8.2016-12-01 00:42:53.631784')]
+
+0 GET http://192.168.56.104/thread-1.html H_model 2
+================================================================================
+    1e3d6b139bc02f689fb0cc2d5dec94cc = not observed         unique                REPLACE INTO mybb_forumsread (fid, uid,
+    d82dc28bb0dfe9a3e2dda2d9b5c67f5c = observed             unique                REPLACE INTO mybb_threadsread (tid, uid
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '1 ', `
+    a0ae71b348a5cd5ddcdd7a0613381b42 = observed             unique               UPDATE mybb_threads SET views=views+1 WH
+    451eb7b35c0640f36be1a822f19f43a8 = not observed         unique               UPDATE mybb_users SET lastactive= '14805
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S1.admin_admin1.2.2016-12-01 00:41:27.266308')]
+
+1 GET http://192.168.56.104/task.php H_model 3
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = not observed         not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = not observed         not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = not observed         not unique           DELETE FROM mybb_joinrequests WHERE date
+    e6b3b1be74ced7c77fcc487ffc05e6cd = not observed         unique               DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = not observed         not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S1.admin_admin1.4.2016-12-01 00:42:23.330523')]
+
+2 GET http://192.168.56.104/ H_model 2
+================================================================================
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '1 ', `
+    451eb7b35c0640f36be1a822f19f43a8 = not observed         unique               UPDATE mybb_users SET lastactive= '14805
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S1.admin_admin1.7.2016-12-01 00:42:42.777237')]
+
+3 GET http://192.168.56.104/task.php H_model 5
+================================================================================
+    7414f25544e830e82e6b45e6bea7caa3 = not observed         not unique            INSERT INTO mybb_tasklog (`tid`,`dateli
+    93b0682e07585e47640dddf783bf59f7 = observed             not unique            UPDATE mybb_privatemessages SET `receip
+    9e7efb6ce0bfe262e1ffb5e6a1cc0012 = not observed         not unique            UPDATE mybb_tasks SET `lastrun`=1480550
+    9d8370275f19712549b9a89ddda29704 = not observed         not unique            UPDATE mybb_tasks SET `locked`=14805503
+    5e1cd4238835f92003f5b230b2462fce = not observed         not unique            UPDATE mybb_tasks SET `nextrun`=1480579
+    f712a214630219f028c0983482714571 = observed             not unique           DELETE FROM mybb_forumsread WHERE dateli
+    4cfec96a03353aab5aba6c4fa09df3a4 = observed             not unique           DELETE FROM mybb_joinrequests WHERE date
+    e6b3b1be74ced7c77fcc487ffc05e6cd = not observed         unique               DELETE FROM mybb_sessions WHERE time < '
+    ccd0afc7253f0f8d5283e6da8db97452 = observed             not unique           DELETE FROM mybb_threadsread WHERE datel
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S2.admin_admin1.1.2016-12-01 01:41:33.448320')]
+
+4 GET http://192.168.56.104/ H_model 2
+================================================================================
+    35aed1eba018adcc8278e27ff2d99863 = observed             not unique           DELETE FROM mybb_sessions WHERE ip=X 'c0
+    4f5ac870207f999f09558e0d5430943e = observed             not unique           REPLACE INTO mybb_sessions SET `uid`=0,`
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S1.admin_admin1.12.2016-12-01 00:44:20.937989')]
+
+5 POST http://192.168.56.104/editpost.php?pid=1&processed=1 H_model 6
+================================================================================
+    e1d572c24fd877d05fe6c7a636050040 = observed             unique                UPDATE mybb_forums SET `lastpost`=14791
+    e86b51c6525d9a0af35c32a92a94f2df = observed             unique                UPDATE mybb_posts SET `subject`= 'First
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '1 ', `
+    d1c2efa175e8ab80e93872d6c9c41e81 = observed             unique                UPDATE mybb_threads SET `lastpost`=1478
+    a8c9b2718364509266979494ede5247f = observed             unique                UPDATE mybb_threads SET `prefix`=0, `su
+    83be0d7e4cfc0a69f3f70cac82e1cb45 = observed             unique               DELETE FROM mybb_attachments WHERE filen
+    ffe80ba1a5b9a742c3ff2423bff054ce = observed             unique               DELETE FROM mybb_threadsubscriptions WHE
+    451eb7b35c0640f36be1a822f19f43a8 = not observed         unique               UPDATE mybb_users SET lastactive= '14805
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_foreign_post_S2.admin_admin1.3.2016-12-01 01:42:27.024067')]
+
+6 POST http://192.168.56.104/member.php H_model 3
+================================================================================
+    43be7f9b3b9964f17a7c042bbc7ed593 = observed             unique                UPDATE mybb_sessions SET `uid`= '1 ' WH
+    bae4adba336baabfe8d3558a3e740598 = not observed         not unique            UPDATE mybb_sessions SET `uid`= '1 ', `
+    296b24de40c3de200d2a65331acf4c16 = observed             unique                UPDATE mybb_users SET `loginattempts`=1
+    f8714597bcbb3ab72b3a46cda71ecd8c = observed             unique               DELETE FROM mybb_sessions WHERE ip = X '
+    451eb7b35c0640f36be1a822f19f43a8 = not observed         unique               UPDATE mybb_users SET lastactive= '14805
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.modify_theme_S1.admin_admin1.2.2016-12-01 00:25:44.141100')]
+
+0 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_theme_S1.admin_admin1.1.2016-12-01 00:25:12.066222')]
+
+1 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.modify_theme_S2.admin_admin1.6.2016-12-01 01:26:47.635661')]
+
+2 POST http://192.168.56.104/admin/index.php?action=edit_stylesheet&module=style-themes H_model 1
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = not observed         not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    ea8be2f81fc84f4fc43327862892fb97 = observed             unique                INSERT INTO mybb_themestylesheets (`nam
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    2f33078c6138cd3ed4a0a96029bcce23 = not observed         unique                UPDATE mybb_themes SET `stylesheets`= '
+    b2f8a5b9be207ed7603e03549e82edfe = not observed         unique                UPDATE mybb_themestylesheets SET `cache
+    3f222d7ddc9bdf0512b89f9746037260 = not observed         not unique           REPLACE INTO mybb_datacache SET `title`=
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.send_mass_mail_S1.admin_admin1.6.2016-12-01 00:07:53.287806')]
+
+0 POST http://192.168.56.104/admin/index.php?action=send&module=user-mass_mail H_model 1
+================================================================================
+    f3cbfedb717e06989ed3b0d587036939 = observed             unique                INSERT INTO mybb_massemails (`uid`,`sub
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.send_mass_mail_S2.admin_admin1.2.2016-12-01 01:06:26.934080')]
+
+1 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.send_mass_mail_S2.admin_admin1.8.2016-12-01 01:10:48.967702')]
+
+2 POST http://192.168.56.104/admin/index.php?action=send&step=3&mid=1&module=user-mass_mail H_model 1
+================================================================================
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.send_mass_mail_S1.admin_admin1.1.2016-12-01 00:05:45.567335')]
+
+3 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.send_mass_mail_S2.admin_admin1.10.2016-12-01 01:11:01.295311')]
+
+4 POST http://192.168.56.104/admin/index.php?action=send&step=4&mid=1&module=user-mass_mail H_model 1
+================================================================================
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - mybb.turn_offline_S2.admin_admin1.1.2016-12-01 01:00:51.672564')]
+
+0 GET http://192.168.56.104/admin/ H_model 1
+================================================================================
+    f98dc9ec8549af8a445c8e9b00245ccf = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.turn_offline_S2.admin_admin1.5.2016-12-01 01:02:07.689783')]
+
+1 POST http://192.168.56.104/admin/index.php?action=change&module=config-settings H_model 2
+================================================================================
+    22d412fef596ece8aa556c28750c6928 = observed             not unique            INSERT INTO mybb_adminlog (`uid`,`ipadd
+    89a146de661e94d4e66d18250b727c87 = not observed         not unique            UPDATE mybb_adminsessions SET `data`= '
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    83935a43a3b2dc0372d0065418d5c2e9 = observed             unique                UPDATE mybb_settings SET `value`= '1 ' 
+    83935a43a3b2dc0372d0065418d5c2e9 = observed             unique                UPDATE mybb_settings SET `value`= 'Thes
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - mybb.turn_offline_S1.admin_admin1.2.2016-12-01 00:01:13.820148')]
+
+2 POST http://192.168.56.104/admin/index.php H_model 3
+================================================================================
+    ea6cf20c4948df2b4a76988605861ecf = observed             not unique            INSERT INTO mybb_adminsessions (`sid`,`
+    2738dfa6e01e01e66b0c4215423c557f = observed             not unique            UPDATE mybb_adminoptions SET `loginatte
+    70eb334becf8ea26f2f7257918b8c4d2 = not observed         not unique            UPDATE mybb_adminsessions SET `lastacti
+    36056ce6e2fd39a79a19ceef5b7ae475 = observed             not unique           DELETE FROM mybb_adminsessions WHERE uid
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_add_new_address_S2.user_seasurf@seasurf.de.3.2016-11-28 20:05:34.341085')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Flogin H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'bsjgfa4
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_add_new_address_S2.user_seasurf@seasurf.de.11.2016-11-28 20:07:57.501170')]
+
+1 POST https://192.168.56.102/index.php?route=account%2Faddress%2Fadd H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         not unique           INSERT INTO `oc_customer_activity` SET `
+    743d5dacc0c7d595743bbc5dc4229b76 = observed             unique               INSERT INTO oc_address SET customer_id =
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = '3totoc2
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_buy_stuff_S2.user_seasurf@seasurf.de.3.2016-11-28 19:02:10.226407')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Flogin H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'qkpk063
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_buy_stuff_S2.user_seasur2@seasur2.de.29.2016-11-28 18:43:46.656902')]
+
+1 GET https://192.168.56.102/index.php?route=checkout%2Fconfirm H_model 3
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = '96lqh93
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_buy_stuff_S2.user_seasurf@seasurf.de.8.2016-11-28 19:02:58.873358')]
+
+2 POST http://192.168.56.102/index.php?route=checkout%2Fcart%2Fadd H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    c774033809e9cc7600eb2f788c530ad4 = observed             unique               INSERT oc_cart SET customer_id = '1 ', s
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'dn4lop5
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_buy_stuff_S1.user_seasurf@seasurf.de.31.2016-11-28 18:27:01.398589')]
+
+3 GET http://192.168.56.102/index.php?route=checkout%2Fsuccess H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'nfq4hs3
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_address_S2.user_seasur2@seasur2.de.3.2016-11-28 18:53:32.550293')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Flogin H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = '2ri3m9a
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_email_S1.user_seasurf@seasurf.de.9.2016-11-28 18:30:55.198656')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Fedit H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         not unique           INSERT INTO `oc_customer_activity` SET `
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'qp2mcur
+    f63977dbd1d5f62361cbbcb4e6199fe5 = observed             unique               UPDATE oc_customer SET firstname = 'seas
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_email_S2.user_seasurf@seasurf.de.3.2016-11-28 19:07:00.790050')]
+
+1 POST https://192.168.56.102/index.php?route=account%2Flogin H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'q0767k9
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_password_S1.user_seasur2@seasur2.de.9.2016-11-28 18:14:02.027229')]
+
+0 POST https://192.168.56.102/index.php?route=account%2Fpassword H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    386b96696b3d3e26d596749792742c52 = not observed         not unique           INSERT INTO `oc_customer_activity` SET `
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'ups11cc
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+    90865accbca2c9ea663ad919a2589c57 = observed             unique               UPDATE oc_customer SET salt = 'm9uDNpVsl
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_password_S2.user_seasurf@seasurf.de.3.2016-11-28 19:10:28.996274')]
+
+1 POST https://192.168.56.102/index.php?route=account%2Flogin H_model 1
+================================================================================
+    f30f9a7351720a0440392b26e3f352bd = not observed         not unique           DELETE FROM oc_cart WHERE customer_id = 
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    de10dc20f87f84cebcc2e77b7db3c53a = not observed         not unique           UPDATE oc_cart SET session_id = 'st0kap0
+    c3f4b73c6eab7a79f44f19f3b0edfc04 = not observed         not unique           UPDATE oc_customer SET ip = '192.168.56.
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_product_price_S2.admin.9.2016-11-28 17:45:54.497904')]
+
+0 POST https://192.168.56.102/admin/index.php?route=catalog%2Fproduct%2Fedit&token=U2Xqse4Hgm9uDNpVslmMow2Wygb6cgZX&product_id=42 H_model 34
+================================================================================
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1642c16a6af990acf4d119dc486497a6 = not observed         not unique           UPDATE oc_user SET ip = '192.168.56.1 ' 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_product_price_S2.admin.4.2016-11-28 17:44:16.565527')]
+
+1 GET https://192.168.56.102/admin/index.php?route=common%2Fdashboard&token=U2Xqse4Hgm9uDNpVslmMow2Wygb6cgZX H_model 1
+================================================================================
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1642c16a6af990acf4d119dc486497a6 = not observed         not unique           UPDATE oc_user SET ip = '192.168.56.1 ' 
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_change_store_settings_S2.admin.12.2016-11-28 17:48:48.916493')]
+
+0 POST https://192.168.56.102/admin/index.php?route=setting%2Fsetting&token=U2Xqse4Hgm9uDNpVslmMow2Wygb6cgZX H_model 4
+================================================================================
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1642c16a6af990acf4d119dc486497a6 = not observed         not unique           UPDATE oc_user SET ip = '192.168.56.1 ' 
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - opencart.login_and_remane_category_S2.admin.9.2016-12-05 14:53:56.515558')]
+
+0 POST https://192.168.56.102/admin/index.php?route=catalog%2Fcategory%2Fedit&category_id=33&token=U2Xqse4Hgm9uDNpVslmMow2Wygb6cgZX H_model 13
+================================================================================
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1642c16a6af990acf4d119dc486497a6 = not observed         not unique           UPDATE oc_user SET ip = '192.168.56.1 ' 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - opencart.login_and_remane_category_S1.admin.4.2016-12-05 14:49:01.619617')]
+
+1 GET https://192.168.56.102/admin/index.php?route=common%2Fdashboard&token=U2Xqse4Hgm9uDNpVslmMow2Wygb6cgZX H_model 1
+================================================================================
+    1fca910bd64360e6cd383f613ff8fc02 = not observed         not unique           SET SQL_MODE = ' '
+    1642c16a6af990acf4d119dc486497a6 = not observed         not unique           UPDATE oc_user SET ip = '192.168.56.1 ' 
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.buy_stuff_S2.user_info@oxid_esales.com.1.2016-11-29 08:38:31.294820')]
+
+0 GET http://192.168.56.101/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.buy_stuff_S2.user_user@example.com.12.2016-11-29 08:50:47.966904')]
+
+1 GET https://192.168.56.101/index.php?mailerror=1&cl=thankyou H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_category_S2.admin_user@example.com.1.2016-11-29 08:02:22.539874')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_S2.admin_user@example.com.1.2016-11-29 08:05:07.350203')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_discount_series_S2.admin_user@example.com.1.2016-11-29 08:08:26.976496')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_product_S1.admin_user@example.com.1.2016-11-29 06:59:21.303804')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_shipping_rule_S1.admin_user@example.com.1.2016-11-29 07:02:11.621314')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.create_user_S2.admin_user@example.com.1.2016-11-29 08:17:36.252259')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_buys_stuff_S2.user_info@oxid_esales.com.1.2016-11-29 10:14:03.072776')]
+
+0 GET http://192.168.56.101/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_buys_stuff_S1.user_info@oxid_esales.com.11.2016-11-29 10:06:05.620669')]
+
+1 GET https://192.168.56.101/index.php?mailerror=1&cl=thankyou H_model 1
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_email_S1.user_info@oxid_esales.com.1.2016-11-29 22:23:08.498981')]
+
+0 GET http://192.168.56.101/ H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.logs_in_and_changes_password_S2.user_user@example.com.1.2016-11-29 08:58:01.000526')]
+
+0 GET http://192.168.56.101/ H_model 5
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.run_sql_S2.admin_user@example.com.1.2016-11-29 08:26:41.122590')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.update_category_S1.admin_user@example.com.1.2016-11-29 07:17:09.837224')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.update_product_S2.admin_user@example.com.1.2016-11-29 08:32:28.495367')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - oxid.update_shipping_rule_S2.admin_user@example.com.1.2016-11-29 08:35:32.473693')]
+
+0 GET http://192.168.56.101/admin/ H_model 3
+================================================================================
+    7fb6137bc1271e1945be53bc47e358e3 = not observed         not unique           SET @@session.sql_mode = ""
+    15da9f7b68b747e96cde22103c5c8f8e = not observed         not unique           SET CHARACTER SET utf8
+    fe0c15e5d824e574bc9a7ca09a8d37db = not observed         not unique           SET CHARACTER_SET_CONNECTION = utf8
+    f755dc57b079b4eafd0d713cf72ad0dc = not observed         not unique           SET CHARACTER_SET_DATABASE = utf8
+    269371b3a52fbeaed332f314f8ab0741 = not observed         not unique           SET NAMES "utf8"
+    9d2648f223c425cb63f8e0b8ba34a6a2 = not observed         not unique           SET character_set_results = utf8
+    7a997fb88908eccfebd553c7f56489dc = not observed         not unique           SET character_set_server = utf8
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.create_category_S2.admin_admin1.25.2016-11-28 22:53:24.605644')]
+
+0 POST http://192.168.56.103/administration/index.php?controller=AdminCategories&token=00c365af64667398225a3f50631559f8 H_model 9
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.create_category_S2.admin_admin1.4.2016-11-28 22:51:49.993036')]
+
+1 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.create_customer_S1.admin_admin1.19.2016-11-28 20:40:07.782142')]
+
+0 POST http://192.168.56.103/administration/index.php?controller=AdminCustomers&token=63f45c9b44101bc44abbc34a4dfb7166 H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.create_customer_S1.admin_admin1.4.2016-11-28 20:38:39.853755')]
+
+1 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.create_discount_S2.admin_admin1.17.2016-11-28 23:03:31.953318')]
+
+0 POST http://192.168.56.103/administration/index.php?controller=AdminSpecificPriceRule&token=2fcbee7999bce0676359957a4cbbf141 H_model 3
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.create_discount_S2.admin_admin1.4.2016-11-28 23:01:38.953097')]
+
+1 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.create_product_S1.admin_admin1.4.2016-11-28 20:49:04.995684')]
+
+0 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.delete_carrier_S1.admin_admin1.14.2016-11-28 21:07:16.048659')]
+
+0 GET http://192.168.56.103/administration/index.php?id_carrier=2&controller=AdminCarriers&token=a2d375c6ea1141392bf1a35a682f1781&deletecarrier=1 H_model 4
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.disable_currencies_S1.admin_admin1.15.2016-11-28 21:11:28.199028')]
+
+0 GET http://192.168.56.103/administration/index.php?controller=AdminCurrencies&id_currency=2&token=470db1cd6b30883708379333a02415aa H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.disable_currencies_S1.admin_admin1.4.2016-11-28 21:10:16.919524')]
+
+1 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.disable_module_S2.admin_admin1.4.2016-11-28 23:17:53.420385')]
+
+0 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.disable_module_S2.admin_admin1.17.2016-11-28 23:18:37.482825')]
+
+1 GET http://192.168.56.103/administration/index.php?module_name=statsstock&controller=AdminModules&enable=0&token=17d4460dc57448e6d97b2c634c1d2636&tab_module=analytics_stats H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.disable_some_prefs_S1.admin_admin1.13.2016-11-28 21:19:34.574510')]
+
+0 POST http://192.168.56.103/administration/index.php?controller=AdminPreferences&token=c9cb71880fc82f3df013e04c864e4e56 H_model 4
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.disable_some_prefs_S2.admin_admin1.4.2016-11-28 23:21:59.571219')]
+
+1 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.erase_logs_S1.admin_admin1.4.2016-11-28 21:22:25.126229')]
+
+0 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.erase_logs_S2.admin_admin1.16.2016-11-28 23:29:01.546379')]
+
+1 GET http://192.168.56.103/administration/index.php?deletelog=1&controller=AdminLogs&token=9d2ec29725f5bc3c3213efd7bc401789&token=9d2ec29725f5bc3c3213efd7bc401789 H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_buy_stuff_S2.user_user2.17.2016-11-29 00:48:41.459179')]
+
+0 POST https://192.168.56.103/address H_model 1
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_buy_stuff_S1.user_user1.1.2016-11-29 18:20:03.618083')]
+
+1 GET http://192.168.56.103/ H_model 2
+================================================================================
+    75c80ed73b5649212670b0d9a2ee3208 = not observed         not unique           DELETE FROM `ps_smarty_lazy_cache` WHERE
+    b60d80d4552595f2e2f4518381087a54 = not observed         not unique           DELETE FROM `ps_smarty_lazy_cache` WHERE
+    ee91a42f1bd484d563fd8ef4201dcd68 = observed             not unique           INSERT INTO `ps_connections` (`id_guest`
+    1b9d7100e6a7579c230414ea3d4c551f = observed             not unique           INSERT INTO `ps_guest` (`id_operating_sy
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_change_email_S2.user_user1.1.2016-11-29 00:01:17.093239')]
+
+0 GET http://192.168.56.103/ H_model 2
+================================================================================
+    75c80ed73b5649212670b0d9a2ee3208 = not observed         not unique           DELETE FROM `ps_smarty_lazy_cache` WHERE
+    b60d80d4552595f2e2f4518381087a54 = not observed         not unique           DELETE FROM `ps_smarty_lazy_cache` WHERE
+    ee91a42f1bd484d563fd8ef4201dcd68 = observed             not unique           INSERT INTO `ps_connections` (`id_guest`
+    1b9d7100e6a7579c230414ea3d4c551f = observed             not unique           INSERT INTO `ps_guest` (`id_operating_sy
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.log_in_create_new_address_S2.user_user1.1.2016-11-29 00:14:55.374367')]
+
+0 GET http://192.168.56.103/ H_model 2
+================================================================================
+    75c80ed73b5649212670b0d9a2ee3208 = not observed         not unique           DELETE FROM `ps_smarty_lazy_cache` WHERE
+    b60d80d4552595f2e2f4518381087a54 = not observed         not unique           DELETE FROM `ps_smarty_lazy_cache` WHERE
+    ee91a42f1bd484d563fd8ef4201dcd68 = observed             not unique           INSERT INTO `ps_connections` (`id_guest`
+    1b9d7100e6a7579c230414ea3d4c551f = observed             not unique           INSERT INTO `ps_guest` (`id_operating_sy
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - prestashop.toggle_demomode_S1.admin_admin1.4.2016-11-28 21:28:36.788477')]
+
+0 GET http://192.168.56.103/administration/index.php?controller=AdminDashboard&token=ade36b44c6338a251bbd0705557b8413 H_model 2
+================================================================================
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_add_second_admin_S2.admin.10.2016-11-30 19:06:31.543282')]
+
+0 POST http://192.168.56.101/index.php?module=user&view=add H_model 1
+================================================================================
+    eb83b6b76c7db8ad24a92ef11f0cc445 = observed             unique               INSERT INTO si_user ( email, password, r
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_change_default_tax_S1.admin.9.2016-11-30 18:06:21.894344')]
+
+0 POST http://192.168.56.101/index.php?module=system_defaults&view=save H_model 1
+================================================================================
+    ac6d7dc1b4919764a3f97cd81713c122 = observed             unique               INSERT INTO `si_system_defaults` ( `name
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_change_tax_rate_S1.admin.10.2016-11-30 18:09:11.500906')]
+
+0 POST http://192.168.56.101/index.php?id=1&module=tax_rates&view=save H_model 1
+================================================================================
+    6e9e18440c59e83c3481404b56c91dbf = observed             unique               UPDATE si_tax SET tax_description = 'GST
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_enable_paypal_S2.admin.16.2016-11-30 19:00:13.920068')]
+
+0 POST http://192.168.56.101/index.php?id=1&module=preferences&view=save H_model 1
+================================================================================
+    7188ca62713211b6ccf4fbaab8dd2d3c = observed             unique               UPDATE si_preferences SET pref_descripti
+>>> VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_enable_paypal_S2.admin.10.2016-11-30 18:59:19.102488')]
+
+1 POST http://192.168.56.101/index.php?id=4&module=billers&view=save H_model 1
+================================================================================
+    f4cc7ae3d898ffa6bfcb479a24c11e31 = not observed         unique               UPDATE si_biller SET domain_id = '1', na
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_new_customer_S1.admin.8.2016-11-30 18:19:06.003491')]
+
+0 POST http://192.168.56.101/index.php?module=customers&view=add H_model 1
+================================================================================
+    aa26d9d32bb8ec18c1489a978dfbcae4 = observed             unique               INSERT INTO si_customers ( domain_id, at
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simpleinvoice.login_and_new_invoice_S2.admin.9.2016-11-30 18:41:33.798832')]
+
+0 POST http://192.168.56.101/index.php?module=invoices&view=save H_model 4
+================================================================================
+    e01006c461ad0b8e17ceabde79eefc23 = observed             unique               INSERT INTO si_index (id, node, sub_node
+    4808f225bbc0676200357cf125ee06fb = observed             unique               INSERT INTO si_invoice_item_tax ( invoic
+    129d6f80978ab1c6d8458e7255875075 = observed             unique               INSERT INTO si_invoice_items ( invoice_i
+    7e37b18f4922488c43f17446dcece10d = observed             unique               INSERT INTO si_invoices ( id, index_id, 
+>>> VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S2.admin_user.15.2016-12-01 09:54:33.026759')]
+
+0 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 63
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.1.2016-12-01 09:30:27.261807')]
+
+1 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    fd840f01e50dd503ab333971fdb57fe5 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.11.2016-12-01 09:31:39.886562')]
+
+2 GET http://192.168.56.101/index.php?action=admin&area=securitysettings&d13b2637237=8f687427ed655005b0db1d803776af2b H_model 1
+================================================================================
+    58e03f78f500c3191805462fa6750a83 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S2.admin_user.11.2016-12-01 09:53:48.415966')]
+
+3 GET http://192.168.56.101/index.php?action=admin&feb4050a=d7fe790b27c89e5be2cddff069aff137&area=securitysettings H_model 1
+================================================================================
+    4d63c6c40bb078326e811a1e9c3ff444 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.12.2016-12-01 09:31:41.233854')]
+
+4 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S1.admin_user.5.2016-12-01 09:31:02.282339')]
+
+5 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    a8dc6bb1ff353ff3aa61dce962c25ce7 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S2.admin_user.4.2016-12-01 09:53:09.640385')]
+
+6 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    8ef0930d886a1ca36bcfb3d7e4d31f16 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.change_some_sec_prefs_S2.admin_user.14.2016-12-01 09:54:31.836222')]
+
+7 GET http://192.168.56.101/index.php?action=admin&sa=general&area=securitysettings H_model 1
+================================================================================
+    0da4a336c79425b5fe4316922e831ad5 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.16.2016-12-01 09:29:04.937929')]
+
+0 GET http://192.168.56.101/index.php?action=suggest&suggest_type=member&search=user&c628ef2ef15b=4c54f5ce85966319c73e446d14d53a28&time=1480580943584 H_model 1
+================================================================================
+    0607c196e2fc0ea8edcd9e6ee244331f = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.5.2016-12-01 09:26:38.623287')]
+
+1 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    b8efd1e160fd0df3da67bf16ceb2095f = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.11.2016-12-01 09:27:26.831248')]
+
+2 GET http://192.168.56.101/index.php?action=admin&c628ef2ef15b=4c54f5ce85966319c73e446d14d53a28&area=manageboards H_model 1
+================================================================================
+    867fe863fa2b169c4f9de2c351f6ede0 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.14.2016-12-01 09:49:49.853066')]
+
+3 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 63
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.18.2016-12-01 09:29:14.946389')]
+
+4 GET http://192.168.56.101/index.php?action=admin&area=manageboards H_model 1
+================================================================================
+    36eb0c3e30471b2ee5971253233c699d = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.1.2016-12-01 09:26:01.006878')]
+
+5 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    cadb600d102a424e438f4dc46122c056 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.15.2016-12-01 09:51:12.411611')]
+
+6 GET http://192.168.56.101/index.php?action=suggest&suggest_type=member&search=use&b2a00ab425=2670c5647fd76e3f04ebeff776e30589&time=1480582272370 H_model 2
+================================================================================
+    04f47edc86bfc7fa59b1a001d4ff22f5 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.16.2016-12-01 09:51:13.749079')]
+
+7 GET http://192.168.56.101/index.php?action=suggest&suggest_type=member&search=user&b2a00ab425=2670c5647fd76e3f04ebeff776e30589&time=1480582272372 H_model 1
+================================================================================
+    f58632052f36167b19e13e33cee8c3e5 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.4.2016-12-01 09:48:48.891214')]
+
+8 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    697ba5bebaaf588b314c070b274a27bd = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.12.2016-12-01 09:49:37.687985')]
+
+9 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S1.admin_user.15.2016-12-01 09:29:03.629494')]
+
+10 GET http://192.168.56.101/index.php?action=suggest&suggest_type=member&search=use&c628ef2ef15b=4c54f5ce85966319c73e446d14d53a28&time=1480580943583 H_model 1
+================================================================================
+    7ba432c29be6159e583e1a7acf39a79a = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_new_board_S2.admin_user.11.2016-12-01 09:49:36.879656')]
+
+11 GET http://192.168.56.101/index.php?action=admin&b2a00ab425=2670c5647fd76e3f04ebeff776e30589&area=manageboards H_model 1
+================================================================================
+    ec206f66c1f4d7d4c009c8906ffab054 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.4.2016-12-01 09:37:42.783515')]
+
+0 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    9add952681a9a731c34721c5592a583b = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S1.admin_user.9.2016-12-01 09:15:59.297581')]
+
+1 GET http://192.168.56.101/index.php?action=post&board=1.0 H_model 1
+================================================================================
+    974717edd29f6066359c09a7829f71b2 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.5.2016-12-01 09:37:43.827127')]
+
+2 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    f3719a349cb1afbb3b358d28333721dc = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S1.admin_user.12.2016-12-01 09:16:32.345503')]
+
+3 GET http://192.168.56.101/index.php?board=1.0 H_model 1
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = not observed         not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    0213d9659ef7bda7b773b4f033aa0be8 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S1.admin_user.10.2016-12-01 09:16:00.112272')]
+
+4 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.11.2016-12-01 09:38:41.900787')]
+
+5 POST http://192.168.56.101/index.php?action=post2&start=0&board=1 H_model 18
+================================================================================
+    e17a4e78737c62364a43a27132fdb6f2 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S1.admin_user.13.2016-12-01 09:16:32.962064')]
+
+6 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 63
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.7.2016-12-01 09:37:56.044904')]
+
+7 GET http://192.168.56.101/index.php?board=1.0 H_model 1
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = not observed         not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    57d8f632cc4ad3086e56d42843560082 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.create_topic_S2.admin_user.1.2016-12-01 09:37:08.808701')]
+
+8 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    c3b0e57270b0abeb805af4a39eea2a38 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S1.admin_user.1.2016-12-01 09:17:44.396301')]
+
+0 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    904003b9e78d471220fb851ae5a55531 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S1.admin_user.9.2016-12-01 09:18:44.624066')]
+
+1 GET http://192.168.56.101/index.php?action=markasread&sa=board&board=1.0&abe568423=893ac3e99df64fc8c121c578cc8ca0a9 H_model 3
+================================================================================
+    04a0fa7366dd7517fd621d4d4bcd5a08 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S1.admin_user.4.2016-12-01 09:18:18.738411')]
+
+2 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    b47e657b6c3b08a416259f92538f8787 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S2.admin_user.10.2016-12-01 09:40:55.627939')]
+
+3 GET http://192.168.56.101/index.php?board=1.0 H_model 1
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = not observed         not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    60203b33276847148f16852b712a3767 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S2.admin_user.9.2016-12-01 09:40:54.899492')]
+
+4 GET http://192.168.56.101/index.php?action=markasread&e7f615d953da=11453eb2a3f434e67967fe57456a1784&sa=board&board=1.0 H_model 3
+================================================================================
+    7cb7734c9f2242a4f46944a9b4eaeb43 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S1.admin_user.7.2016-12-01 09:18:31.852483')]
+
+5 GET http://192.168.56.101/index.php?board=1.0 H_model 1
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = not observed         not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    90c7db6a94f4cb8597bb831ba3e5c122 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S1.admin_user.11.2016-12-01 09:18:46.437591')]
+
+6 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.mark_as_read_S2.admin_user.5.2016-12-01 09:40:30.584333')]
+
+7 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    86afd2c36419e54dc5c2cafb50f09a5d = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S2.admin_user.9.2016-12-01 09:46:05.451318')]
+
+0 GET http://192.168.56.101/index.php?topic=1.0 H_model 1
+================================================================================
+    02804e720222da074c51d91a5ee90d95 = not observed         not unique            INSERT IGNORE INTO log_topics(`id_membe
+    4115a9407da7a2f2a6f6cee859d4d5ea = not observed         unique                UPDATE sessions SET data = 'session_val
+    29a8b4ecfadef197dd3da280b033b8af = observed             not unique            UPDATE topics SET num_views = num_views
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S2.admin_user.15.2016-12-01 09:47:00.677307')]
+
+1 POST http://192.168.56.101/index.php?action=post2&start=0&bf41a599f1b4=a5a315963d377fe31cb6096c403b3229&board=1&msg=1 H_model 8
+================================================================================
+    3c9ae3f2cdfb3b317027b6b708ecc11f = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S2.admin_user.5.2016-12-01 09:45:40.920749')]
+
+2 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    967629001d905dd05bc45e878f6cd092 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.13.2016-12-01 09:24:08.311729')]
+
+3 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 63
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.4.2016-12-01 09:23:29.807896')]
+
+4 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    0522b77ebf9a54c4d535c9e4e6571353 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.15.2016-12-01 09:24:49.944714')]
+
+5 POST http://192.168.56.101/index.php?action=post2&start=0&board=1&dc57e3af=07fbe6efbe71df983fb1e4aca501cded&msg=1 H_model 8
+================================================================================
+    30e2f381be808a0f4db7a7c9b663b8b4 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.7.2016-12-01 09:23:43.160226')]
+
+6 GET http://192.168.56.101/index.php?board=1.0 H_model 2
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = observed             not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    9fa1b52f1e0c011552b566ff9b47d244 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.1.2016-12-01 09:22:52.420611')]
+
+7 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    b76467d99b061dacb7460b8f148c80d7 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.modify_post_S1.admin_user.10.2016-12-01 09:23:55.855540')]
+
+8 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.5.2016-12-01 09:20:33.095038')]
+
+0 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    0d1d74916e4a4ec16c60be801de47de9 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S2.admin_user.4.2016-12-01 09:42:42.461190')]
+
+1 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    bc7832747b5a239669c900eea8c7a06f = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.13.2016-12-01 09:21:10.470317')]
+
+2 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 63
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S2.admin_user.7.2016-12-01 09:42:55.724876')]
+
+3 GET http://192.168.56.101/index.php?board=1.0 H_model 1
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = not observed         not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    98c07dd7e4da03e9f55d22619e7ddbad = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S2.admin_user.16.2016-12-01 09:43:53.735201')]
+
+4 GET http://192.168.56.101/index.php?board=1.0 H_model 1
+================================================================================
+    77a622c86c7e292a5a8a47cb59f66b0d = not observed         not unique            REPLACE INTO log_boards(`id_msg`, `id_m
+    89f34e51173104559d60aaceece24d49 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.10.2016-12-01 09:20:58.684604')]
+
+5 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.1.2016-12-01 09:19:57.530360')]
+
+6 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    0be88340d67644ffe1565b0b08b00d7d = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S2.admin_user.15.2016-12-01 09:43:52.933442')]
+
+7 POST http://192.168.56.101/index.php?action=post2&start=0&board=1 H_model 15
+================================================================================
+    ac691be9578c306213ebd0f6927e94b3 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.reply_S1.admin_user.9.2016-12-01 09:20:57.551175')]
+
+8 GET http://192.168.56.101/index.php?topic=1.0 H_model 2
+================================================================================
+    02804e720222da074c51d91a5ee90d95 = observed             not unique            INSERT IGNORE INTO log_topics(`id_membe
+    888317e7e2b4ac264da4fd91fb46e492 = not observed         unique                UPDATE sessions SET data = 'session_val
+    29a8b4ecfadef197dd3da280b033b8af = observed             not unique            UPDATE topics SET num_views = num_views
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.15.2016-12-01 09:35:03.031885')]
+
+0 GET http://192.168.56.101/index.php?action=profile&u=2 H_model 1
+================================================================================
+    a902e598d0f618c9eee84650d0691266 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.18.2016-12-01 09:57:35.915606')]
+
+1 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 8
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.12.2016-12-01 09:34:39.735577')]
+
+2 GET http://192.168.56.101/index.php?scheduled=task&ts=1479322080 H_model 1
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.5.2016-12-01 09:34:12.035637')]
+
+3 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    e95abdd3e1d16f39d15d996b50c59ac1 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.14.2016-12-01 09:56:58.723513')]
+
+4 GET http://192.168.56.101/index.php?scheduled=task&ts=1479772800 H_model 63
+================================================================================
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.17.2016-12-01 09:57:35.115244')]
+
+5 GET http://192.168.56.101/index.php?action=profile&u=2&area=account H_model 2
+================================================================================
+    2403ebeb83aec6a4bd863937805f1b7b = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.19.2016-12-01 09:35:57.540203')]
+
+6 POST http://192.168.56.101/index.php?action=profile&u=2&area=account H_model 2
+================================================================================
+    0c9a1f5e5c0247c63154ac1231357fa7 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.1.2016-12-01 09:33:36.750354')]
+
+7 GET http://192.168.56.101/index.php H_model 4
+================================================================================
+    b3b586502a92039c130106fba6633791 = observed             not unique            DELETE FROM log_online WHERE log_time <
+    b7cd1b1acdb5d39f8b479541fcffa0ce = observed             not unique            INSERT IGNORE INTO log_online(`session`
+    beb3ef450c4ab48441b7fdf9d1706718 = not observed         not unique            INSERT IGNORE INTO sessions(`session_id
+    9ccef9328a08ea2239976d4813f21f1b = not observed         not unique            INSERT INTO log_scheduled_tasks(`id_tas
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    172f3dd980d793d9ee97d45e2bc100d1 = not observed         not unique            REPLACE INTO settings(`variable`, `valu
+    070b8f912862abd7c614396887cc156b = not observed         not unique            UPDATE log_activity SET most_on = 2 WHE
+    ae9be7a0bffab1adf0ff798671cecb4f = not observed         not unique            UPDATE scheduled_tasks SET next_time = 
+    e4e02734a3d7085f01235ce38503ba8a = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S1.admin_user.13.2016-12-01 09:34:51.067086')]
+
+8 GET http://192.168.56.101/index.php?action=admin&area=viewmembers H_model 1
+================================================================================
+    0f6e1162859cdb9c9bf29af5cbaa420a = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.4.2016-12-01 09:56:18.125378')]
+
+9 GET http://192.168.56.101/index.php?action=login2&member=1&sa=check H_model 4
+================================================================================
+    3a7f0e71bed50bf57244ab5fc17d40aa = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+[(u'e_uuid': u'HttpRequest - simplemachinesforum.upgrade_account_S2.admin_user.7.2016-12-01 09:56:31.081044')]
+
+10 GET http://192.168.56.101/index.php H_model 1
+================================================================================
+    4a40f86bddc9974bb94bc196a30aeb97 = not observed         unique                UPDATE sessions SET data = 'session_val
+>>> NO VULNERABILITY DETECTED <<<
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
