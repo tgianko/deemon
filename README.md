@@ -70,5 +70,5 @@ We prepared a quick tutorial to get into the testing for CSRF vulnerabilities ri
 
 * Giancarlo Pellegrino <gpellegrino[at]cispa.saarland>
 * Simon Koch <s9sikoch[at]stud.uni-saarland.de>
-* Florian Koch
+* Florian Loch
 * Benny Rolle
