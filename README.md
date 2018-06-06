@@ -6,7 +6,7 @@ developers and security analysts during the security testing phase of the
 software development life-cycle. The current version of Deemon supports 
 PHP-based web applications that use MySQL databases.
 
-Deemon has been used for the paper [Deemon: Detecting CSRF with Dynamic Analysis and Property Graphs](http://trouge.net/gp/papers/csrf_ccs2017.pdf) *by G. Pellegrino, M. Johns, S. Koch, M. Backes, and C. Rossow.*
+Deemon has been used for the paper [Deemon: Detecting CSRF with Dynamic Analysis and Property Graphs](http://trouge.net/papers/csrf_ccs2017.pdf) *by G. Pellegrino, M. Johns, S. Koch, M. Backes, and C. Rossow.*
 
 ### Bibtex:
 
